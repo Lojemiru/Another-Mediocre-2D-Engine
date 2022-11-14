@@ -1,0 +1,1 @@
+Please add a copy of your Aseprite installation here for command-line access by the texturepacking utilities.
