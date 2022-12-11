@@ -410,9 +410,6 @@ Asset Porting/**/*.png
 Asset Porting/**/origin.txt
 Asset Porting/**/input/*
 GameContent/*
-!GameContent/README.md
-!GameContent/Graphics
-GameContent/Graphics/*
-!GameContent/Graphics/README.md
+!GameContent/TEMPLATE_INFO.md
 Engine/AM2E/Graphics/PageIndex.cs
 Engine/AM2E/Graphics/SpriteIndex.cs
