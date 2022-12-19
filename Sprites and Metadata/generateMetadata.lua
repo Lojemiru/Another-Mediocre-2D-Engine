@@ -19,7 +19,7 @@ end
 -- Both "borrowed" from exportLayers.lua by @_Gaspi
 function getPath(str)
    -- Source: https://stackoverflow.com/questions/9102126/lua-return-directory-path-from-path
-    sep='\\'
+    sep='/'
     return str:match("(.*"..sep..")")
 end
 
@@ -28,7 +28,7 @@ function getFileName(str)
       - https://codereview.stackexchange.com/questions/90177/get-file-name-with-extension-and-get-only-extension
       - https://stackoverflow.com/questions/18884396/extracting-filename-only-with-pattern-matching
    --]]
-   sep = '\\'
+   sep = '/'
    str = str:match("^.+"..sep.."(.+)$")
    return str:match("(.+)%..+")
 end
@@ -124,11 +124,14 @@ end
 local filename = name..".png"
 local directory = getPath(sprite.filename)
 local path = directory.."/"..name.."/"
-path = string.gsub(path, "/","\\")
+path = string.gsub(path, "/","/")
 -- Make the path to store the file
 
-os.execute("rmdir \""..path.."\" /s /q")
-os.execute("mkdir \""..path.."\"")
+-- This has been removed due to being a massive pain to make work cross-platform.
+-- Has to be handled outside of the script instead.
+
+-- os.execute("rmdir \""..path.."\" /s /q")
+-- os.execute("mkdir \""..path.."\"")
 
 -- Export every frame
 for i, frame in ipairs(sprite.frames) do

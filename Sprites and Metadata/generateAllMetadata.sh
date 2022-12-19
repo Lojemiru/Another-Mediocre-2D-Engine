@@ -9,12 +9,15 @@ recurse_and_generate () {
 		elif [[ $f == *.ase* ]]
 		then
 			echo "Generating metadata for" $f
+			folder="${f%.*}"
+			rm -r $folder
+			mkdir $folder
 			"../Aseprite/Aseprite.exe" $f --batch --script generateMetadata.lua
 		fi
 	done
 }
 
-for d in "pages/"*
+for d in "../GameContent/Graphics/pages/"*
 do
 	if [ -d $d ];
 	then

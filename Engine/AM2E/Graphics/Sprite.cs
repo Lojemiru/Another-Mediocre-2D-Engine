@@ -59,7 +59,7 @@ namespace AM2E.Graphics
             // TODO: Make frame safe!
             Vector2 pos = new(x, y);
             // TODO: Review that depth setting here doesn't break anything.
-            batch.Draw(TexturePage.Texture, pos, positions[frame], Color.White * alpha, MathHelper.ToRadians(rotation), origins[(int)effects], 1, effects, 0);
+            batch.Draw(TexturePage.Texture, pos, positions[frame], Color.White * alpha, Microsoft.Xna.Framework.MathHelper.ToRadians(rotation), origins[(int)effects], 1, effects, 0);
         }
     }
 }

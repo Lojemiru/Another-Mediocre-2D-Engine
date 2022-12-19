@@ -32,6 +32,6 @@
   <Import Project="..\AM2E\AM2E.projitems" Label="Shared" />
   <Import Project="..\..\GameContent\GameContent\GameContent.projitems" Label="Shared" />
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="del /q &quot;$(OutDir)textures\*&quot;&#xD;&#xA;xcopy /i &quot;$(SolutionDir)..\GameContent\Graphics\output\&quot; &quot;$(OutDir)textures&quot;" />
+    <Exec Command="./postBuild.sh $(OutDir)" />
   </Target>
 </Project>
