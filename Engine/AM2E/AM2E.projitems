@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\ActorManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\ActorMethods.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Alarm.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BadCamera.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\Collider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\Hitbox.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\ICollider.cs" />
