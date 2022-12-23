@@ -35,8 +35,6 @@ public class EngineCore : Game
 
     protected override void Initialize()
     {
-        BadCamera.Initialize(_graphics);
-
         Renderer.Initialize(_graphics);
 
         // TODO: Not a huge fan of forcing a layer here. Find a better entry point for the game content...
@@ -109,7 +107,6 @@ public class EngineCore : Game
     {
         InputManager.Update();
         ActorManager.UpdateActors();
-        BadCamera.Step();
     }
 
     protected override void Draw(GameTime gameTime)

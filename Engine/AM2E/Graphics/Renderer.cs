@@ -84,16 +84,13 @@ namespace AM2E.Graphics
                 int barWidth = (window.ClientBounds.Width - presentWidth) / 2;
                 applicationSpace = new Rectangle(barWidth, 0, presentWidth, window.ClientBounds.Height);
             }
-            
-            
-            
-            Debug.WriteLine(window.ClientBounds.Size);
         }
         
         public static void Render()
         {
-            graphicsDeviceManager.GraphicsDevice.Clear(Color.Black);
             graphicsDeviceManager.GraphicsDevice.SetRenderTarget(ApplicationSurface);
+            
+            graphicsDeviceManager.GraphicsDevice.Clear(Color.Black);
             
             // TODO: Order these when drawing lol
             foreach (Layer layer in layers.Values)
@@ -105,10 +102,9 @@ namespace AM2E.Graphics
             
             graphicsDeviceManager.GraphicsDevice.Clear(Color.Black);
             
-            applicationBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.PointClamp, transformMatrix:BadCamera.Matrix);
+            applicationBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.PointClamp);
             applicationBatch.Draw(ApplicationSurface, applicationSpace, Color.White);
             applicationBatch.End();
-            
         }
     }
 }
