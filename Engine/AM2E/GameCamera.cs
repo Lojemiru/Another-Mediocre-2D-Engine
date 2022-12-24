@@ -1,5 +1,6 @@
 using System;
 using AM2E.Actors;
+using AM2E.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
@@ -11,8 +12,6 @@ public static class GameCamera
 {
     // I have NO CLUE how matrices work
     // ...but this guy does: https://www.youtube.com/watch?v=ceBCDKU_mNw
-    public static int Width { get; private set; } = 1920;
-    public static int Height { get; private set; } = 1080;
     public static int X { get; private set; } = 0;
     public static int Y { get; private set; } = 0;
     public static Matrix Transform { get; private set; }
@@ -29,15 +28,13 @@ public static class GameCamera
         UpdateTransform();
     }
 
-    public static void SetSize(int width, int height)
+    public static void UpdateTransform()
     {
-        Width = width;
-        Height = height;
-        UpdateTransform();
-    }
-
-    private static void UpdateTransform()
-    {
-        Transform = Matrix.CreateTranslation(-X, -Y, 0) * Matrix.CreateTranslation(Width / 2, Height / 2, 0);
+        // Center position translation
+        Transform = Matrix.CreateTranslation(-X, -Y, 0) * 
+                    // Adjust for current camera view width and height
+                    Matrix.CreateTranslation(Renderer.ApplicationSurface.Width / (2 * Renderer.UpscaleAmount), Renderer.ApplicationSurface.Height / (2 * Renderer.UpscaleAmount), 0) *
+                    // Adjust for upscale resolution
+                    Matrix.CreateScale(Renderer.UpscaleAmount, Renderer.UpscaleAmount, 1);
     }
 }

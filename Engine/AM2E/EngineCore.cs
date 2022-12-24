@@ -12,14 +12,19 @@ namespace AM2E;
 public class EngineCore : Game
 {
     public static GraphicsDeviceManager _graphics;
-    private SpriteBatch _spriteBatch;
     private double updateAccumulator = 0d;
     private const double FRAME_ERROR_MARGIN = .0002;
     private const double MAX_ACCUMULATOR_VALUE = 8.0 / 60.0;
     private bool resetDeltaTime = false;
+    private static EngineCore staticThis;
 
     public EngineCore()
     {
+        staticThis = this;
+        
+        SetTitle("Another Mediocre 2D Engine");
+        Window.AllowUserResizing = true;
+
         // TODO: Load parameters from config class/object
 
         _graphics = new GraphicsDeviceManager(this);
@@ -42,17 +47,12 @@ public class EngineCore : Game
         ActorManager.Instantiate(new GameContent.GameManager(0, 0), "Control");
 
         // TODO: Proper initialization logic.
-
-        Window.Title = "Another Mediocre 2D Engine";
-        Window.AllowUserResizing = true;
-
+        
         base.Initialize();
     }
 
     protected override void LoadContent()
     {
-        _spriteBatch = new SpriteBatch(GraphicsDevice);
-
         // TODO: use this.Content to load your game content here
     }
 
@@ -62,7 +62,7 @@ public class EngineCore : Game
         float fps = 1 / (float)printDeltaTime;
         //Debug.WriteLine(fps);
 
-        var GAME_SPEED = 60;
+        const int GAME_SPEED = 60;
 
         // TODO: Change these to ints instead of doubles. Could involve a messy conversion on TotalSeconds...
         // https://medium.com/@tglaiel/how-to-make-your-game-run-at-60fps-24c61210fe75
@@ -115,8 +115,17 @@ public class EngineCore : Game
     }
 
     // Call after doing heavy loading routines to prevent attempts to catch up on missed frames.
-    public void ResetDeltaTime()
+    public static void ResetDeltaTime()
     {
-        resetDeltaTime = true;
+        staticThis.resetDeltaTime = true;
+    }
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="title"></param>
+    public static void SetTitle(string title)
+    {
+        staticThis.Window.Title = title;
     }
 }
