@@ -31,6 +31,16 @@
     <Compile Include="$(MSBuildThisFileDirectory)Input\KeyboardInput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\IDrawable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Renderer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtkEntityInstance.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtkEnums.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtkFieldInstance.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtkLayerInstance.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtkLevelBackgroundPosition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtkLevelInstance.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtkNeighbourLevel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtkTileInstance.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Levels\Level.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Levels\World.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MathHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IO\AssetManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State.cs" />
