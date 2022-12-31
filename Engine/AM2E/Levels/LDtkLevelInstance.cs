@@ -15,7 +15,7 @@ public struct LDtkLevelInstance
     /// Position informations of the background image, if there is one.
     /// </summary>
     [JsonProperty("__bgPos")]
-    public LDtkLevelBackgroundPosition BgPos { get; set; }
+    public LDtkLevelBackgroundPosition? BgPos { get; set; }
 
     /// <summary>
     /// An array listing all other levels touching this one on the world map.<br/>  Only relevant

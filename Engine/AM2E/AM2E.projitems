@@ -37,8 +37,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtkLayerInstance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtkLevelBackgroundPosition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtkLevelInstance.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtkLightweightLevelInstance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtkNeighbourLevel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtkTileInstance.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtkWorldInstance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\Level.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\World.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MathHelper.cs" />
