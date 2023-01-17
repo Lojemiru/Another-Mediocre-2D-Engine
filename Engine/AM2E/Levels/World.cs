@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using AM2E.Actors;
 using AM2E.Collision;
+using AM2E.Graphics;
 using GameContent;
 using Newtonsoft.Json;
 
@@ -12,6 +15,7 @@ public static class World
 {
     private static LDtkWorldInstance world;
     private static LDtkLevelInstance[] levels;
+    private static Dictionary<int, PageIndex> tilesetPageMappings = new();
     public static void LoadWorld(string path)
     {
         JsonSerializer serializer = new();
@@ -20,10 +24,19 @@ public static class World
             world = (LDtkWorldInstance)serializer.Deserialize(reader, typeof(LDtkWorldInstance));
         }
 
+        // Load tileset definitions.
+        foreach (var tileset in world.Defs.Tilesets)
+        {
+            // TODO: Throw nicer error message here when RelPath is invalid... and when this doesn't match an enum... etc.
+            var entries = tileset.RelPath.Split('/');
+            Enum.TryParse(entries[^2], out PageIndex index);
+            tilesetPageMappings.Add(tileset.Uid, index);
+        }
+        
         levels = new LDtkLevelInstance[world.Levels.Length];
         
+        // Load level data.
         var i = 0;
-        
         foreach (var level in world.Levels)
         {
             using (var reader = File.OpenText("worlds/" + level.ExternalRelPath))
@@ -80,5 +93,11 @@ public static class World
         {
             InstantiateLevel(i);
         }
+    }
+
+    public static PageIndex GetTilesetPage(int uid)
+    {
+        // TODO: Throw if invalid uid is passed in.
+        return tilesetPageMappings[uid];
     }
 }

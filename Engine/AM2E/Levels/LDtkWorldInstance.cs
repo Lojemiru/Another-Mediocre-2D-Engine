@@ -11,4 +11,7 @@ public struct LDtkWorldInstance
     /// </summary>
     [JsonProperty("levels")]
     public LDtkLightweightLevelInstance[] Levels { get; set; }
+    
+    [JsonProperty("defs")]
+    public LDtkDefinition Defs { get; set; }
 }
