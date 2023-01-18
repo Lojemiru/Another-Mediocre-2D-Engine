@@ -6,6 +6,9 @@ namespace AM2E.Graphics;
 
 public class Tile : IDrawable
 {
+    // TODO: Currently, each tile is individually rendered. It'd be cool if we could condense them into 4x4 chunks or
+    // similar and only re-render each chunk if/when something is updated within it.
+    
     public int X { get; }
     public int Y { get; }
     private Sprite tilesetSprite;
