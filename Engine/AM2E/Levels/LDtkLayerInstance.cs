@@ -21,7 +21,7 @@ public struct LDtkLayerInstance
     /// </summary>
     // TODO: this or the next one need to get converted into our actual sprite reference or something. Ugh. 
     [JsonProperty("__tilesetDefUid")]
-    public long? TilesetDefUid { get; set; }
+    public int? TilesetDefUid { get; set; }
 
     /// <summary>
     /// The relative path to corresponding Tileset, if any.

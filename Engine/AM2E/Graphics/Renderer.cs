@@ -53,7 +53,14 @@ namespace AM2E.Graphics
 
         public static Layer GetLayer(string name)
         {
-            return layers[name];
+            try
+            {
+                return layers[name];
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public static void AddDrawable(string layer, IDrawable drawable)

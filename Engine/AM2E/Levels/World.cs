@@ -15,6 +15,7 @@ public static class World
 {
     private static LDtkWorldInstance world;
     private static LDtkLevelInstance[] levels;
+    private static Dictionary<int, LDtkTilesetDefinition> tilesets = new();
     private static Dictionary<int, PageIndex> tilesetPageMappings = new();
     public static void LoadWorld(string path)
     {
@@ -31,6 +32,8 @@ public static class World
             var entries = tileset.RelPath.Split('/');
             Enum.TryParse(entries[^2], out PageIndex index);
             tilesetPageMappings.Add(tileset.Uid, index);
+
+            tilesets.Add(tileset.Uid, tileset);
         }
         
         levels = new LDtkLevelInstance[world.Levels.Length];
@@ -52,10 +55,14 @@ public static class World
         // TODO: Review instantiation here for security
         
         var level = levels[id];
+
+        var depth = 500;
         
         foreach (var layer in level.LayerInstances)
         {
             // Handle collision first, since it's technically an Entities layer but we don't want to treat it as such
+            // TODO: We need to have a means of loading multiple collision layers.
+            // TODO: We may need to have a means of intentionally choosing *not* to instantiate a layer.
             if (layer.Identifier == "Collision")
             {
                 foreach (var entity in layer.EntityInstances)
@@ -76,6 +83,20 @@ public static class World
                         }
                         break;
                     case LDtkLayerType.Tiles:
+                        // Create layer if it doesn't already exist.
+                        // TODO: AHHHHH LAYERS ARE UNIVERSAL INSTEAD OF PER-ROOM MAKE THEM PER-ROOM
+                        if (Renderer.GetLayer(layer.Identifier) == null) Renderer.AddLayer(layer.Identifier, depth);
+                        
+                        // Get tileset sprite and other metadata.
+                        // TODO: This nullable is probably bad lol
+                        var set = tilesets[layer.TilesetDefUid ?? 0];
+                        Enum.TryParse(set.Identifier, out SpriteIndex index);
+                        var sprite = TextureManager.GetPage(GetTilesetPage(set.Uid)).Sprites[index];
+                        
+                        // Instantiate each tile.
+                        foreach (var tile in layer.GridTiles)
+                            Renderer.AddDrawable(layer.Identifier, new Tile(tile, sprite, level.WorldX + tile.Px[0], level.WorldY + tile.Px[1], set.TileGridSize));
+                        
                         break;
                     case LDtkLayerType.AutoLayer:
                     case LDtkLayerType.IntGrid:
@@ -83,6 +104,7 @@ public static class World
                         throw new ArgumentOutOfRangeException();
                 }
             // TODO: Handle entities, tiles, etc. etc.
+            depth -= 100;
         }
         
     }

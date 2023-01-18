@@ -89,7 +89,7 @@ public struct LDtkLevelInstance
     /// value is always -1 here.
     /// </summary>
     [JsonProperty("worldX")]
-    public long WorldX { get; set; }
+    public int WorldX { get; set; }
 
     /// <summary>
     /// World Y coordinate in pixels.<br/>  Only relevant for world layouts where level spatial
@@ -97,5 +97,5 @@ public struct LDtkLevelInstance
     /// value is always -1 here.
     /// </summary>
     [JsonProperty("worldY")]
-    public long WorldY { get; set; }
+    public int WorldY { get; set; }
 }

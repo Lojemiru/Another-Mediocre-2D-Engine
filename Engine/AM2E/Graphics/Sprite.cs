@@ -61,5 +61,15 @@ namespace AM2E.Graphics
             // TODO: Review that depth setting here doesn't break anything.
             batch.Draw(TexturePage.Texture, pos, positions[frame], Color.White * alpha, Microsoft.Xna.Framework.MathHelper.ToRadians(rotation), origins[(int)effects], 1, effects, 0);
         }
+
+        public void Draw(SpriteBatch batch, int x, int y, int frame, Rectangle subRectangle, float rotation = 0,
+            SpriteEffects effects = SpriteEffects.None, float alpha = 1)
+        {
+            // TODO: Make frame safe!
+            Vector2 pos = new(x, y);
+            // TODO: Review that depth setting here doesn't break anything.
+            Rectangle subPos = new(positions[frame].X + subRectangle.X, positions[frame].Y + subRectangle.Y, subRectangle.Width, subRectangle.Height);
+            batch.Draw(TexturePage.Texture, pos, subPos, Color.White * alpha, Microsoft.Xna.Framework.MathHelper.ToRadians(rotation), Origin, 1, effects, 0);
+        }
     }
 }

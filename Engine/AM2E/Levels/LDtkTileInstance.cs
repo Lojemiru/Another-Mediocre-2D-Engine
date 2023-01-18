@@ -18,13 +18,13 @@ public struct LDtkTileInstance
     /// layer offsets, if they exist!
     /// </summary>
     [JsonProperty("px")]
-    public long[] Px { get; set; }
+    public int[] Px { get; set; }
 
     /// <summary>
     /// Pixel coordinates of the tile in the **tileset** (`[x,y]` format)
     /// </summary>
     [JsonProperty("src")]
-    public long[] Src { get; set; }
+    public int[] Src { get; set; }
 
     /// <summary>
     /// The *Tile ID* in the corresponding tileset.
