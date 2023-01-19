@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using AM2E.Actors;
 using AM2E.Graphics;
+using AM2E.Levels;
 
 namespace AM2E.Actors
 {
@@ -10,16 +11,23 @@ namespace AM2E.Actors
     {
         private static LinkedList<Actor> actors = new();
 
-        public static Actor Instantiate(Actor actor, string layer)
+        public static Actor Instantiate(Actor actor, string layer, Level level)
         {
             RegisterActor(actor);
-            Renderer.AddDrawable(layer, actor);
+            level.Add(layer, actor);
             return actor;
         }
 
-        public static Actor Instantiate(Actor actor, Layer layer)
+        public static Actor Instantiate(Actor actor, Layer layer, Level level)
         {
-            return Instantiate(actor, layer.Name);
+            return Instantiate(actor, layer.Name, level);
+        }
+
+        public static Actor InstantiatePersistent(Actor actor)
+        {
+            RegisterActor(actor);
+            actor.Persistent = true;
+            return actor;
         }
 
         public static void RegisterActor(Actor actor)

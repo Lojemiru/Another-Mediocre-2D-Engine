@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using AM2E.Levels;
 
 namespace AM2E.Actors
 {
@@ -32,7 +33,7 @@ namespace AM2E.Actors
         }
         public bool Persistent { get; set; } = false;
         public bool Exists { get; private set; } = true;
-        public readonly Layer Layer;
+        public Layer Layer;
         public Collider Collider { get; }
     }
 }

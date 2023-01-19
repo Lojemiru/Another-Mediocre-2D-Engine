@@ -11,7 +11,7 @@ namespace AM2E.Actors
     public abstract partial class Actor : IDrawable, ICollider
     {
         
-        public Actor(int x, int y, Hitbox hitbox = null)
+        protected Actor(int x, int y, Hitbox hitbox = null)
         {
             hitbox ??= new RectangleHitbox(x, y, 16, 16);
             Collider = new Collider(hitbox);

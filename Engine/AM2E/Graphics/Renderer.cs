@@ -47,43 +47,6 @@ namespace AM2E.Graphics
             SetGameResolution(ApplicationSurface.Width, ApplicationSurface.Height);
         }
 
-        public static void AddLayer(string name, int depth)
-        {
-            layers.Add(name, new Layer(name, depth));
-        }
-
-        public static Layer GetLayer(string name)
-        {
-            try
-            {
-                return layers[name];
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        public static void AddDrawable(string layer, IDrawable drawable)
-        {
-            layers[layer].Add(drawable);
-        }
-
-        public static void AddDrawable(Layer layer, IDrawable drawable)
-        {
-            AddDrawable(layer.Name, drawable);
-        }
-
-        public static void RemoveDrawable(string layer, IDrawable drawable)
-        {
-            layers[layer].Remove(drawable);
-        }
-
-        public static void RemoveDrawable(Layer layer, IDrawable drawable)
-        {
-            RemoveDrawable(layer.Name, drawable);
-        }
-
         public static void OnResize(Object sender, EventArgs e)
         {
             var window = (GameWindow)sender;
@@ -123,6 +86,7 @@ namespace AM2E.Graphics
                 layer.Draw();
             }
             
+            // TODO: Depth is insanely scuffed here, somehow. I don't understand sprite batches YAAAAAAAY
             World.RenderLevels();
             
             // Reset render target, clear backbuffer.

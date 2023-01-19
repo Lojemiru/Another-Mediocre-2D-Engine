@@ -42,9 +42,8 @@ public class EngineCore : Game
     {
         Renderer.Initialize(_graphics);
 
-        // TODO: Not a huge fan of forcing a layer here. Find a better entry point for the game content...
-        Renderer.AddLayer("Control", -999999);
-        ActorManager.Instantiate(new GameContent.GameManager(0, 0), "Control");
+        // TODO: Find a better entry point for the game content...
+        ActorManager.InstantiatePersistent(new GameContent.GameManager(0, 0));
 
         // TODO: Proper initialization logic.
         

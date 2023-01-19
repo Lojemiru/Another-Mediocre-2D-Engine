@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using AM2E.Actors;
 using AM2E.Collision;
@@ -18,7 +19,6 @@ public static class World
     private static Dictionary<int, LDtkTilesetDefinition> tilesets = new();
     private static Dictionary<int, PageIndex> tilesetPageMappings = new();
     private static Dictionary<int, Level> loadedLevels = new();
-    public static readonly Level CurrentLevel = null;
     public static void LoadWorld(string path)
     {
         JsonSerializer serializer = new();
@@ -63,46 +63,48 @@ public static class World
         // TODO: Throw if already exists
         loadedLevels.Add(id, new Level(level.Identifier, level.WorldX, level.WorldY, level.PxWid, level.PxHei));
         
-        foreach (var layer in level.LayerInstances)
+        foreach (var ldtkLayer in level.LayerInstances)
         {
+            Console.WriteLine(ldtkLayer.Identifier);
+            Console.WriteLine(depth);
+            // Create layer if it doesn't already exist.
+            var layer = loadedLevels[id].AddLayer(ldtkLayer.Identifier, depth);
+            
             // Handle collision first, since it's technically an Entities layer but we don't want to treat it as such
             // TODO: We need to have a means of loading multiple collision layers.
             // TODO: We may need to have a means of intentionally choosing *not* to instantiate a layer.
-            if (layer.Identifier == "Collision")
+            if (ldtkLayer.Identifier == "Collision")
             {
                 // TODO: Assign to layers
-                foreach (var entity in layer.EntityInstances)
+                foreach (var entity in ldtkLayer.EntityInstances)
                 {
                     var solidType = Type.GetType("GameContent." + entity.Identifier);
                     var solid = (ICollider)Activator.CreateInstance(solidType, entity, level.WorldX, level.WorldY);
+                    layer.Add(solid);
                 }
             }
             else
-                switch (layer.Type)
+                switch (ldtkLayer.Type)
                 {
                     // TODO: asset layers :)
                     case LDtkLayerType.Entities:
-                        // TODO: assign to layers
-                        foreach (var entity in layer.EntityInstances)
+                        foreach (var entity in ldtkLayer.EntityInstances)
                         {
                             var entityType = Type.GetType("GameContent." + entity.Identifier);
                             var actor = (Actor)Activator.CreateInstance(entityType, entity, level.WorldX, level.WorldY);
+                            layer.Add(actor);
                         }
                         break;
                     case LDtkLayerType.Tiles:
-                        // Create layer if it doesn't already exist.
-                        // TODO: AHHHHH LAYERS ARE UNIVERSAL INSTEAD OF PER-ROOM MAKE THEM PER-ROOM
-                        loadedLevels[id].AddLayer(layer.Identifier, depth);
-                        
                         // Get tileset sprite and other metadata.
                         // TODO: This nullable is probably bad lol
-                        var set = tilesets[layer.TilesetDefUid ?? 0];
+                        var set = tilesets[ldtkLayer.TilesetDefUid ?? 0];
                         Enum.TryParse(set.Identifier, out SpriteIndex index);
                         var sprite = TextureManager.GetPage(GetTilesetPage(set.Uid)).Sprites[index];
                         
                         // Instantiate each tile.
-                        foreach (var tile in layer.GridTiles)
-                            loadedLevels[id].AddDrawable(layer.Identifier, new Tile(tile, sprite, level.WorldX + tile.Px[0], level.WorldY + tile.Px[1], set.TileGridSize));
+                        foreach (var tile in ldtkLayer.GridTiles)
+                            loadedLevels[id].AddDrawable(ldtkLayer.Identifier, new Tile(tile, sprite, level.WorldX + tile.Px[0], level.WorldY + tile.Px[1], set.TileGridSize));
                         
                         break;
                     case LDtkLayerType.AutoLayer:
@@ -128,6 +130,11 @@ public static class World
     {
         // TODO: Throw if invalid uid is passed in.
         return tilesetPageMappings[uid];
+    }
+
+    public static Level GetLevel(string name)
+    {
+        return loadedLevels.Values.FirstOrDefault(level => level.Name == name);
     }
 
     public static void RenderLevels()
