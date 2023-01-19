@@ -14,9 +14,11 @@ namespace AM2E.Levels;
 public static class World
 {
     private static LDtkWorldInstance world;
-    private static LDtkLevelInstance[] levels;
+    private static LDtkLevelInstance[] ldtkLevels;
     private static Dictionary<int, LDtkTilesetDefinition> tilesets = new();
     private static Dictionary<int, PageIndex> tilesetPageMappings = new();
+    private static Dictionary<int, Level> loadedLevels = new();
+    public static readonly Level CurrentLevel = null;
     public static void LoadWorld(string path)
     {
         JsonSerializer serializer = new();
@@ -36,7 +38,7 @@ public static class World
             tilesets.Add(tileset.Uid, tileset);
         }
         
-        levels = new LDtkLevelInstance[world.Levels.Length];
+        ldtkLevels = new LDtkLevelInstance[world.Levels.Length];
         
         // Load level data.
         var i = 0;
@@ -44,7 +46,7 @@ public static class World
         {
             using (var reader = File.OpenText("worlds/" + level.ExternalRelPath))
             {
-                levels[i] = (LDtkLevelInstance)serializer.Deserialize(reader, typeof(LDtkLevelInstance));
+                ldtkLevels[i] = (LDtkLevelInstance)serializer.Deserialize(reader, typeof(LDtkLevelInstance));
             }
             ++i;
         }
@@ -54,9 +56,12 @@ public static class World
     {
         // TODO: Review instantiation here for security
         
-        var level = levels[id];
+        var level = ldtkLevels[id];
 
         var depth = 500;
+        
+        // TODO: Throw if already exists
+        loadedLevels.Add(id, new Level(level.Identifier, level.WorldX, level.WorldY, level.PxWid, level.PxHei));
         
         foreach (var layer in level.LayerInstances)
         {
@@ -65,6 +70,7 @@ public static class World
             // TODO: We may need to have a means of intentionally choosing *not* to instantiate a layer.
             if (layer.Identifier == "Collision")
             {
+                // TODO: Assign to layers
                 foreach (var entity in layer.EntityInstances)
                 {
                     var solidType = Type.GetType("GameContent." + entity.Identifier);
@@ -76,6 +82,7 @@ public static class World
                 {
                     // TODO: asset layers :)
                     case LDtkLayerType.Entities:
+                        // TODO: assign to layers
                         foreach (var entity in layer.EntityInstances)
                         {
                             var entityType = Type.GetType("GameContent." + entity.Identifier);
@@ -85,7 +92,7 @@ public static class World
                     case LDtkLayerType.Tiles:
                         // Create layer if it doesn't already exist.
                         // TODO: AHHHHH LAYERS ARE UNIVERSAL INSTEAD OF PER-ROOM MAKE THEM PER-ROOM
-                        if (Renderer.GetLayer(layer.Identifier) == null) Renderer.AddLayer(layer.Identifier, depth);
+                        loadedLevels[id].AddLayer(layer.Identifier, depth);
                         
                         // Get tileset sprite and other metadata.
                         // TODO: This nullable is probably bad lol
@@ -95,7 +102,7 @@ public static class World
                         
                         // Instantiate each tile.
                         foreach (var tile in layer.GridTiles)
-                            Renderer.AddDrawable(layer.Identifier, new Tile(tile, sprite, level.WorldX + tile.Px[0], level.WorldY + tile.Px[1], set.TileGridSize));
+                            loadedLevels[id].AddDrawable(layer.Identifier, new Tile(tile, sprite, level.WorldX + tile.Px[0], level.WorldY + tile.Px[1], set.TileGridSize));
                         
                         break;
                     case LDtkLayerType.AutoLayer:
@@ -111,7 +118,7 @@ public static class World
 
     public static void InstantiateAll()
     {
-        for (var i = 0; i < levels.Length; i++)
+        for (var i = 0; i < ldtkLevels.Length; i++)
         {
             InstantiateLevel(i);
         }
@@ -121,5 +128,14 @@ public static class World
     {
         // TODO: Throw if invalid uid is passed in.
         return tilesetPageMappings[uid];
+    }
+
+    public static void RenderLevels()
+    {
+        // TODO: switch drawing based on whether or not level is flagged as active... or have two variables? One for visibility, one for activeness?
+        foreach (var level in loadedLevels.Values)
+        {
+            level.Draw();
+        }
     }
 }

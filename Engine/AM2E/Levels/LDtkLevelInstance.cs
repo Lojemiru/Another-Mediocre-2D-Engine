@@ -67,13 +67,13 @@ public struct LDtkLevelInstance
     /// Height of the level in pixels
     /// </summary>
     [JsonProperty("pxHei")]
-    public long PxHei { get; set; }
+    public int PxHei { get; set; }
 
     /// <summary>
     /// Width of the level in pixels
     /// </summary>
     [JsonProperty("pxWid")]
-    public long PxWid { get; set; }
+    public int PxWid { get; set; }
 
     /// <summary>
     /// Index that represents the "depth" of the level in the world. Default is 0, greater means

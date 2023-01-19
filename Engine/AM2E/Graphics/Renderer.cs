@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Versioning;
 using System.Text;
+using AM2E.Levels;
 using LanguageExt;
 
 namespace AM2E.Graphics
@@ -116,10 +117,13 @@ namespace AM2E.Graphics
             
             // Draw each layer.
             // TODO: Order these when drawing lol
+            // TODO: Switch fully to world-based rendering.
             foreach (Layer layer in layers.Values)
             {
                 layer.Draw();
             }
+            
+            World.RenderLevels();
             
             // Reset render target, clear backbuffer.
             graphicsDeviceManager.GraphicsDevice.SetRenderTarget(null);
