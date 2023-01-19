@@ -12,12 +12,10 @@ namespace AM2E.Graphics
 {
     public static class Renderer
     {
-        private static Dictionary<string, Layer> layers = new();
         private static GraphicsDeviceManager graphicsDeviceManager;
         private static Rectangle applicationSpace = new Rectangle(0, 0, 426, 240);
         private static SpriteBatch applicationBatch;
 
-        
         public static int UpscaleAmount { get; private set; } = 1;
 
         // TODO: This should probably be configured/controlled elsewhere.
@@ -80,12 +78,6 @@ namespace AM2E.Graphics
             
             // Draw each layer.
             // TODO: Order these when drawing lol
-            // TODO: Switch fully to world-based rendering.
-            foreach (Layer layer in layers.Values)
-            {
-                layer.Draw();
-            }
-            
             // TODO: Depth is insanely scuffed here, somehow. I don't understand sprite batches YAAAAAAAY
             World.RenderLevels();
             
