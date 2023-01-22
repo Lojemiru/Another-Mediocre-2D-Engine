@@ -14,8 +14,8 @@ namespace AM2E.Graphics
 {
     public class Sprite
     {
-        public int Length { get; private set; }
-        public Vector2 Origin { get; private set; }
+        public int Length { get; }
+        public Vector2 Origin { get; }
         
         private Dictionary<string, int[][]> attachPoints;
 
@@ -23,7 +23,7 @@ namespace AM2E.Graphics
         public int[] GetAttachPoint(string name, int frame)
         {
             if (!attachPoints.ContainsKey(name))
-                return new int[] { 0, 0 };
+                return new[] { 0, 0 };
 
             int[] point = (int[])attachPoints[name][Math.Min(frame, attachPoints[name].Length - 1)].Clone();
 
@@ -35,8 +35,8 @@ namespace AM2E.Graphics
 
         private Rectangle[] positions;
 
-        public int Width { get; private set; }
-        public int Height { get; private set; }
+        public int Width { get; }
+        public int Height { get; }
         public TexturePage TexturePage { get; set; }
 
         private Vector2[] origins;
@@ -51,7 +51,7 @@ namespace AM2E.Graphics
             Width = width;
             Height = height;
             // TODO: Currently handles flipping independently. Should probably handle doing both?
-            origins = new Vector2[] { Origin, new Vector2(Width - 1 - Origin.X, Origin.Y), new Vector2(Origin.X, Height - 1 - Origin.Y) };
+            origins = new[] { Origin, new(Width - 1 - Origin.X, Origin.Y), new(Origin.X, Height - 1 - Origin.Y) };
         }
 
         public void Draw(SpriteBatch batch, int x, int y, int frame, float rotation = 0, SpriteEffects effects = SpriteEffects.None, float alpha = 1)

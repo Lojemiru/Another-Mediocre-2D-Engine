@@ -12,7 +12,7 @@ namespace AM2E.Graphics
 {
     public static class Renderer
     {
-        private static GraphicsDeviceManager graphicsDeviceManager;
+        public static GraphicsDeviceManager GraphicsDeviceManager { get; private set; }
         private static Rectangle applicationSpace = new Rectangle(0, 0, 426, 240);
         private static SpriteBatch applicationBatch;
 
@@ -27,7 +27,7 @@ namespace AM2E.Graphics
 
         public static void Initialize(GraphicsDeviceManager graphicsDeviceManager)
         {
-            Renderer.graphicsDeviceManager = graphicsDeviceManager;
+            Renderer.GraphicsDeviceManager = graphicsDeviceManager;
             // TODO: Pull size values from config :)
             SetGameResolution(1920, 1080);
             applicationBatch = new SpriteBatch(graphicsDeviceManager.GraphicsDevice);
@@ -35,7 +35,7 @@ namespace AM2E.Graphics
 
         public static void SetGameResolution(int width, int height)
         {
-            ApplicationSurface = new RenderTarget2D(graphicsDeviceManager.GraphicsDevice, width * UpscaleAmount, height * UpscaleAmount, false, SurfaceFormat.Color, DepthFormat.None, 8, RenderTargetUsage.DiscardContents);
+            ApplicationSurface = new RenderTarget2D(GraphicsDeviceManager.GraphicsDevice, width * UpscaleAmount, height * UpscaleAmount, false, SurfaceFormat.Color, DepthFormat.None, 8, RenderTargetUsage.DiscardContents);
             GameCamera.UpdateTransform();
         }
 
@@ -73,8 +73,8 @@ namespace AM2E.Graphics
         public static void Render()
         {
             // Target and clear application surface.
-            graphicsDeviceManager.GraphicsDevice.SetRenderTarget(ApplicationSurface);
-            graphicsDeviceManager.GraphicsDevice.Clear(Color.Black);
+            GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(ApplicationSurface);
+            GraphicsDeviceManager.GraphicsDevice.Clear(Color.Black);
             
             // Draw each layer.
             // TODO: Order these when drawing lol
@@ -82,13 +82,18 @@ namespace AM2E.Graphics
             World.RenderLevels();
             
             // Reset render target, clear backbuffer.
-            graphicsDeviceManager.GraphicsDevice.SetRenderTarget(null);
-            graphicsDeviceManager.GraphicsDevice.Clear(Color.Black);
+            GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(null);
+            GraphicsDeviceManager.GraphicsDevice.Clear(Color.Black);
             
             // Render application surface into drawable application space.
             applicationBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.PointClamp);
             applicationBatch.Draw(ApplicationSurface, applicationSpace, Color.White);
             applicationBatch.End();
+        }
+
+        public static void SetRenderTarget(RenderTarget2D target)
+        {
+            GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(target);
         }
     }
 }

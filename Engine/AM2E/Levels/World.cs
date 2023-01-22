@@ -63,7 +63,7 @@ public static class World
         // TODO: Throw if already exists
         loadedLevels.Add(id, new Level(level.Identifier, level.WorldX, level.WorldY, level.PxWid, level.PxHei));
         
-        foreach (var ldtkLayer in level.LayerInstances)
+        foreach (var ldtkLayer in level.LayerInstances.Reverse())
         {
             Console.WriteLine(ldtkLayer.Identifier);
             Console.WriteLine(depth);
@@ -113,7 +113,7 @@ public static class World
                         throw new ArgumentOutOfRangeException();
                 }
             // TODO: Handle entities, tiles, etc. etc.
-            depth -= 100;
+            depth += 100;
         }
         
     }

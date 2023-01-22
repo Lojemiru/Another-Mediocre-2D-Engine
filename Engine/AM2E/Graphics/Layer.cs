@@ -14,6 +14,7 @@ namespace AM2E.Graphics
         public readonly List<IDrawable> Drawables = new();
         public readonly List<Actor> Actors = new();
         public readonly List<object> Objects = new();
+        // TODO: Is this worth keeping at all?
         public readonly int Depth;
         public bool Visible = true;
 

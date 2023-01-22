@@ -35,7 +35,13 @@ public class EngineCore : Game
         // Timestep fixing 
         InactiveSleepTime = new TimeSpan(0);
         IsFixedTimeStep = false;
+        
+        // TODO: Everything here but vsync is boilerplate from M3D. Review!
+        _graphics.GraphicsProfile = GraphicsProfile.HiDef;
         _graphics.SynchronizeWithVerticalRetrace = true;
+        _graphics.PreferMultiSampling = false;
+        _graphics.GraphicsProfile = GraphicsProfile.HiDef;
+        _graphics.ApplyChanges();
     }
 
     protected override void Initialize()
