@@ -8,8 +8,8 @@ namespace AM2E.Collision
 {
     public abstract class Hitbox
     {
-        public int OffsetX { get; protected set; } = 0;
-        public int OffsetY { get; protected set; } = 0;
+        public int OffsetX { get; protected init; } = 0;
+        public int OffsetY { get; protected init; } = 0;
         public int X { get; set; } = 0;
         public int Y { get; set; } = 0;
 
@@ -24,12 +24,14 @@ namespace AM2E.Collision
         public abstract bool ContainsPoint(int x, int y);
         public bool Intersects(Hitbox hitbox)
         {
-            // Check Precise first so that we don't accidentally grab them as Rectangles :D
-            if (hitbox is PreciseHitbox) return Intersects((PreciseHitbox)hitbox);
-            else if (hitbox is RectangleHitbox) return Intersects((RectangleHitbox)hitbox);
-            else if (hitbox is CircleHitbox) return Intersects((CircleHitbox)hitbox);
-
-            throw new NotImplementedException("Hitbox type " + hitbox.GetType() + " is not yet implemented!!!");
+            return hitbox switch
+            {
+                // Check Precise first so that we don't accidentally grab them as Rectangles :D
+                PreciseHitbox preciseHitbox => Intersects(preciseHitbox),
+                RectangleHitbox rectangleHitbox => Intersects(rectangleHitbox),
+                CircleHitbox circleHitbox => Intersects(circleHitbox),
+                _ => throw new NotImplementedException("Hitbox type " + hitbox.GetType() + " is not yet implemented!!!")
+            };
         }
     }
 
@@ -39,37 +41,13 @@ namespace AM2E.Collision
         public int Width { get; set; }
         public int Height { get; set; }
 
-        public override int BoundLeft 
-        { 
-            get
-            {
-                return X - OffsetX;
-            }
-        }
+        public override int BoundLeft => X - OffsetX;
 
-        public override int BoundRight
-        {
-            get
-            {
-                return BoundLeft + Width - 1;
-            }
-        }
+        public override int BoundRight => BoundLeft + Width - 1;
 
-        public override int BoundTop
-        {
-            get
-            {
-                return Y - OffsetY;
-            }
-        }
+        public override int BoundTop => Y - OffsetY;
 
-        public override int BoundBottom
-        {
-            get
-            {
-                return BoundTop + Height - 1;
-            }
-        }
+        public override int BoundBottom => BoundTop + Height - 1;
 
         public RectangleHitbox(int x, int y, int w, int h, int offsetX = 0, int offsetY = 0)
         {
@@ -92,10 +70,10 @@ namespace AM2E.Collision
             // Only two conditions: circle center is in rectangle, or endpoint of radius is in rectangle
             if (ContainsPoint(hitbox.X, hitbox.Y)) return true;
 
-            float centerX = (float)(BoundLeft + BoundRight) / 2;
-            float centerY = (float)(BoundTop + BoundBottom) / 2;
+            var centerX = (float)(BoundLeft + BoundRight) / 2;
+            var centerY = (float)(BoundTop + BoundBottom) / 2;
 
-            Vector2 pos = new Vector2(centerX - hitbox.X, centerY - hitbox.Y);
+            var pos = new Vector2(centerX - hitbox.X, centerY - hitbox.Y);
             if ((int)pos.Length() > hitbox.Radius) 
             {
                 pos.Normalize();
@@ -122,37 +100,13 @@ namespace AM2E.Collision
     {
         public int Radius { get; }
 
-        public override int BoundLeft
-        {
-            get
-            {
-                return X - Radius;
-            }
-        }
+        public override int BoundLeft => X - Radius;
 
-        public override int BoundRight
-        {
-            get
-            {
-                return X + Radius;
-            }
-        }
+        public override int BoundRight => X + Radius;
 
-        public override int BoundTop
-        {
-            get
-            {
-                return Y - Radius;
-            }
-        }
+        public override int BoundTop => Y - Radius;
 
-        public override int BoundBottom
-        {
-            get
-            {
-                return Y + Radius;
-            }
-        }
+        public override int BoundBottom => Y + Radius;
 
         protected override bool Intersects(RectangleHitbox hitbox)
         {
@@ -197,10 +151,10 @@ namespace AM2E.Collision
             if (!base.Intersects(hitbox))
                 return false;
             
-            int startX = Math.Clamp(hitbox.BoundLeft - BoundLeft, 0, Width - 1);
-            int startY = Math.Clamp(hitbox.BoundTop - BoundTop, 0, Height - 1);
-            int endX = Math.Clamp(hitbox.BoundRight - BoundLeft + 1, 0, Width);
-            int endY = Math.Clamp(hitbox.BoundBottom - BoundTop + 1, 0, Height);
+            var startX = Math.Clamp(hitbox.BoundLeft - BoundLeft, 0, Width - 1);
+            var startY = Math.Clamp(hitbox.BoundTop - BoundTop, 0, Height - 1);
+            var endX = Math.Clamp(hitbox.BoundRight - BoundLeft + 1, 0, Width);
+            var endY = Math.Clamp(hitbox.BoundBottom - BoundTop + 1, 0, Height);
 
             // TODO: Should this check be interlaced? Might speed up some use cases, but wouldn't affect our worst-case scenario :/
             for (var i = startX; i < endX; ++i)
@@ -222,10 +176,10 @@ namespace AM2E.Collision
             if (BoundRight < hitbox.BoundLeft || hitbox.BoundRight < BoundLeft || BoundBottom < hitbox.BoundTop || hitbox.BoundBottom < BoundTop)
                 return false;
 
-            int startX = Math.Clamp(hitbox.BoundLeft, 0, Width - 1);
-            int startY = Math.Clamp(hitbox.BoundTop, 0, Height - 1);
-            int endX = Math.Clamp(hitbox.BoundRight, 0, Width);
-            int endY = Math.Clamp(hitbox.BoundBottom, 0, Height);
+            var startX = Math.Clamp(hitbox.BoundLeft, 0, Width - 1);
+            var startY = Math.Clamp(hitbox.BoundTop, 0, Height - 1);
+            var endX = Math.Clamp(hitbox.BoundRight, 0, Width);
+            var endY = Math.Clamp(hitbox.BoundBottom, 0, Height);
 
             for (var i = startX; i < endX; ++i)
             {
@@ -242,28 +196,23 @@ namespace AM2E.Collision
         protected override bool Intersects(PreciseHitbox hitbox)
         {
             // Early exit - return false if bounds don't even overlap
-            if (base.Intersects((RectangleHitbox)hitbox))
-                return false;
-
-            // TODO: Based on rectangle -> precise check testing, this might be slightly scuffed. Give it a proper test.
-            return MaskIntersects(hitbox.Mask, hitbox.BoundLeft - BoundLeft, hitbox.BoundTop - BoundTop);
+            return !base.Intersects((RectangleHitbox)hitbox) &&
+                   // TODO: Based on rectangle -> precise check testing, this might be slightly scuffed. Give it a proper test.
+                   MaskIntersects(hitbox.Mask, hitbox.BoundLeft - BoundLeft, hitbox.BoundTop - BoundTop);
         }
 
         public override bool ContainsPoint(int x, int y)
         {
             // Check base, then return value of array cell
-            if (!base.ContainsPoint(x, y))
-                return false;
-
-            return Mask[x - X, y - Y];
+            return base.ContainsPoint(x, y) && Mask[x - X, y - Y];
         }
 
         public bool MaskIntersects(bool[,] mask, int offsetX, int offsetY)
         {
-            int startX = Math.Clamp(offsetX, 0, Width - 1);
-            int startY = Math.Clamp(offsetY, 0, Height - 1);
-            int endX = Math.Clamp(offsetX + mask.GetLength(0) - 1, 0, Width);
-            int endY = Math.Clamp(offsetY + mask.GetLength(1) - 1, 0, Height);
+            var startX = Math.Clamp(offsetX, 0, Width - 1);
+            var startY = Math.Clamp(offsetY, 0, Height - 1);
+            var endX = Math.Clamp(offsetX + mask.GetLength(0) - 1, 0, Width);
+            var endY = Math.Clamp(offsetY + mask.GetLength(1) - 1, 0, Height);
 
             for (var i = startX; i < endX; ++i)
             {
