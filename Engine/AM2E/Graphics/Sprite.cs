@@ -17,7 +17,7 @@ namespace AM2E.Graphics
         public int Length { get; }
         public Vector2 Origin { get; }
         
-        private Dictionary<string, int[][]> attachPoints;
+        private readonly Dictionary<string, int[][]> attachPoints;
 
         // TODO: This needs to return something read-only. As it stands the attach point could be modified on the other side...
         public int[] GetAttachPoint(string name, int frame)
@@ -25,7 +25,7 @@ namespace AM2E.Graphics
             if (!attachPoints.ContainsKey(name))
                 return new[] { 0, 0 };
 
-            int[] point = (int[])attachPoints[name][Math.Min(frame, attachPoints[name].Length - 1)].Clone();
+            var point = (int[])attachPoints[name][Math.Min(frame, attachPoints[name].Length - 1)].Clone();
 
             point[0] -= (int)Origin.X;
             point[1] -= (int)Origin.Y;
@@ -33,13 +33,13 @@ namespace AM2E.Graphics
             return point;
         }
 
-        private Rectangle[] positions;
+        private readonly Rectangle[] positions;
 
         public int Width { get; }
         public int Height { get; }
         public TexturePage TexturePage { get; set; }
 
-        private Vector2[] origins;
+        private readonly Vector2[] origins;
 
         [JsonConstructor]
         public Sprite([JsonProperty("length")] int length, [JsonProperty("originX")] int originX, [JsonProperty("originY")] int originY, [JsonProperty("attachPoints")] Dictionary<string, int[][]> attachPoints, [JsonProperty("positions")] Rectangle[] positions, [JsonProperty("width")] int width, [JsonProperty("height")] int height)

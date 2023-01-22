@@ -16,8 +16,8 @@ public static class World
 {
     private static LDtkWorldInstance world;
     private static LDtkLevelInstance[] ldtkLevels;
-    private static Dictionary<int, LDtkTilesetDefinition> tilesets = new();
-    private static Dictionary<int, PageIndex> tilesetPageMappings = new();
+    private static readonly Dictionary<int, LDtkTilesetDefinition> tilesets = new();
+    private static readonly Dictionary<int, PageIndex> tilesetPageMappings = new();
     private static Dictionary<int, Level> loadedLevels = new();
     public static void LoadWorld(string path)
     {

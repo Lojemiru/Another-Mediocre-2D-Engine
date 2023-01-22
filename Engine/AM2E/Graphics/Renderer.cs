@@ -27,7 +27,7 @@ namespace AM2E.Graphics
 
         public static void Initialize(GraphicsDeviceManager graphicsDeviceManager)
         {
-            Renderer.GraphicsDeviceManager = graphicsDeviceManager;
+            GraphicsDeviceManager = graphicsDeviceManager;
             // TODO: Pull size values from config :)
             SetGameResolution(1920, 1080);
             applicationBatch = new SpriteBatch(graphicsDeviceManager.GraphicsDevice);
@@ -57,15 +57,15 @@ namespace AM2E.Graphics
             if (outputAspect <= TargetRatio)
             {
                 // output is taller than it is wider, bars on top/bottom
-                int presentHeight = (int)((window.ClientBounds.Width / TargetRatio) + 0.5f);
-                int barHeight = (window.ClientBounds.Height - presentHeight) / 2;
+                var presentHeight = (int)((window.ClientBounds.Width / TargetRatio) + 0.5f);
+                var barHeight = (window.ClientBounds.Height - presentHeight) / 2;
                 applicationSpace = new Rectangle(0, barHeight, window.ClientBounds.Width, presentHeight);
             }
             else
             {
                 // output is wider than it is tall, bars left/right
-                int presentWidth = (int)((window.ClientBounds.Height * TargetRatio) + 0.5f);
-                int barWidth = (window.ClientBounds.Width - presentWidth) / 2;
+                var presentWidth = (int)((window.ClientBounds.Height * TargetRatio) + 0.5f);
+                var barWidth = (window.ClientBounds.Width - presentWidth) / 2;
                 applicationSpace = new Rectangle(barWidth, 0, presentWidth, window.ClientBounds.Height);
             }
         }
