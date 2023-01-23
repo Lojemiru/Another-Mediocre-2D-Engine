@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using AM2E.Graphics;
 
 namespace AM2E.Collision
 {
@@ -38,8 +39,8 @@ namespace AM2E.Collision
     // TODO: Move these to their own files :frog:
     public class RectangleHitbox : Hitbox
     {
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public int Width { get; protected set; }
+        public int Height { get; protected set; }
 
         public override int BoundLeft => X - OffsetX;
 
@@ -141,7 +142,8 @@ namespace AM2E.Collision
         public bool[, ] Mask { get; }
 
         // TODO: Alt constructor that turns an image into the mask, or do we process that somewhere above?
-        public PreciseHitbox(int x, int y, bool[, ] mask, int offsetX = 0, int offsetY = 0) : base(x, y, mask.GetLength(0), mask.GetLength(1), offsetX, offsetY)
+        public PreciseHitbox(int x, int y, bool[, ] mask, int offsetX = 0, int offsetY = 0) : base(x, y, 
+            mask.GetLength(0), mask.GetLength(1), offsetX, offsetY)
         {
             Mask = mask;
         }

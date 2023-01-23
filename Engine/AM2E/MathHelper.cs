@@ -13,4 +13,17 @@ public static class MathHelper
     {
         return a + (amount * (b - a));
     }
+
+    public static void SplitArrayTo2D<T>(T[] input, T[,] output)
+    {
+        var pos = 0;
+        for (var i = 0; i < output.GetLength(0); i++)
+        {
+            for (var j = 0; j < output.GetLength(1); j++)
+            {
+                output[i, j] = input[pos];
+                pos++;
+            }
+        }
+    }
 }

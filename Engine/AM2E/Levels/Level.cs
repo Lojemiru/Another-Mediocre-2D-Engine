@@ -76,7 +76,6 @@ public class Level
         if (!Visible) return;
         foreach (var layer in layers.Values)
         {
-            Console.WriteLine(layer.Depth);
             layer.Draw();
         }
     }

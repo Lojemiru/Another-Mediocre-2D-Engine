@@ -65,8 +65,6 @@ public static class World
         
         foreach (var ldtkLayer in level.LayerInstances.Reverse())
         {
-            Console.WriteLine(ldtkLayer.Identifier);
-            Console.WriteLine(depth);
             // Create layer if it doesn't already exist.
             var layer = loadedLevels[id].AddLayer(ldtkLayer.Identifier, depth);
             

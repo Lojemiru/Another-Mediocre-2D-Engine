@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using GameContent;
 
 namespace AM2E.Graphics
 {
@@ -70,6 +71,29 @@ namespace AM2E.Graphics
             // TODO: Review that depth setting here doesn't break anything.
             Rectangle subPos = new(positions[frame].X + subRectangle.X, positions[frame].Y + subRectangle.Y, subRectangle.Width, subRectangle.Height);
             batch.Draw(TexturePage.Texture, pos, subPos, Color.White * alpha, Microsoft.Xna.Framework.MathHelper.ToRadians(rotation), Origin, 1, effects, 0);
+        }
+        
+        
+        public bool[,] ToPreciseMask(int frame)
+        {
+            // Copy data into array of our desired length.
+            var colorArray = new Color[Width * Height];
+            TexturePage.Texture.GetData(0, 0, positions[frame], colorArray, 0, Width * Height);
+            
+            var outputArray = new bool[Height, Width];
+            
+            // Split 1D array into a 2D array based on alpha value.
+            var pos = 0;
+            for (var i = 0; i < Height; i++)
+            {
+                for (var j = 0; j < Width; j++)
+                {
+                    outputArray[i, j] = colorArray[pos].A > 0.1;
+                    pos++;
+                }
+            }
+
+            return outputArray;
         }
     }
 }

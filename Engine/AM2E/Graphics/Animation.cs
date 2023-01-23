@@ -10,7 +10,7 @@ namespace AM2E
 {
     public class Animation
     {
-        private Sprite sprite;
+        public Sprite Sprite { get; private set; }
         private float _index = 0;
         public int Index
         {
@@ -30,7 +30,7 @@ namespace AM2E
         {
             get
             {
-                return sprite.Length;
+                return Sprite.Length;
             }
         }
 
@@ -42,7 +42,7 @@ namespace AM2E
         {
             SpriteName = sprite;
 
-            this.sprite = TextureManager.GetPage(page).Sprites[sprite];
+            this.Sprite = TextureManager.GetPage(page).Sprites[sprite];
             Speed = speed;
             OnAnimationEnd = onAnimationEnd ?? OnAnimationEnd;
         }
@@ -55,23 +55,23 @@ namespace AM2E
 
         public int GetAttachPointX(string name)
         {
-            return sprite.GetAttachPoint(name, Index)[0];
+            return Sprite.GetAttachPoint(name, Index)[0];
         }
 
         public int GetAttachPointY(string name)
         {
-            return sprite.GetAttachPoint(name, Index)[1];
+            return Sprite.GetAttachPoint(name, Index)[1];
         }
 
         private void WrapIndex(bool runAnimEnd = true)
         {
-            bool exceeded = _index >= sprite.Length;
+            bool exceeded = _index >= Sprite.Length;
             if (exceeded || _index < 0)
             {
                 int sign = exceeded ? 1 : -1;
                 
-                while (_index >= sprite.Length || _index < 0)
-                    _index -= sign * sprite.Length;
+                while (_index >= Sprite.Length || _index < 0)
+                    _index -= sign * Sprite.Length;
 
                 if (runAnimEnd)
                     OnAnimationEnd();
@@ -81,13 +81,13 @@ namespace AM2E
         public void SetSprite(PageIndex page, SpriteIndex sprite)
         {
             SpriteName = sprite;
-            this.sprite = TextureManager.GetPage(page).Sprites[sprite];
+            this.Sprite = TextureManager.GetPage(page).Sprites[sprite];
             WrapIndex(false);
         }
 
         public void Draw(SpriteBatch spriteBatch, int x, int y, float rotation = 0, SpriteEffects effects = SpriteEffects.None, float alpha = 1)
         {
-            sprite.Draw(spriteBatch, x, y, Index, rotation, effects, alpha);
+            Sprite.Draw(spriteBatch, x, y, Index, rotation, effects, alpha);
         }
     }
 }
