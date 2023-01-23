@@ -10,7 +10,6 @@ public static class MaskCache
 
     public static bool[,] GetPrecise(Sprite sprite, int index = 0)
     {
-        // TODO: Proper multi-frame handling.
         if (!IsCached(sprite, index))
             Add(sprite, index);
         
