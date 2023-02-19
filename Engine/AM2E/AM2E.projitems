@@ -12,6 +12,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\ActorProperties.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\ActorManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\ActorMethods.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\IPlayer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\PlayerPool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Alarm.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\MaskCache.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GameCamera.cs" />

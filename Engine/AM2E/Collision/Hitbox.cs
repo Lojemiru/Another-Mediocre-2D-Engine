@@ -9,8 +9,10 @@ namespace AM2E.Collision
 {
     public abstract class Hitbox
     {
-        public int OffsetX { get; protected init; } = 0;
-        public int OffsetY { get; protected init; } = 0;
+        public int OffsetX { get; protected set; } = 0;
+        public int OffsetY { get; protected set; } = 0;
+        protected int initialOffsetX = 0;
+        protected int initialOffsetY = 0;
         public int X { get; set; } = 0;
         public int Y { get; set; } = 0;
 
@@ -18,6 +20,20 @@ namespace AM2E.Collision
         public abstract int BoundRight { get; }
         public abstract int BoundTop { get; }
         public abstract int BoundBottom { get; }
+
+        public bool FlippedX { get; protected set; } = false;
+        public bool FlippedY { get; protected set; } = false;
+
+        public void ApplyFlipsFromBits(int bits)
+        {
+            ApplyFlips((bits & 1) != 0, (bits & 2) != 0);
+            Console.WriteLine("Flips from bits: " + FlippedX + ", " + FlippedY);
+        }
+        public virtual void ApplyFlips(bool xFlip, bool yFlip)
+        {
+            FlippedX = xFlip;
+            FlippedY = yFlip;
+        }
 
         protected abstract bool Intersects(RectangleHitbox hitbox);
         protected abstract bool Intersects(CircleHitbox hitbox);
@@ -56,8 +72,16 @@ namespace AM2E.Collision
             Y = y;
             Width = w;
             Height = h;
-            OffsetX = offsetX;
-            OffsetY = offsetY;
+            OffsetX = initialOffsetX = offsetX;
+            OffsetY = initialOffsetY = offsetY;
+        }
+
+        public override void ApplyFlips(bool xFlip, bool yFlip)
+        {
+            base.ApplyFlips(xFlip, yFlip);
+            OffsetX = FlippedX ? (Width - 1) - initialOffsetX : initialOffsetX;
+            OffsetY = FlippedY ? (Height - 1) - initialOffsetY : initialOffsetY;
+            Console.WriteLine("Flips applied: " + OffsetX + ", " + OffsetY);
         }
 
         protected override bool Intersects(RectangleHitbox hitbox)
@@ -163,7 +187,7 @@ namespace AM2E.Collision
             {
                 for (var j = startY; j < endY; ++j)
                 {
-                    if (Mask[i, j])
+                    if (CheckPointInMask(i, j))
                         return true;
                 }
             }
@@ -187,6 +211,7 @@ namespace AM2E.Collision
             {
                 for (var j = startY; j < endY; ++j)
                 {
+                    // TODO: Does not currently account for flips
                     if (Mask[i, j] && hitbox.ContainsPoint(i, j)) 
                        return true;
                 }
@@ -200,27 +225,32 @@ namespace AM2E.Collision
             // Early exit - return false if bounds don't even overlap
             return !base.Intersects((RectangleHitbox)hitbox) &&
                    // TODO: Based on rectangle -> precise check testing, this might be slightly scuffed. Give it a proper test.
-                   MaskIntersects(hitbox.Mask, hitbox.BoundLeft - BoundLeft, hitbox.BoundTop - BoundTop);
+                   MaskIntersects(hitbox, hitbox.BoundLeft - BoundLeft, hitbox.BoundTop - BoundTop);
         }
 
         public override bool ContainsPoint(int x, int y)
         {
             // Check base, then return value of array cell
-            return base.ContainsPoint(x, y) && Mask[x - X, y - Y];
+            return base.ContainsPoint(x, y) && CheckPointInMask(x - (X - OffsetX), y - (Y - OffsetY));
+        }
+        
+        private bool CheckPointInMask(int x, int y)
+        {
+            return Mask[FlippedX ? (Width - 1) - x : x, FlippedY ? (Height - 1) - y : y];
         }
 
-        public bool MaskIntersects(bool[,] mask, int offsetX, int offsetY)
+        public bool MaskIntersects(PreciseHitbox hitbox, int offsetX, int offsetY)
         {
             var startX = Math.Clamp(offsetX, 0, Width - 1);
             var startY = Math.Clamp(offsetY, 0, Height - 1);
-            var endX = Math.Clamp(offsetX + mask.GetLength(0) - 1, 0, Width);
-            var endY = Math.Clamp(offsetY + mask.GetLength(1) - 1, 0, Height);
+            var endX = Math.Clamp(offsetX + hitbox.Mask.GetLength(0) - 1, 0, Width);
+            var endY = Math.Clamp(offsetY + hitbox.Mask.GetLength(1) - 1, 0, Height);
 
             for (var i = startX; i < endX; ++i)
             {
                 for (var j = startY; j < endY; ++j)
                 {
-                    if (Mask[i, j] && mask[i, j])
+                    if (CheckPointInMask(i, j) && hitbox.CheckPointInMask(i, j))
                         return true;
                 }
             }

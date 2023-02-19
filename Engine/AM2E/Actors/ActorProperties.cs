@@ -11,7 +11,9 @@ namespace AM2E.Actors
     // TODO: Need to implement IDisposable?
     public abstract partial class Actor
     {
-        public int X { 
+        public readonly bool FlipX = false;
+        public readonly bool FlipY = false;
+        public int X {
             get
             {
                 return Collider.X;
@@ -33,6 +35,7 @@ namespace AM2E.Actors
         }
         public bool Persistent { get; set; } = false;
         public bool Exists { get; private set; } = true;
+        // TODO: This could be desynced from actual layer bindings, but has to be publicly settable for Layers to handle it... figure something out.
         public Layer Layer;
         public Collider Collider { get; }
     }

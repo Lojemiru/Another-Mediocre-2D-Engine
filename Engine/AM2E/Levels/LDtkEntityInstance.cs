@@ -50,7 +50,6 @@ public struct LDtkEntityInstance
     /// - Bit 0 = X flip<br/>   - Bit 1 = Y flip<br/>   Examples: f=0 (no flip), f=1 (X flip
     /// only), f=2 (Y flip only), f=3 (both flips)
     /// </summary>
-    // TODO: This does NOT need to be a long! It's only 4 values max!!!
     [JsonProperty("f")]
-    public long F { get; set; }
+    public int F { get; set; }
 }

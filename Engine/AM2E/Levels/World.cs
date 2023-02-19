@@ -73,7 +73,6 @@ public static class World
             // TODO: We may need to have a means of intentionally choosing *not* to instantiate a layer.
             if (ldtkLayer.Identifier == "Collision")
             {
-                // TODO: Assign to layers
                 foreach (var entity in ldtkLayer.EntityInstances)
                 {
                     var solidType = Type.GetType("GameContent." + entity.Identifier);
@@ -89,8 +88,8 @@ public static class World
                         foreach (var entity in ldtkLayer.EntityInstances)
                         {
                             var entityType = Type.GetType("GameContent." + entity.Identifier);
-                            var actor = (Actor)Activator.CreateInstance(entityType, entity, level.WorldX, level.WorldY);
-                            layer.Add(actor);
+                            Activator.CreateInstance(entityType, entity, layer, level.WorldX + entity.Px[0], level.WorldY + entity.Px[1]);
+                            // No need to add Actors to the layer - they do it themselves, as some of them need to interface with their layer on instantiation.
                         }
                         break;
                     case LDtkLayerType.Tiles:

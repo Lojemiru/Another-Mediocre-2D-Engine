@@ -11,10 +11,13 @@ namespace AM2E.Actors
     public abstract partial class Actor : IDrawable, ICollider
     {
         
-        protected Actor(int x, int y, Hitbox hitbox = null)
+        protected Actor(int x, int y, Hitbox hitbox = null, Layer layer = null, bool flipX = false, bool flipY = false)
         {
             hitbox ??= new RectangleHitbox(x, y, 16, 16);
             Collider = new Collider(hitbox);
+            FlipX = flipX;
+            FlipY = flipY;
+            layer?.Add(this);
         }
 
         ~Actor()

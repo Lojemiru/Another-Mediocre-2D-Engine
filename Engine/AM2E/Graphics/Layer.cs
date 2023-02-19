@@ -31,6 +31,8 @@ namespace AM2E.Graphics
 
         public void Add(Actor actor)
         {
+            actor.Layer?.Remove(actor);
+            actor.Layer = this;
             Actors.Add(actor);
             Drawables.Add(actor);
         }
