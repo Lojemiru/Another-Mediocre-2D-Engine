@@ -63,7 +63,7 @@ namespace AM2E.Actors
             OnStep();
         }
 
-        public virtual void OnStep()
+        protected virtual void OnStep()
         {
             // Nothing - we want an empty event so actors don't /have/ to define it.
         }
@@ -73,7 +73,7 @@ namespace AM2E.Actors
             OnDraw(spriteBatch);
         }
 
-        public virtual void OnDraw(SpriteBatch spriteBatch)
+        protected virtual void OnDraw(SpriteBatch spriteBatch)
         {
             // Nothing - we want an empty draw so actors don't /have/ to define it.
         }
@@ -84,7 +84,7 @@ namespace AM2E.Actors
             Deregister();
         }
 
-        public virtual void OnDestroy()
+        protected virtual void OnDestroy()
         {
             // Nothing - we want an empty destroy so actors don't /have/ to define it.
         }
@@ -94,7 +94,7 @@ namespace AM2E.Actors
             // Nothing - we want an empty room end so actors don't /have/ to define it.
         }
 
-        public virtual void OnCleanup()
+        protected virtual void OnCleanup()
         {
             // Nothing - we want an empty cleanup event so actors don't /have/ to define it.
         }
