@@ -12,11 +12,18 @@ namespace AM2E.Actors
     // TODO: Surely this could be made a subclass of ActorManager so that step methods etc. could be made protected...
     public abstract partial class Actor : IDrawable, ICollider
     {
-        
+        /// <summary>
+        /// Standard constructor.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="hitbox"></param>
+        /// <param name="flipX"></param>
+        /// <param name="flipY"></param>
+        /// <param name="id"></param>
         protected Actor(int x, int y, Hitbox hitbox = null, bool flipX = false, bool flipY = false, string id = null)
         {
             ID = id ?? Guid.NewGuid().ToString();
-            Console.WriteLine(this + ": " + ID);
             hitbox ??= DefaultHitbox;
             Collider = new Collider(hitbox);
             X = x;
@@ -25,7 +32,13 @@ namespace AM2E.Actors
             FlipY = flipY;
             hitbox.ApplyFlips(FlipX, FlipY);
         }
-
+        
+        /// <summary>
+        /// Constructor from LDtk Entity.
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
         protected Actor(LDtkEntityInstance entity, int x, int y) : this(x, y, null, (entity.F & 1) != 0, (entity.F & 2) != 0, entity.Iid)
         {
         }

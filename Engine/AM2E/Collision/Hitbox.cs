@@ -27,7 +27,6 @@ namespace AM2E.Collision
         public void ApplyFlipsFromBits(int bits)
         {
             ApplyFlips((bits & 1) != 0, (bits & 2) != 0);
-            Console.WriteLine("Flips from bits: " + FlippedX + ", " + FlippedY);
         }
         public virtual void ApplyFlips(bool xFlip, bool yFlip)
         {
@@ -81,7 +80,6 @@ namespace AM2E.Collision
             base.ApplyFlips(xFlip, yFlip);
             OffsetX = FlippedX ? (Width - 1) - initialOffsetX : initialOffsetX;
             OffsetY = FlippedY ? (Height - 1) - initialOffsetY : initialOffsetY;
-            Console.WriteLine("Flips applied: " + OffsetX + ", " + OffsetY);
         }
 
         protected override bool Intersects(RectangleHitbox hitbox)
