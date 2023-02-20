@@ -9,12 +9,13 @@ namespace AM2E.Actors
 {
     static public class ActorManager
     {
-        private static LinkedList<Actor> actors = new();
+        private static Dictionary<string, Actor> actors = new();
 
         public static Actor Instantiate(Actor actor, string layer, Level level)
         {
             RegisterActor(actor);
             level.Add(layer, actor);
+            actor.PostConstructor();
             return actor;
         }
 
@@ -32,20 +33,25 @@ namespace AM2E.Actors
 
         public static void RegisterActor(Actor actor)
         {
-            actors.AddLast(actor);
+            actors.Add(actor.ID, actor);
         }
 
         public static void DeregisterActor(Actor actor)
         {
-            actors.Remove(actor);
+            actors.Remove(actor.ID);
         }
 
         public static void UpdateActors()
         {
-            foreach (Actor actor in actors)
+            foreach (var actor in actors.Values)
             {
                 actor.Step();
             }
+        }
+
+        public static Actor GetActor(string id)
+        {
+            return actors.ContainsKey(id) ? actors[id] : null;
         }
 
         /// <summary>
@@ -53,7 +59,7 @@ namespace AM2E.Actors
         /// </summary>
         public static void RoomEnd()
         {
-            foreach (Actor actor in actors)
+            foreach (var actor in actors.Values)
             {
                 actor.OnRoomEnd();
                 if (!actor.Persistent) actor.Deregister();
@@ -67,7 +73,7 @@ namespace AM2E.Actors
         /// <returns>Whether or not the <paramref name="actor"/> exists.</returns>
         public static bool Exists(Actor actor)
         {
-            return (actor == null) ? false : actor.Exists;
+            return actor?.Exists ?? false;
         }
     }
 }

@@ -22,7 +22,7 @@ public struct LDtkEntityInstance
     /// definition.
     /// </summary>
     [JsonProperty("height")]
-    public long Height { get; set; }
+    public int Height { get; set; }
 
     /// <summary>
     /// Unique instance identifier
@@ -36,14 +36,14 @@ public struct LDtkEntityInstance
     /// optional layer offsets, if they exist!
     /// </summary>
     [JsonProperty("px")]
-    public long[] Px { get; set; }
+    public int[] Px { get; set; }
 
     /// <summary>
     /// Entity width in pixels. For non-resizable entities, it will be the same as Entity
     /// definition.
     /// </summary>
     [JsonProperty("width")]
-    public long Width { get; set; }
+    public int Width { get; set; }
     
     /// <summary>
     /// "Flip bits", a 2-bits integer to represent the mirror transformations of the entity.<br/>

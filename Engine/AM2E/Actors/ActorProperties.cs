@@ -11,8 +11,10 @@ namespace AM2E.Actors
     // TODO: Need to implement IDisposable?
     public abstract partial class Actor
     {
+        public readonly string ID;
         public readonly bool FlipX = false;
         public readonly bool FlipY = false;
+        public static readonly Hitbox DefaultHitbox = new RectangleHitbox(0, 0, 16, 16);
         public int X {
             get
             {

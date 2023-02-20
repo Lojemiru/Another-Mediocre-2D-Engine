@@ -5,24 +5,39 @@ using AM2E.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using AM2E.Levels;
 
 namespace AM2E.Actors
 {
+    // TODO: Surely this could be made a subclass of ActorManager so that step methods etc. could be made protected...
     public abstract partial class Actor : IDrawable, ICollider
     {
         
-        protected Actor(int x, int y, Hitbox hitbox = null, Layer layer = null, bool flipX = false, bool flipY = false)
+        protected Actor(int x, int y, Hitbox hitbox = null, bool flipX = false, bool flipY = false, string id = null)
         {
-            hitbox ??= new RectangleHitbox(x, y, 16, 16);
+            ID = id ?? Guid.NewGuid().ToString();
+            Console.WriteLine(this + ": " + ID);
+            hitbox ??= DefaultHitbox;
             Collider = new Collider(hitbox);
+            X = x;
+            Y = y;
             FlipX = flipX;
             FlipY = flipY;
-            layer?.Add(this);
+            hitbox.ApplyFlips(FlipX, FlipY);
+        }
+
+        protected Actor(LDtkEntityInstance entity, int x, int y) : this(x, y, null, (entity.F & 1) != 0, (entity.F & 2) != 0, entity.Iid)
+        {
         }
 
         ~Actor()
         {
             OnCleanup();
+        }
+
+        public virtual void PostConstructor()
+        {
+            // Nothing - we want an empty event so actors don't /have/ to define it.
         }
 
         public virtual void OnRoomStart()

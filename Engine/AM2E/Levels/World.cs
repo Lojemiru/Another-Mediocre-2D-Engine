@@ -88,8 +88,8 @@ public static class World
                         foreach (var entity in ldtkLayer.EntityInstances)
                         {
                             var entityType = Type.GetType("GameContent." + entity.Identifier);
-                            Activator.CreateInstance(entityType, entity, layer, level.WorldX + entity.Px[0], level.WorldY + entity.Px[1]);
-                            // No need to add Actors to the layer - they do it themselves, as some of them need to interface with their layer on instantiation.
+                            var ent = (Actor)Activator.CreateInstance(entityType, entity, level.WorldX + entity.Px[0], level.WorldY + entity.Px[1]);
+                            ActorManager.Instantiate(ent, layer, loadedLevels[id]);
                         }
                         break;
                     case LDtkLayerType.Tiles:
