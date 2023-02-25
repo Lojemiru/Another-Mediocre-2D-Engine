@@ -10,6 +10,8 @@ namespace AM2E.Collision
 {
     public abstract class Hitbox
     {
+        private class TypeContainer<T> where T : ICollider
+        {}
         public int OffsetX { get; protected set; } = 0;
         public int OffsetY { get; protected set; } = 0;
         protected int InitialOffsetX = 0;
@@ -24,33 +26,36 @@ namespace AM2E.Collision
 
         public bool FlippedX { get; private set; } = false;
         public bool FlippedY { get; private set; } = false;
-
-        public void ApplyFlipsFromBits(int bits)
-        {
-            ApplyFlips((bits & 1) != 0, (bits & 2) != 0);
-        }
+        
         public virtual void ApplyFlips(bool xFlip, bool yFlip)
         {
             FlippedX = xFlip;
             FlippedY = yFlip;
         }
         
-        private List<Type> interfaces;
+        private List<object> boundInterfaces;
+        private List<object> targetInterfaces;
 
-        public bool MatchesInterface(Type type)
+        public bool IsBoundToInterface<T>() where T : ICollider
         {
-            if (interfaces == null)
-                return true;
-            
-            // Return: interfaces contains type, or interfaces contains any of type's types
-            var typeInterfaces = type.GetInterfaces();
-            return interfaces.Any(x => x == type || typeInterfaces.Any(y => x == y));
+            return boundInterfaces == null || boundInterfaces.Any(x => x is TypeContainer<T>);
         }
 
-        public void BindInterface(Type type)
+        public void BindInterface<T>() where T : ICollider
         {
-            interfaces ??= new List<Type>();
-            interfaces.Add(type);
+            boundInterfaces ??= new List<object>();
+            boundInterfaces.Add(new TypeContainer<T>());
+        }
+
+        public bool IsTargetingInterface<T>() where T : ICollider
+        {
+            return targetInterfaces == null || targetInterfaces.Any(x => x is TypeContainer<T>);
+        }
+        
+        public void TargetInterface<T>() where T : ICollider
+        {
+            targetInterfaces ??= new List<object>();
+            targetInterfaces.Add(new TypeContainer<T>());
         }
 
         protected abstract bool Intersects(RectangleHitbox hitbox);

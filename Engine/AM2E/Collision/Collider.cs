@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
+using System.Linq;
 using LanguageExt;
 
 namespace AM2E.Collision
@@ -33,7 +34,7 @@ namespace AM2E.Collision
             set
             {
                 _x = value;
-                if (Hitbox != null) Hitbox.X = value;
+                SyncHitboxPositions();
             }
         }
         public int Y
@@ -42,7 +43,7 @@ namespace AM2E.Collision
             set
             {
                 _y = value;
-                if (Hitbox != null) Hitbox.Y = value;
+                SyncHitboxPositions();
             }
         }
         
@@ -52,7 +53,6 @@ namespace AM2E.Collision
         public int VelY => vel[1];
 
         private readonly ArrayList events = new();
-        private readonly ArrayList types = new();
 
         private int checkX = 0;
         private int checkY = 0;
@@ -81,7 +81,21 @@ namespace AM2E.Collision
         public Action AfterSubstep { get; set; }
 
         public CollisionDirection Direction { get; private set; } = CollisionDirection.None;
-        public Hitbox Hitbox { get; }
+        private List<Hitbox> Hitboxes = new();
+        
+        public Hitbox GetHitbox(int id)
+        {
+            // TODO: Make accessor safe
+            return Hitboxes[id];
+        }
+
+        public int AddHitbox(Hitbox hitbox)
+        {
+            Hitboxes.Add(hitbox);
+            hitbox.X = X;
+            hitbox.Y = Y;
+            return Hitboxes.Count - 1;
+        }
         
         public bool FlippedX { get; protected set; } = false;
         public bool FlippedY { get; protected set; } = false;
@@ -90,24 +104,35 @@ namespace AM2E.Collision
         {
             ApplyFlips((bits & 1) != 0, (bits & 2) != 0);
         }
-        public virtual void ApplyFlips(bool xFlip, bool yFlip)
+        public void ApplyFlips(bool xFlip, bool yFlip)
         {
             FlippedX = xFlip;
             FlippedY = yFlip;
-            Hitbox.ApplyFlips(FlippedX, FlippedY);
+            foreach (var hitbox in Hitboxes)
+            {
+                hitbox.ApplyFlips(FlippedX, FlippedY);
+            }
+        }
+
+        private void SyncHitboxPositions()
+        {
+            foreach (var hitbox in Hitboxes)
+            {
+                hitbox.X = X;
+                hitbox.Y = Y;
+            }
         }
 
         public Collider(int x, int y, Hitbox hitbox)
         {
             X = x;
             Y = y;
-            Hitbox = hitbox;
+            AddHitbox(hitbox);
         }
 
         public void Add<T>(Action<T> callback) where T : ICollider
         {
             events.Add(callback);
-            types.Add(typeof(T));
         }
 
         public void MoveAndCollide(double xVel, double yVel)
@@ -246,7 +271,7 @@ namespace AM2E.Collision
 
         public void CheckAndRun<T>() where T : ICollider
         {
-            ICollider col = Check<T>(checkX, checkY);
+            var col = Check<T>(checkX, checkY);
 
             if (col == null) return;
             foreach (var ob in events)
@@ -272,19 +297,40 @@ namespace AM2E.Collision
             return output;
         }
 
-        public bool Intersects(Collider col)
+        public bool Intersects<T>(Collider col) where T : ICollider
         {
-            return col.Hitbox.Intersects(Hitbox);
+            foreach (var myHitbox in Hitboxes)
+            {
+                foreach (var hitbox in col.Hitboxes)
+                {
+                    if (myHitbox.IsTargetingInterface<T>() && hitbox.IsBoundToInterface<T>() && myHitbox.Intersects(hitbox))
+                        return true;
+                }
+            }
+
+            return false;
         }
 
-        public bool ContainsPoint(int x, int y)
+        public bool ContainsPoint<T>(int x, int y) where T : ICollider
         {
-            return Hitbox.ContainsPoint(x, y);
-        }
+            foreach (var myHitbox in Hitboxes)
+            {
+                if (myHitbox.IsBoundToInterface<T>() && myHitbox.ContainsPoint(x, y))
+                    return true;
+            }
 
-        public bool Intersects(Hitbox hitbox)
+            return false;
+        }
+        
+        public bool IsIntersectedBy<T>(Hitbox hitbox) where T : ICollider
         {
-            return Hitbox.Intersects(hitbox);
+            foreach (var myHitbox in Hitboxes)
+            {
+                if (hitbox.IsTargetingInterface<T>() && myHitbox.IsBoundToInterface<T>() && myHitbox.Intersects(hitbox))
+                    return true;
+            }
+
+            return false;
         }
     }
 }

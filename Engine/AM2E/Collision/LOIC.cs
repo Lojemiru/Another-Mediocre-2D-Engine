@@ -7,7 +7,7 @@ using System.Text;
 
 namespace AM2E.Collision
 {
-    // AKA The Technical Debt That I Deservioli
+    // The Technical Debt That I Deservioli
     public static class LOIC
     {
         private static List<ICollider> colliders = new();
@@ -39,7 +39,7 @@ namespace AM2E.Collision
         {
             foreach (var col in colliders)
             {
-                if (col is T && col.Collider.ContainsPoint(x, y))
+                if (col is T && col.Collider.ContainsPoint<T>(x, y))
                     return true;
             }
             return false;
@@ -50,7 +50,7 @@ namespace AM2E.Collision
             var hitbox = new RectangleHitbox(x1, y1, (x2 - x1) + 1, (y2 - y1) + 1);
             foreach (var col in colliders)
             {
-                if (col is T && col.Collider.Intersects(hitbox))
+                if (col is T && col.Collider.IsIntersectedBy<T>(hitbox))
                     return true;
             }
             return false;
@@ -60,7 +60,7 @@ namespace AM2E.Collision
         {
             foreach (var col in colliders)
             {
-                if (col is T && col.Collider.Intersects(self))
+                if (col is T && self.Intersects<T>(col.Collider))
                     return col;
             }
             return null;
