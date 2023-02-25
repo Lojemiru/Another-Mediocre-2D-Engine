@@ -12,8 +12,8 @@ namespace AM2E.Collision
     {
         public int OffsetX { get; protected set; } = 0;
         public int OffsetY { get; protected set; } = 0;
-        protected int initialOffsetX = 0;
-        protected int initialOffsetY = 0;
+        protected int InitialOffsetX = 0;
+        protected int InitialOffsetY = 0;
         public int X { get; set; } = 0;
         public int Y { get; set; } = 0;
 
@@ -22,8 +22,8 @@ namespace AM2E.Collision
         public abstract int BoundTop { get; }
         public abstract int BoundBottom { get; }
 
-        public bool FlippedX { get; protected set; } = false;
-        public bool FlippedY { get; protected set; } = false;
+        public bool FlippedX { get; private set; } = false;
+        public bool FlippedY { get; private set; } = false;
 
         public void ApplyFlipsFromBits(int bits)
         {
@@ -73,8 +73,8 @@ namespace AM2E.Collision
     // TODO: Move these to their own files :frog:
     public class RectangleHitbox : Hitbox
     {
-        public int Width { get; protected set; }
-        public int Height { get; protected set; }
+        public int Width { get; }
+        public int Height { get; }
 
         public override int BoundLeft => X - OffsetX;
 
@@ -90,15 +90,15 @@ namespace AM2E.Collision
             Y = y;
             Width = w;
             Height = h;
-            OffsetX = initialOffsetX = offsetX;
-            OffsetY = initialOffsetY = offsetY;
+            OffsetX = InitialOffsetX = offsetX;
+            OffsetY = InitialOffsetY = offsetY;
         }
 
         public override void ApplyFlips(bool xFlip, bool yFlip)
         {
             base.ApplyFlips(xFlip, yFlip);
-            OffsetX = FlippedX ? (Width - 1) - initialOffsetX : initialOffsetX;
-            OffsetY = FlippedY ? (Height - 1) - initialOffsetY : initialOffsetY;
+            OffsetX = FlippedX ? (Width - 1) - InitialOffsetX : InitialOffsetX;
+            OffsetY = FlippedY ? (Height - 1) - InitialOffsetY : InitialOffsetY;
         }
 
         protected override bool Intersects(RectangleHitbox hitbox)

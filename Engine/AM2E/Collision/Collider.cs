@@ -19,7 +19,7 @@ namespace AM2E.Collision
     }
     public class Collider
     {
-        private enum Axis : int
+        private enum Axis
         {
             X,
             Y
@@ -81,7 +81,7 @@ namespace AM2E.Collision
         public Action AfterSubstep { get; set; }
 
         public CollisionDirection Direction { get; private set; } = CollisionDirection.None;
-        public Hitbox Hitbox { get; private set; }
+        public Hitbox Hitbox { get; }
         
         public bool FlippedX { get; protected set; } = false;
         public bool FlippedY { get; protected set; } = false;
@@ -259,15 +259,15 @@ namespace AM2E.Collision
         
         public ICollider Check<T>(int x, int y) where T : ICollider
         {
-            var _x = X;
-            var _y = Y;
+            var prevX = X;
+            var prevY = Y;
             X = x;
             Y = y;
 
             var output = LOIC.CheckCollider<T>(this);
 
-            X = _x;
-            Y = _y;
+            X = prevX;
+            Y = prevY;
 
             return output;
         }
