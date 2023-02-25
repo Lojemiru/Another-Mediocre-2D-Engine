@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace AM2E.Collision
@@ -37,33 +38,22 @@ namespace AM2E.Collision
 
         public static bool CheckPoint<T>(int x, int y) where T : ICollider
         {
-            foreach (var col in colliders)
-            {
-                if (col is T && col.Collider.ContainsPoint<T>(x, y))
-                    return true;
-            }
-            return false;
+            // Return whether any collider is found that matches interface and contains the input point.
+            return colliders.Any(col => col is T && col.Collider.ContainsPoint<T>(x, y));
         }
 
         public static bool CheckRectangle<T>(int x1, int y1, int x2, int y2) where T : ICollider
         {
+            // TODO: Convert hitbox to const for performance?
             var hitbox = new RectangleHitbox(x1, y1, (x2 - x1) + 1, (y2 - y1) + 1);
-            foreach (var col in colliders)
-            {
-                if (col is T && col.Collider.IsIntersectedBy<T>(hitbox))
-                    return true;
-            }
-            return false;
+            // Return whether any collider is found that matches interface and is intersected by the input hitbox.
+            return colliders.Any(col => col is T && col.Collider.IsIntersectedBy<T>(hitbox));
         }
 
         public static ICollider CheckCollider<T>(Collider self) where T : ICollider
         {
-            foreach (var col in colliders)
-            {
-                if (col is T && self.Intersects<T>(col.Collider))
-                    return col;
-            }
-            return null;
+            // Return first (or null) Collider that matches interface and is intersected by input Collider.
+            return colliders.FirstOrDefault(col => col is T && self.Intersects<T>(col.Collider));
         }
     }
 

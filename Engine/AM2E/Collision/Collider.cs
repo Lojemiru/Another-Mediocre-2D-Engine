@@ -26,30 +26,29 @@ namespace AM2E.Collision
             Y
         }
 
-        private int _x;
-        private int _y;
+        private int x;
+        private int y;
         public int X
         {
-            get => _x;
+            get => x;
             set
             {
-                _x = value;
+                x = value;
                 SyncHitboxPositions();
             }
         }
         public int Y
         {
-            get => _y;
+            get => y;
             set
             {
-                _y = value;
+                y = value;
                 SyncHitboxPositions();
             }
         }
         
         // TODO: Make these two whine when accessed outside of a collision?
         public int VelX => vel[0];
-
         public int VelY => vel[1];
 
         private readonly ArrayList events = new();
@@ -81,20 +80,19 @@ namespace AM2E.Collision
         public Action AfterSubstep { get; set; }
 
         public CollisionDirection Direction { get; private set; } = CollisionDirection.None;
-        private List<Hitbox> Hitboxes = new();
+        private readonly List<Hitbox> hitboxes = new();
         
         public Hitbox GetHitbox(int id)
         {
-            // TODO: Make accessor safe
-            return Hitboxes[id];
+            return (0 <= id && id < hitboxes.Count) ? hitboxes[id] : null;
         }
 
         public int AddHitbox(Hitbox hitbox)
         {
-            Hitboxes.Add(hitbox);
+            hitboxes.Add(hitbox);
             hitbox.X = X;
             hitbox.Y = Y;
-            return Hitboxes.Count - 1;
+            return hitboxes.Count - 1;
         }
         
         public bool FlippedX { get; protected set; } = false;
@@ -108,7 +106,7 @@ namespace AM2E.Collision
         {
             FlippedX = xFlip;
             FlippedY = yFlip;
-            foreach (var hitbox in Hitboxes)
+            foreach (var hitbox in hitboxes)
             {
                 hitbox.ApplyFlips(FlippedX, FlippedY);
             }
@@ -116,7 +114,7 @@ namespace AM2E.Collision
 
         private void SyncHitboxPositions()
         {
-            foreach (var hitbox in Hitboxes)
+            foreach (var hitbox in hitboxes)
             {
                 hitbox.X = X;
                 hitbox.Y = Y;
@@ -299,38 +297,25 @@ namespace AM2E.Collision
 
         public bool Intersects<T>(Collider col) where T : ICollider
         {
-            foreach (var myHitbox in Hitboxes)
-            {
-                foreach (var hitbox in col.Hitboxes)
-                {
-                    if (myHitbox.IsTargetingInterface<T>() && hitbox.IsBoundToInterface<T>() && myHitbox.Intersects(hitbox))
-                        return true;
-                }
-            }
-
-            return false;
+            // Return whether one of our hitboxes that is targeting the given interface
+            // can find a hitbox bound to that interface AND is intersecting.
+            return hitboxes.Any(myHitbox 
+                => myHitbox.IsTargetingInterface<T>() && col.hitboxes.Any(hitbox 
+                    => hitbox.IsBoundToInterface<T>() && myHitbox.Intersects(hitbox)));
         }
 
         public bool ContainsPoint<T>(int x, int y) where T : ICollider
         {
-            foreach (var myHitbox in Hitboxes)
-            {
-                if (myHitbox.IsBoundToInterface<T>() && myHitbox.ContainsPoint(x, y))
-                    return true;
-            }
-
-            return false;
+            // Return whether one of our Hitboxes that is bound to the interface AND contains the point.
+            return hitboxes.Any(myHitbox => myHitbox.IsBoundToInterface<T>() && myHitbox.ContainsPoint(x, y));
         }
         
         public bool IsIntersectedBy<T>(Hitbox hitbox) where T : ICollider
         {
-            foreach (var myHitbox in Hitboxes)
-            {
-                if (hitbox.IsTargetingInterface<T>() && myHitbox.IsBoundToInterface<T>() && myHitbox.Intersects(hitbox))
-                    return true;
-            }
-
-            return false;
+            // First, check if incoming Hitbox is actually targeting this interface.
+            // Then, return whether one of our Hitboxes that is bound to the interface AND is intersecting incoming Hitbox.
+            return hitbox.IsTargetingInterface<T>() 
+                   && hitboxes.Any(myHitbox => myHitbox.IsBoundToInterface<T>() && myHitbox.Intersects(hitbox));
         }
     }
 }
