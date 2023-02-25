@@ -7,6 +7,7 @@ using System.Text;
 
 namespace AM2E.Collision
 {
+    // AKA The Technical Debt That I Deservioli
     public static class LOIC
     {
         private static List<ICollider> colliders = new();
@@ -18,12 +19,7 @@ namespace AM2E.Collision
 
         public static bool Check<T>(Collider self) where T : ICollider
         {
-            foreach (ICollider col in colliders)
-            {
-                if (col is T && col.Collider.Hitbox.Intersects(self.Hitbox))
-                    return true;
-            }
-            return false;
+            return CheckCollider<T>(self) != null;
         }
 
         public static bool Check<T>(Collider self, int x, int y) where T : ICollider
@@ -42,7 +38,7 @@ namespace AM2E.Collision
         {
             foreach (ICollider col in colliders)
             {
-                if (col is T && col.Collider.Hitbox.ContainsPoint(x, y))
+                if (col is T && col.Collider.ContainsPoint(x, y))
                     return true;
             }
             return false;
@@ -50,9 +46,10 @@ namespace AM2E.Collision
 
         public static bool CheckRectangle<T>(int x1, int y1, int x2, int y2) where T : ICollider
         {
+            var hitbox = new RectangleHitbox(x1, y1, (x2 - x1) + 1, (y2 - y1) + 1);
             foreach (ICollider col in colliders)
             {
-                if (col is T && col.Collider.Hitbox.Intersects(new RectangleHitbox(x1, y1, (x2 - x1) + 1, (y2 - y1) + 1)))
+                if (col is T && col.Collider.Intersects(hitbox))
                     return true;
             }
             return false;
@@ -62,7 +59,7 @@ namespace AM2E.Collision
         {
             foreach (ICollider col in colliders)
             {
-                if (col is T && col.Collider.Hitbox.Intersects(self.Hitbox))
+                if (col is T && col.Collider.Intersects(self))
                     return col;
             }
             return null;

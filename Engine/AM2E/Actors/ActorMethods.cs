@@ -25,7 +25,7 @@ namespace AM2E.Actors
         {
             ID = id ?? Guid.NewGuid().ToString();
             hitbox ??= DefaultHitbox;
-            Collider = new Collider(hitbox);
+            Collider = new Collider(x, y, hitbox);
             X = x;
             Y = y;
             FlipX = flipX;

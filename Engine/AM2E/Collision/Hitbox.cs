@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using AM2E.Graphics;
 
@@ -32,6 +33,24 @@ namespace AM2E.Collision
         {
             FlippedX = xFlip;
             FlippedY = yFlip;
+        }
+        
+        private List<Type> interfaces;
+
+        public bool MatchesInterface(Type type)
+        {
+            if (interfaces == null)
+                return true;
+            
+            // Return: interfaces contains type, or interfaces contains any of type's types
+            var typeInterfaces = type.GetInterfaces();
+            return interfaces.Any(x => x == type || typeInterfaces.Any(y => x == y));
+        }
+
+        public void BindInterface(Type type)
+        {
+            interfaces ??= new List<Type>();
+            interfaces.Add(type);
         }
 
         protected abstract bool Intersects(RectangleHitbox hitbox);

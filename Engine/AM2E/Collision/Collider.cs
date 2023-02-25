@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
+using LanguageExt;
 
 namespace AM2E.Collision
 {
@@ -24,17 +25,27 @@ namespace AM2E.Collision
             Y
         }
 
-        public int X 
-        { 
-            get => Hitbox.X;
-            set => Hitbox.X = value;
+        private int _x;
+        private int _y;
+        public int X
+        {
+            get => _x;
+            set
+            {
+                _x = value;
+                if (Hitbox != null) Hitbox.X = value;
+            }
         }
-        public int Y 
-        { 
-            get => Hitbox.Y;
-            set => Hitbox.Y = value;
+        public int Y
+        {
+            get => _y;
+            set
+            {
+                _y = value;
+                if (Hitbox != null) Hitbox.Y = value;
+            }
         }
-
+        
         // TODO: Make these two whine when accessed outside of a collision?
         public int VelX => vel[0];
 
@@ -71,9 +82,25 @@ namespace AM2E.Collision
 
         public CollisionDirection Direction { get; private set; } = CollisionDirection.None;
         public Hitbox Hitbox { get; private set; }
+        
+        public bool FlippedX { get; protected set; } = false;
+        public bool FlippedY { get; protected set; } = false;
 
-        public Collider(Hitbox hitbox)
+        public void ApplyFlipsFromBits(int bits)
         {
+            ApplyFlips((bits & 1) != 0, (bits & 2) != 0);
+        }
+        public virtual void ApplyFlips(bool xFlip, bool yFlip)
+        {
+            FlippedX = xFlip;
+            FlippedY = yFlip;
+            Hitbox.ApplyFlips(FlippedX, FlippedY);
+        }
+
+        public Collider(int x, int y, Hitbox hitbox)
+        {
+            X = x;
+            Y = y;
             Hitbox = hitbox;
         }
 
@@ -243,6 +270,21 @@ namespace AM2E.Collision
             Y = _y;
 
             return output;
+        }
+
+        public bool Intersects(Collider col)
+        {
+            return col.Hitbox.Intersects(Hitbox);
+        }
+
+        public bool ContainsPoint(int x, int y)
+        {
+            return Hitbox.ContainsPoint(x, y);
+        }
+
+        public bool Intersects(Hitbox hitbox)
+        {
+            return Hitbox.Intersects(hitbox);
         }
     }
 }
