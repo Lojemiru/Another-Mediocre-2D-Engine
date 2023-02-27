@@ -10,7 +10,7 @@ namespace AM2E
         /// <summary>
         /// A key-state dictionary, which lists all possible states of the state machine. 
         /// </summary>
-        private readonly Dictionary<TKey, TState> states = new Dictionary<TKey, TState>();
+        private readonly Dictionary<TKey, TState> states;
         
         /// <summary>
         /// The current <see cref="TState"/> the state machine is currently in.
@@ -35,13 +35,23 @@ namespace AM2E
         private bool changed = false;
 
         /// <summary>
-        /// Initializes a new <see cref="StateMachine{TKey,TState}"/>.
+        /// Initializes a new empty <see cref="StateMachine{TKey,TState}"/>.
         /// </summary>
         /// <param name="initialState">The key of the <see cref="TState"/> within which this <see cref="StateMachine{TKey,TState}"/> should start.</param>
-        public StateMachine(TKey initialState)
+        public StateMachine(TKey initialState) : this(initialState, null)
         {
             CurrentKey = initialState;
             PreviousKey = initialState;
+        }
+        
+        /// <summary>
+        /// Initializes a new <see cref="StateMachine{TKey,TState}"/> from the given <see cref="Dictionary{TKey,TState}"/>.
+        /// </summary>
+        /// <param name="initialState">The key of the <see cref="TState"/> within which this <see cref="StateMachine{TKey,TState}"/> should start.</param>
+        /// <param name="states">The <see cref="Dictionary{TKey,TState}"/> this <see cref="StateMachine{TKey,TState}"/> should utilize.</param>
+        public StateMachine(TKey initialState, Dictionary<TKey, TState> states)
+        {
+            this.states = states ?? new Dictionary<TKey, TState>();
         }
 
         /// <summary>
