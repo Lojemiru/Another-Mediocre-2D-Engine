@@ -12,7 +12,7 @@ done
 for f in "input/"*
 do
 	echo "Generating raw "$f"..."
-	"../GameChanger/GameChanger.exe" sprite --input  $f"/" --output output/raw
+	"../GameChanger/GameChanger" sprite --input  $f"/" --output output/raw
 done
 
 # Generate Aseprite output

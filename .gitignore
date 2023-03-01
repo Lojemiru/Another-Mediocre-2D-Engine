@@ -416,3 +416,6 @@ Engine/AM2E/Graphics/SpriteIndex.cs
 
 Aseprite/*
 !Aseprite/README.md
+
+Asset Porting/GameChanger/*
+!Asset Porting/GameChanger/README.md
