@@ -28,9 +28,7 @@ namespace AM2E.Actors
             Collider = new Collider(x, y, hitbox);
             X = x;
             Y = y;
-            FlipX = flipX;
-            FlipY = flipY;
-            hitbox.ApplyFlips(FlipX, FlipY);
+            ApplyFlips(flipX, flipY);
         }
         
         /// <summary>
@@ -53,6 +51,25 @@ namespace AM2E.Actors
             // Nothing - we want an empty event so actors don't /have/ to define it.
         }
 
+        public void ApplyFlipsFromBits(int bits)
+        {
+            ApplyFlips((bits & 1) != 0, (bits & 2) != 0);
+        }
+        public void ApplyFlips(bool xFlip, bool yFlip)
+        {
+            FlippedX = xFlip;
+            FlippedY = yFlip;
+            Collider.ApplyFlips(FlippedX, FlippedY);
+        }
+
+        public SpriteEffects GetSpriteFlips()
+        {
+            if (FlippedX && FlippedY)
+                return SpriteEffects.FlipHorizontally & SpriteEffects.FlipVertically;
+            
+            return FlippedX ? SpriteEffects.FlipHorizontally : (FlippedY ? SpriteEffects.FlipVertically : SpriteEffects.None);
+        }
+        
         public virtual void OnRoomStart()
         {
             // Nothing - we want an empty event so actors don't /have/ to define it.

@@ -77,7 +77,7 @@ namespace AM2E.Collision
         private bool inMovement = false;
 
         public Action OnSubstep { get; set; }
-        public Action AfterSubstep { get; set; }
+        public Action AfterSubstep { get; set; } = () => { };
 
         public CollisionDirection Direction { get; private set; } = CollisionDirection.None;
         private readonly List<Hitbox> hitboxes = new();

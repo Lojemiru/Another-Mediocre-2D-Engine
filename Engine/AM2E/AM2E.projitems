@@ -21,7 +21,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Collision\Hitbox.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\ICollider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\LOIC.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)GameState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Animation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EngineCore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\PageIndex.cs" />
@@ -52,6 +51,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Levels\World.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MathHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IO\AssetManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RNG.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StateMachine.cs" />
   </ItemGroup>

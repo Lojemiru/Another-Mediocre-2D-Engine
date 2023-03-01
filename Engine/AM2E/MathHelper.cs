@@ -1,3 +1,5 @@
+using System;
+
 namespace AM2E;
 
 public static class MathHelper
@@ -25,5 +27,12 @@ public static class MathHelper
                 pos++;
             }
         }
+    }
+
+    public static int PointDistance(int x1, int y1, int x2, int y2)
+    {
+        var x = x1 - x2;
+        var y = y1 - y2;
+        return (int)Math.Sqrt((x * x) + (y * y));
     }
 }
