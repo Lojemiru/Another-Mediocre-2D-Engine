@@ -9,6 +9,9 @@ using System.Text;
 namespace AM2E.Collision
 {
     // The Technical Debt That I Deservioli
+    
+    // TODO: Consider whether the LINQ queries here should be replaced with simple iterators for performance.
+    //       This is likely going to be the biggest performance bottleneck after rendering and level loading.
     public static class LOIC
     {
         private static List<ICollider> colliders = new();
