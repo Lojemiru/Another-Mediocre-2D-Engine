@@ -20,6 +20,9 @@ namespace AM2E.Collision
         {
             colliders.Add(collider);
         }
+        
+        // TODO: De-registration
+        // TODO: "active" pools (so we can load but not check against inactive rooms etc.)
 
         public static bool Check<T>(Collider self) where T : ICollider
         {
@@ -42,21 +45,44 @@ namespace AM2E.Collision
         public static bool CheckPoint<T>(int x, int y) where T : ICollider
         {
             // Return whether any collider is found that matches interface and contains the input point.
-            return colliders.Any(col => col is T && col.Collider.ContainsPoint<T>(x, y));
-        }
+            foreach (var col in colliders)
+            {
+                if (col is T && col.Collider.ContainsPoint<T>(x, y))
+                    return true;
+            }
 
+            return false;
+        }
+        
+        // Static hitbox to save on instantiation/garbage collector spam.
+        private static RectangleHitbox rectCheckHitbox = new RectangleHitbox(0, 0, 1, 1);
         public static bool CheckRectangle<T>(int x1, int y1, int x2, int y2) where T : ICollider
         {
-            // TODO: Convert hitbox to const for performance?
-            var hitbox = new RectangleHitbox(x1, y1, (x2 - x1) + 1, (y2 - y1) + 1);
+            // Update hitbox.
+            rectCheckHitbox.X = x1;
+            rectCheckHitbox.Y = y1;
+            rectCheckHitbox.Resize((x2 - x1) + 1, (y2 - y1) + 1);
+
             // Return whether any collider is found that matches interface and is intersected by the input hitbox.
-            return colliders.Any(col => col is T && col.Collider.IsIntersectedBy<T>(hitbox));
+            foreach (var col in colliders)
+            {
+                if (col is T && col.Collider.IsIntersectedBy<T>(rectCheckHitbox))
+                    return true;
+            }
+
+            return false;
         }
 
         public static ICollider CheckCollider<T>(Collider self) where T : ICollider
         {
             // Return first (or null) Collider that matches interface and is intersected by input Collider.
-            return colliders.FirstOrDefault(col => col is T && self.Intersects<T>(col.Collider));
+            foreach (var col in colliders)
+            {
+                if (col is T && self.Intersects<T>(col.Collider))
+                    return col;
+            }
+
+            return null;
         }
     }
 

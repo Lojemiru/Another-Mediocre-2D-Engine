@@ -299,23 +299,45 @@ namespace AM2E.Collision
         {
             // Return whether one of our hitboxes that is targeting the given interface
             // can find a hitbox bound to that interface AND is intersecting.
-            return hitboxes.Any(myHitbox 
-                => myHitbox.IsTargetingInterface<T>() && col.hitboxes.Any(hitbox 
-                    => hitbox.IsBoundToInterface<T>() && myHitbox.Intersects(hitbox)));
+            foreach (var myHitbox in hitboxes)
+            {
+                if (!myHitbox.IsTargetingInterface<T>()) continue;
+                foreach (var hitbox in col.hitboxes)
+                {
+                    if (hitbox.IsBoundToInterface<T>() && myHitbox.Intersects(hitbox))
+                        return true;
+                }
+            }
+
+            return false;
         }
 
         public bool ContainsPoint<T>(int x, int y) where T : ICollider
         {
             // Return whether one of our Hitboxes that is bound to the interface AND contains the point.
-            return hitboxes.Any(myHitbox => myHitbox.IsBoundToInterface<T>() && myHitbox.ContainsPoint(x, y));
+            foreach (var myHitbox in hitboxes)
+            {
+                if (myHitbox.IsBoundToInterface<T>() && myHitbox.ContainsPoint(x, y))
+                    return true;
+            }
+
+            return false;
         }
         
         public bool IsIntersectedBy<T>(Hitbox hitbox) where T : ICollider
         {
             // First, check if incoming Hitbox is actually targeting this interface.
             // Then, return whether one of our Hitboxes that is bound to the interface AND is intersecting incoming Hitbox.
-            return hitbox.IsTargetingInterface<T>() 
-                   && hitboxes.Any(myHitbox => myHitbox.IsBoundToInterface<T>() && myHitbox.Intersects(hitbox));
+            if (!hitbox.IsTargetingInterface<T>())
+                return false;
+            
+            foreach (var myHitbox in hitboxes)
+            {
+                if (myHitbox.IsBoundToInterface<T>() && myHitbox.Intersects(hitbox))
+                    return true;
+            }
+
+            return false;
         }
     }
 }

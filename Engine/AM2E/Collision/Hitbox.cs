@@ -78,8 +78,8 @@ namespace AM2E.Collision
     // TODO: Move these to their own files :frog:
     public class RectangleHitbox : Hitbox
     {
-        public int Width { get; }
-        public int Height { get; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
 
         public override int BoundLeft => X - OffsetX;
 
@@ -97,6 +97,12 @@ namespace AM2E.Collision
             Height = h;
             OffsetX = InitialOffsetX = offsetX;
             OffsetY = InitialOffsetY = offsetY;
+        }
+
+        public void Resize(int width, int height)
+        {
+            Width = width;
+            Height = height;
         }
 
         public override void ApplyFlips(bool xFlip, bool yFlip)
