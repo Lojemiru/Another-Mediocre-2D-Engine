@@ -16,6 +16,13 @@ public static class MathHelper
         return a + (amount * (b - a));
     }
 
+    // Thanks to Juju Adams!
+    public static int Wrap(int value, int min, int max)
+    {
+        var mod = (value - min) % (max - min);
+        return mod + (mod < 0 ? max : min);
+    }
+
     public static void SplitArrayTo2D<T>(T[] input, T[,] output)
     {
         var pos = 0;

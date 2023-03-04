@@ -30,6 +30,7 @@ namespace AM2E.Actors
             X = x;
             Y = y;
             ApplyFlips(flipX, flipY);
+            LOIC.Register(this);
         }
         
         /// <summary>

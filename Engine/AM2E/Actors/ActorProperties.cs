@@ -17,24 +17,12 @@ namespace AM2E.Actors
         
         public static readonly Hitbox DefaultHitbox = new RectangleHitbox(0, 0, 16, 16);
         public int X {
-            get
-            {
-                return Collider.X;
-            } 
-            set
-            {
-                Collider.X = value;
-            }
+            get => Collider.X;
+            set => Collider.X = value;
         }
         public int Y {
-            get
-            {
-                return Collider.Y;
-            }
-            set
-            {
-                Collider.Y = value;
-            }
+            get => Collider.Y;
+            set => Collider.Y = value;
         }
         public bool Persistent { get; set; } = false;
         public bool Exists { get; private set; } = true;
