@@ -129,8 +129,6 @@ namespace AM2E.Collision
 
         public void MoveAndCollide(double xVel, double yVel)
         {
-            inMovement = true;
-
             const int x = (int)Axis.X;
             const int y = (int)Axis.Y;
             
@@ -145,6 +143,15 @@ namespace AM2E.Collision
             // Reduce subVel by the integer amount we removed
             subVel[x] -= vel[x];
             subVel[y] -= vel[y];
+            
+            // If we're not moving, do a static check and return.
+            if (vel[x] == 0 && vel[y] == 0)
+            {
+                CheckAndRunAll(0, 0);
+                return;
+            }
+            
+            inMovement = true;
 
             // Determine dominant and subordinate axis
             int domAxis = x,
