@@ -15,8 +15,8 @@ namespace AM2E
         /// <summary>
         /// The current <see cref="TState"/> the state machine is currently in.
         /// </summary>
-        public TState CurrentState { get; private set; }
-        
+        public TState CurrentState => states[CurrentKey];
+
         /// <summary>
         /// The <see cref="TKey"/> of the current <see cref="TState"/> the state machine is currently in.
         /// </summary>
@@ -35,7 +35,7 @@ namespace AM2E
         private bool changed = false;
 
         /// <summary>
-        /// Initializes a new empty <see cref="StateMachine{TKey,TState}"/>.
+        /// Initializes a new empty <see cref="StateMachine{TKey,TState}"/>. Enter event must be called manually for first state if instantiated this way!
         /// </summary>
         /// <param name="initialState">The key of the <see cref="TState"/> within which this <see cref="StateMachine{TKey,TState}"/> should start.</param>
         public StateMachine(TKey initialState) : this(initialState, null)
@@ -60,8 +60,6 @@ namespace AM2E
         /// <exception cref="KeyNotFoundException">If <see cref="CurrentKey"/> is null, due to the state not being added before via <see cref="Add(TKey, TState)"/>.</exception>
         public void Step()
         {
-            CurrentState = states[CurrentKey];
-            
             changed = false;
             CurrentState.Step();
 
@@ -93,8 +91,6 @@ namespace AM2E
 
             PreviousKey = CurrentKey;
             CurrentKey = key;
-            CurrentState = states[CurrentKey];
-
             changed = true;
             
             CurrentState.Enter();
