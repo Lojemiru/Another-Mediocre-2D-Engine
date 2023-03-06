@@ -62,8 +62,11 @@ end
 -- Get the current sprite
 local sprite = app.activeSprite
 
+-- Get the filename, standardized for UNIX-like because Microsoft are morons who still insist on using the backslash
+local trueFilename = sprite.filename:gsub("\\", "/")
+
 -- Get the sprite's name
-local name = getFileName(sprite.filename)
+local name = getFileName(trueFilename)
 
 -- Handle there being no sprite, show an error
 if (sprite == nil) then
@@ -122,7 +125,7 @@ end
 
 ---- Export the file
 local filename = name..".png"
-local directory = getPath(sprite.filename)
+local directory = getPath(trueFilename)
 local path = directory.."/"..name.."/"
 path = string.gsub(path, "/","/")
 -- Make the path to store the file

@@ -413,6 +413,8 @@ GameContent/*
 !GameContent/TEMPLATE_INFO.md
 Engine/AM2E/Graphics/PageIndex.cs
 Engine/AM2E/Graphics/SpriteIndex.cs
+Sprites and Metadata/TexturePacker/*
+!Sprites and Metadata/Texturepacker/README.md
 
 Aseprite/*
 !Aseprite/README.md
