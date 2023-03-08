@@ -80,7 +80,7 @@ namespace AM2E.Graphics
             var colorArray = new Color[Width * Height];
             TexturePage.Texture.GetData(0, 0, positions[frame], colorArray, 0, Width * Height);
             
-            var outputArray = new bool[Height, Width];
+            var outputArray = new bool[Width, Height];
             
             // Split 1D array into a 2D array based on alpha value.
             var pos = 0;
@@ -88,7 +88,7 @@ namespace AM2E.Graphics
             {
                 for (var j = 0; j < Width; j++)
                 {
-                    outputArray[i, j] = colorArray[pos].A > 0.1;
+                    outputArray[j, i] = colorArray[pos].A > 0.1;
                     pos++;
                 }
             }
