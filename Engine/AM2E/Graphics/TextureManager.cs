@@ -1,58 +1,54 @@
-﻿using AM2E.IO;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace AM2E.Graphics
+namespace AM2E.Graphics;
+
+public static class TextureManager
 {
-    public static class TextureManager
+    private static Dictionary<PageIndex, TexturePage> pages = new();
+
+    static TextureManager()
+    {   
+        foreach (var page in Enum.GetValues<PageIndex>())
+        {
+            pages.Add(page, null);
+        }
+    }
+
+    public static bool PageExists(PageIndex index)
     {
-        private static Dictionary<PageIndex, TexturePage> pages = new();
+        return pages.ContainsKey(index);
+    }
 
-        static TextureManager()
-        {   
-            foreach (var page in Enum.GetValues<PageIndex>())
-            {
-                pages.Add(page, null);
-            }
-        }
+    public static bool IsPageLoaded(PageIndex index)
+    {
+        return pages[index] != null;
+    }
 
-        public static bool PageExists(PageIndex index)
-        {
-            return pages.ContainsKey(index);
-        }
+    public static void LoadPage(PageIndex index)
+    {
+        if (!PageExists(index))
+            throw new ArgumentException("Page does not exist: " + index);
 
-        public static bool IsPageLoaded(PageIndex index)
-        {
-            return pages[index] != null;
-        }
+        if (IsPageLoaded(index))
+            return;
 
-        public static void LoadPage(PageIndex index)
-        {
-            if (!PageExists(index))
-                throw new ArgumentException("Page does not exist: " + index);
+        pages[index] = TexturePage.Load(index);
+    }
 
-            if (IsPageLoaded(index))
-                return;
+    public static TexturePage GetPage(PageIndex index)
+    {
+        // Ensure page exists/is loaded.
+        LoadPage(index);
 
-            pages[index] = TexturePage.Load(index);
-        }
+        return pages[index];
+    }
 
-        public static TexturePage GetPage(PageIndex index)
-        {
-            // Ensure page exists/is loaded.
-            LoadPage(index);
+    public static void UnloadPage(PageIndex index)
+    {
+        if (!PageExists(index))
+            throw new ArgumentException("Page does not exist: " + index);
 
-            return pages[index];
-        }
-
-        public static void UnloadPage(PageIndex index)
-        {
-            if (!PageExists(index))
-                throw new ArgumentException("Page does not exist: " + index);
-
-            pages[index] = null;
-        }
+        pages[index] = null;
     }
 }
