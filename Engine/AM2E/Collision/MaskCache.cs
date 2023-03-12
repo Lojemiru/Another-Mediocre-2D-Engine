@@ -3,6 +3,8 @@ using AM2E.Graphics;
 
 namespace AM2E.Collision;
 
+// TODO: Review if this is even a good design paradigm.
+
 public static class MaskCache
 {
     // TODO: Make this support mask flips!
