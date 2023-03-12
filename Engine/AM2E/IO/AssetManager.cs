@@ -1,9 +1,4 @@
 ﻿using AM2E.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Text;
 
 namespace AM2E.IO;
 

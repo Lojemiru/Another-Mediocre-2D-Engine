@@ -1,8 +1,4 @@
 ﻿using Microsoft.Xna.Framework.Input;
-using MonoGame.Extended.Input;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace AM2E.Control;
 
@@ -13,7 +9,7 @@ public class KeyboardInput
     private bool inputPressedLast = false;
     public bool InputHeld { get; private set; } = false;
     public int InputHeldSteps { get; private set; } = 0;
-    public Keys Key { get; private set; }
+    private Keys Key { get; set; }
 
     public KeyboardInput(Keys key)
     {

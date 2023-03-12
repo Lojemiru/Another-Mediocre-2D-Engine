@@ -5,23 +5,25 @@ using System.Collections.Generic;
 
 namespace AM2E.Control;
 
+// TODO: Review EngineConfig setup. Is this a good design paradigm?
+
 public static class InputManager
 {
-    private static Dictionary<Input, KeyboardInput> keyboardListeners = new Dictionary<Input, KeyboardInput>();
+    private static readonly Dictionary<Input, KeyboardInput> KeyboardListeners = new();
         
     static InputManager()
     {
         foreach (Input input in Enum.GetValues(typeof(Input)))
         {
-            keyboardListeners.Add(input, new KeyboardInput(Keys.None));
+            KeyboardListeners.Add(input, new KeyboardInput(Keys.None));
         }
     }
 
     public static void Update()
     {
         var keyboardState = Keyboard.GetState();
-        Dictionary<Input, KeyboardInput>.ValueCollection valColl = keyboardListeners.Values;
-        foreach (KeyboardInput listener in valColl)
+        var valColl = KeyboardListeners.Values;
+        foreach (var listener in valColl)
         {
             listener.Poll(keyboardState);
         }
@@ -37,34 +39,34 @@ public static class InputManager
 
     public static void BindKey(Input input, Keys key)
     {
-        keyboardListeners[input].Rebind(key);
+        KeyboardListeners[input].Rebind(key);
     }
 
     public static void Remove(Input input)
     {
-        keyboardListeners.Remove(input);
+        KeyboardListeners.Remove(input);
     }
 
     #region Getters
 
     public static bool GetPressed(Input input)
     {
-        return keyboardListeners[input].InputPressed;
+        return KeyboardListeners[input].InputPressed;
     }
 
     public static bool GetReleased(Input input)
     {
-        return keyboardListeners[input].InputReleased;
+        return KeyboardListeners[input].InputReleased;
     }
 
     public static bool GetHeld(Input input)
     {
-        return keyboardListeners[input].InputHeld;
+        return KeyboardListeners[input].InputHeld;
     }
 
     public static int GetHeldSteps(Input input)
     {
-        return keyboardListeners[input].InputHeldSteps;
+        return KeyboardListeners[input].InputHeldSteps;
     }
 
     #endregion
