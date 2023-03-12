@@ -1,10 +1,5 @@
-using System;
-using AM2E.Actors;
 using AM2E.Graphics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended;
-using MonoGame.Extended.ViewportAdapters;
 
 namespace AM2E;
 

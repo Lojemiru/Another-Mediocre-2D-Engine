@@ -1,10 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using AM2E.Actors;
 using AM2E.Control;
 using System;
-using System.Diagnostics;
 using AM2E.Graphics;
 
 namespace AM2E;
