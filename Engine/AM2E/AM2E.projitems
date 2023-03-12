@@ -58,7 +58,4 @@
   <ItemGroup>
     <MonoGameContentReference Include="..\AM2E\Content\Content.mgcb" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="$(MSBuildThisFileDirectory)Content\Content.mgcb" />
-  </ItemGroup>
 </Project>
