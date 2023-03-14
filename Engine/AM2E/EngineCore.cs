@@ -56,13 +56,13 @@ public class EngineCore : Game
 
     protected override void LoadContent()
     {
-        // TODO: use this.Content to load your game content here
+        // Do nothing, content is loaded by other systems as needed via explicit calls to manager classes.
     }
 
     protected override void Update(GameTime gameTime)
     {
-        double printDeltaTime = gameTime.ElapsedGameTime.TotalSeconds;
-        float fps = 1 / (float)printDeltaTime;
+        var printDeltaTime = gameTime.ElapsedGameTime.TotalSeconds;
+        var fps = 1 / (float)printDeltaTime;
         //Debug.WriteLine(fps);
 
         const int GAME_SPEED = 60;
@@ -106,7 +106,7 @@ public class EngineCore : Game
         base.Update(gameTime);
     }
 
-    private void FixedUpdate()
+    private static void FixedUpdate()
     {
         InputManager.Update();
         ActorManager.UpdateActors();

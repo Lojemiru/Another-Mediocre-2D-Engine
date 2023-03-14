@@ -26,7 +26,6 @@ public struct LDtkEntityInstance
     /// <summary>
     /// Unique instance identifier
     /// </summary>
-    // TODO: Are we going to use this? Probably not.
     [JsonProperty("iid")]
     public string Iid { get; set; }
 
@@ -50,5 +49,5 @@ public struct LDtkEntityInstance
     /// only), f=2 (Y flip only), f=3 (both flips)
     /// </summary>
     [JsonProperty("f")]
-    public int F { get; set; }
+    public byte F { get; set; }
 }

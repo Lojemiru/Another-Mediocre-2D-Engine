@@ -11,7 +11,7 @@ public struct LDtkTileInstance
     /// </summary>
     // TODO: This does NOT need to be a long! It's only 4 values max!!!
     [JsonProperty("f")]
-    public long F { get; set; }
+    public byte F { get; set; }
 
     /// <summary>
     /// Pixel coordinates of the tile in the **layer** (`[x,y]` format). Don't forget optional

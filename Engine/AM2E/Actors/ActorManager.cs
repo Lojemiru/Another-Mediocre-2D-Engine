@@ -44,8 +44,7 @@ public static class ActorManager
         // Step persistent actors first, then non-persistent ones
         foreach (var actor in PersistentActors.Values)
             actor.Step();
-        
-        
+
         // TODO: Lots of layers don't have Actors. Would it significantly save performance to ignore those layers with some filtering at the Level class layer?
         // probably not lol
         foreach (var level in World.ActiveLevels.Values)

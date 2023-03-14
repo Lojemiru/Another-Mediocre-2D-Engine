@@ -19,7 +19,6 @@ public struct LDtkLayerInstance
     /// <summary>
     /// The definition UID of corresponding Tileset, if any.
     /// </summary>
-    // TODO: this or the next one need to get converted into our actual sprite reference or something. Ugh. 
     [JsonProperty("__tilesetDefUid")]
     public int? TilesetDefUid { get; set; }
 

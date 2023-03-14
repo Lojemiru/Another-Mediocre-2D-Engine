@@ -40,8 +40,7 @@ public class Collider
             SyncHitboxPositions();
         }
     }
-        
-    // TODO: Make these two whine when accessed outside of a collision?
+    
     public int VelX => vel[0];
     public int VelY => vel[1];
 
@@ -190,11 +189,11 @@ public class Collider
                     Y += domMult;
 
                 var subCurrentLast = subCurrent;
-
-                // TODO: This might need to be floats and then floored, but it also might work fine like this. Maybe.
+                
                 subCurrent = vel[subAxis] * domCurrent / vel[domAxis];
                 subIncrement = (subCurrent != subCurrentLast);
-                subCurrent = subCurrentLast; // Prevents stupid slidey shenanigans. At least that's what I said in the LHC...
+                // Prevents stupid slidey shenanigans. At least that's what I said in the LHC...
+                subCurrent = subCurrentLast;
             }
 
             if ((subIncrement || !continueMovement[domAxis]) && continueMovement[subAxis] && (subCurrent != vel[subAxis]))
