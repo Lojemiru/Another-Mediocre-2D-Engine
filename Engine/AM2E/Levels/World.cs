@@ -59,8 +59,9 @@ public static class World
         
         var level = ldtkLevels[id];
 
-        // TODO: Throw if already exists
-        //LoadedLevels.Add(level.Iid, new Level(level.Identifier, level.WorldX, level.WorldY, level.PxWid, level.PxHei));
+        if (LoadedLevels.ContainsKey(level.Iid))
+            throw new Exception("Key " + level.Iid + " has already been instantiated!");
+        
         LoadedLevels.Add(level.Iid, new Level(level));
         
         foreach (var ldtkLayer in level.LayerInstances.Reverse())
