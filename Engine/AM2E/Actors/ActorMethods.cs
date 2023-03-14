@@ -117,8 +117,6 @@ public abstract partial class Actor : IDrawable, ICollider
     public void Deregister()
     {
         Exists = false;
-        // Deregister self with ActorManager.
-        ActorManager.DeregisterActor(this);
         Layer.Remove(this);
         // TODO: Does this cause the object to get automatically cleaned up?
     }

@@ -18,7 +18,7 @@ public static class World
     private static LDtkLevelInstance[] ldtkLevels;
     private static readonly Dictionary<int, LDtkTilesetDefinition> tilesets = new();
     private static readonly Dictionary<int, PageIndex> tilesetPageMappings = new();
-    private static Dictionary<int, Level> loadedLevels = new();
+    public static Dictionary<int, Level> LoadedLevels = new();
     public static void LoadWorld(string path)
     {
         JsonSerializer serializer = new();
@@ -61,12 +61,12 @@ public static class World
         var depth = 500;
         
         // TODO: Throw if already exists
-        loadedLevels.Add(id, new Level(level.Identifier, level.WorldX, level.WorldY, level.PxWid, level.PxHei));
+        LoadedLevels.Add(id, new Level(level.Identifier, level.WorldX, level.WorldY, level.PxWid, level.PxHei));
         
         foreach (var ldtkLayer in level.LayerInstances.Reverse())
         {
             // Create layer if it doesn't already exist.
-            var layer = loadedLevels[id].AddLayer(ldtkLayer.Identifier, depth);
+            var layer = LoadedLevels[id].AddLayer(ldtkLayer.Identifier, depth);
             
             // Handle collision first, since it's technically an Entities layer but we don't want to treat it as such
             // TODO: We need to have a means of loading multiple collision layers.
@@ -89,7 +89,7 @@ public static class World
                         {
                             var entityType = Type.GetType("GameContent." + entity.Identifier);
                             var ent = (Actor)Activator.CreateInstance(entityType, entity, level.WorldX + entity.Px[0], level.WorldY + entity.Px[1]);
-                            ActorManager.Instantiate(ent, layer, loadedLevels[id]);
+                            ActorManager.Instantiate(ent, layer, LoadedLevels[id]);
                         }
                         break;
                     case LDtkLayerType.Tiles:
@@ -101,7 +101,7 @@ public static class World
                         
                         // Instantiate each tile.
                         foreach (var tile in ldtkLayer.GridTiles)
-                            loadedLevels[id].AddDrawable(ldtkLayer.Identifier, new Tile(tile, sprite, level.WorldX + tile.Px[0], level.WorldY + tile.Px[1], set.TileGridSize));
+                            LoadedLevels[id].AddDrawable(ldtkLayer.Identifier, new Tile(tile, sprite, level.WorldX + tile.Px[0], level.WorldY + tile.Px[1], set.TileGridSize));
                         
                         break;
                     case LDtkLayerType.AutoLayer:
@@ -131,13 +131,13 @@ public static class World
 
     public static Level GetLevel(string name)
     {
-        return loadedLevels.Values.FirstOrDefault(level => level.Name == name);
+        return LoadedLevels.Values.FirstOrDefault(level => level.Name == name);
     }
 
     public static void RenderLevels()
     {
         // TODO: switch drawing based on whether or not level is flagged as active... or have two variables? One for visibility, one for activeness?
-        foreach (var level in loadedLevels.Values)
+        foreach (var level in LoadedLevels.Values)
         {
             level.Draw();
         }

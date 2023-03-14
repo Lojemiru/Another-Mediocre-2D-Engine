@@ -1,18 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AM2E.Graphics;
 using AM2E.Levels;
 
 namespace AM2E.Actors;
 
-// TODO: Rewrite to handle Actors per-room.
-
-static public class ActorManager
+public static class ActorManager
 {
-    private static Dictionary<string, Actor> actors = new();
-
+    private static Dictionary<string, Actor> persistentActors = new();
+    
+    // TODO: Does this pattern make any sense? Now that we don't have to register them with the manager, we may not need this...
     public static Actor Instantiate(Actor actor, string layer, Level level)
     {
-        RegisterActor(actor);
         level.Add(layer, actor);
         actor.PostConstructor();
         return actor;
@@ -25,43 +24,85 @@ static public class ActorManager
 
     public static Actor InstantiatePersistent(Actor actor)
     {
-        RegisterActor(actor);
         actor.Persistent = true;
+        persistentActors.Add(actor.ID, actor);
         return actor;
     }
 
-    public static void RegisterActor(Actor actor)
+    public static void RemovePersistent(Actor actor)
     {
-        actors.Add(actor.ID, actor);
+        RemovePersistent(actor.ID);
     }
 
-    public static void DeregisterActor(Actor actor)
+    public static void RemovePersistent(string id)
     {
-        actors.Remove(actor.ID);
+        persistentActors.Remove(id);
     }
 
     public static void UpdateActors()
     {
-        foreach (var actor in actors.Values)
-        {
+        // Step persistent actors first, then non-persistent ones
+        foreach (var actor in persistentActors.Values)
             actor.Step();
+        
+        
+        // TODO: Lots of layers don't have Actors. Would it significantly save performance to ignore those layers with some filtering at the Level class layer?
+        // probably not lol
+        foreach (var level in World.LoadedLevels.Values)
+        {
+            foreach (var layer in level.Layers.Values)
+            {
+                foreach (var actor in layer.Actors)
+                {
+                    if (!actor.Persistent)
+                        actor.Step();
+                }
+            }
         }
     }
 
     public static Actor GetActor(string id)
     {
-        return actors.ContainsKey(id) ? actors[id] : null;
+        foreach (var actor in persistentActors.Values)
+        {
+            if (actor.ID == id)
+                return actor;
+        }
+
+        foreach (var level in World.LoadedLevels.Values)
+        {
+            foreach (var layer in level.Layers.Values)
+            {
+                foreach (var actor in layer.Actors)
+                {
+                    if (actor.ID == id) 
+                        return actor;
+                }
+            }
+        }
+
+        return null;
     }
 
     /// <summary>
     /// Deregisters all non-persistent <see cref="Actor"/>s and runs their OnRoomEnd events.
     /// </summary>
-    public static void RoomEnd()
+    public static void LevelEnd(Level level)
     {
-        foreach (var actor in actors.Values)
-        {
+        foreach (var actor in persistentActors.Values)
             actor.OnRoomEnd();
-            if (!actor.Persistent) actor.Deregister();
+        
+        foreach (var layer in level.Layers.Values)
+        {
+            foreach (var actor in layer.Actors)
+            {
+                if (actor.Persistent)
+                    continue;
+                
+                actor.OnRoomEnd();
+                // TODO: Do we actually need to deregister?
+                actor.Deregister();
+            }
         }
     }
 

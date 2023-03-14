@@ -55,7 +55,4 @@
     <Compile Include="$(MSBuildThisFileDirectory)State.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StateMachine.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <MonoGameContentReference Include="..\AM2E\Content\Content.mgcb" />
-  </ItemGroup>
 </Project>
