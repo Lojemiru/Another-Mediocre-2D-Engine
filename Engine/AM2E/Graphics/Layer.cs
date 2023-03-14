@@ -14,14 +14,11 @@ public class Layer
     public readonly List<Actor> Actors = new();
     public readonly List<object> Objects = new();
     public readonly List<ICollider> Colliders = new();
-    // TODO: Is this worth keeping at all?
-    public readonly int Depth;
     public bool Visible = true;
 
-    public Layer(string name, int depth)
+    public Layer(string name)
     {
         Name = name;
-        Depth = depth;
     }
 
     public void Add(IDrawable drawable)

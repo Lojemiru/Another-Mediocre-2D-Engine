@@ -7,7 +7,6 @@ namespace AM2E.Collision;
 
 public static class MaskCache
 {
-    // TODO: Make this support mask flips!
     private static Dictionary<Sprite, Dictionary<int, bool[,]>> preciseMasks = new();
 
     public static bool[,] GetPrecise(Sprite sprite, int index = 0)

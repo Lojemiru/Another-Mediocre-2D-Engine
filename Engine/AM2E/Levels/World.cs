@@ -59,8 +59,6 @@ public static class World
         
         var level = ldtkLevels[id];
 
-        var depth = 500;
-        
         // TODO: Throw if already exists
         //LoadedLevels.Add(level.Iid, new Level(level.Identifier, level.WorldX, level.WorldY, level.PxWid, level.PxHei));
         LoadedLevels.Add(level.Iid, new Level(level));
@@ -68,7 +66,7 @@ public static class World
         foreach (var ldtkLayer in level.LayerInstances.Reverse())
         {
             // Create layer if it doesn't already exist.
-            var layer = LoadedLevels[level.Iid].AddLayer(ldtkLayer.Identifier, depth);
+            var layer = LoadedLevels[level.Iid].AddLayer(ldtkLayer.Identifier);
             
             // Handle collision first, since it's technically an Entities layer but we don't want to treat it as such
             // TODO: We need to have a means of loading multiple collision layers.
@@ -112,7 +110,6 @@ public static class World
                         throw new ArgumentOutOfRangeException();
                 }
             // TODO: Handle entities, tiles, etc. etc.
-            depth += 100;
         }
         
     }

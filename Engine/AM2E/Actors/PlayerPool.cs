@@ -3,8 +3,6 @@ using System.Collections.Generic;
 
 namespace AM2E.Actors;
 
-// TODO: Isn't safe when pool is empty.
-
 public static class PlayerPool
 {
     private static readonly List<IPlayer> Players = new();
@@ -33,7 +31,8 @@ public static class PlayerPool
     /// <param name="player"></param>
     public static void Remove(IPlayer player)
     {
-        Players.Remove(player);
+        if (Players.Contains(player))
+            Players.Remove(player);
     }
 
     /// <summary>
@@ -49,7 +48,7 @@ public static class PlayerPool
     /// </summary>
     public static IPlayer GetFirst()
     {
-        return Players[0];
+        return (Players.Count > 0) ? Players[0] : null;
     }
     
     /// <summary>
@@ -59,8 +58,8 @@ public static class PlayerPool
     /// <param name="y">Y position to base the check on.</param>
     public static IPlayer GetClosest(int x, int y)
     {
-        if (Players.Length() <= 1)
-            return Players[0];
+        if (Players.Count <= 1)
+            return GetFirst();
 
         var closest = Players[0];
         var closestX = Math.Abs(closest.X - x);
@@ -88,6 +87,9 @@ public static class PlayerPool
     /// <returns>The closest <see cref="IPlayer"/> on the given <see cref="Side"/>, if it exists; otherwise null.</returns>
     public static IPlayer GetClosestOnSide(int x, int y, Side side)
     {
+        if (Players.Count < 1)
+            return null;
+        
         IPlayer closest = null;
         
         foreach (var player in Players)

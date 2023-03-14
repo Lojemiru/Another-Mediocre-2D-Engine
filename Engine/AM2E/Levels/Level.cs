@@ -14,7 +14,6 @@ public class Level
     public readonly int Width;
     public readonly int Height;
     public readonly Dictionary<string, Layer> Layers = new();
-    public bool Visible = true; // TODO: default to false
     public readonly string Iid;
 
     public Level(LDtkLevelInstance level)
@@ -35,12 +34,12 @@ public class Level
         Height = height;
     }
     
-    public Layer AddLayer(string name, int depth)
+    public Layer AddLayer(string name)
     {
         if (Layers.ContainsKey(name))
             throw new ArgumentException("A layer with the specified name \"" + name + "\" already exists in level \"" + Name + "\"");
         
-        Layers.Add(name, new Layer(name, depth));
+        Layers.Add(name, new Layer(name));
 
         return Layers[name];
     }
@@ -83,7 +82,6 @@ public class Level
 
     public void Draw()
     {
-        if (!Visible) return;
         foreach (var layer in Layers.Values)
         {
             layer.Draw();
