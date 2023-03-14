@@ -26,7 +26,6 @@ public abstract partial class Actor : IDrawable, ICollider
         X = x;
         Y = y;
         ApplyFlips(flipX, flipY);
-        LOIC.Register(this);
     }
         
     /// <summary>

@@ -14,9 +14,18 @@ public class Level
     public readonly int Width;
     public readonly int Height;
     public readonly Dictionary<string, Layer> Layers = new();
-    public bool Active = false;
     public bool Visible = true; // TODO: default to false
+    public readonly string Iid;
 
+    public Level(LDtkLevelInstance level)
+    {
+        Name = level.Identifier;
+        X = level.WorldX;
+        Y = level.WorldY;
+        Width = level.PxWid;
+        Height = level.PxHei;
+        Iid = level.Iid;
+    }
     public Level(string name, int x, int y, int width, int height)
     {
         Name = name;
@@ -47,7 +56,8 @@ public class Level
             return null;
         }
     }
-
+    
+    // TODO: Name is deprecated, refactor into method "Add" below
     public void AddDrawable(string layerName, IDrawable drawable)
     {
         if (!Layers.ContainsKey(layerName))

@@ -54,6 +54,12 @@ public struct LDtkLevelInstance
     /// </summary>
     [JsonProperty("identifier")]
     public string Identifier { get; set; }
+    
+    /// <summary>
+    /// Unique instance identifier
+    /// </summary>
+    [JsonProperty("iid")]
+    public string Iid { get; set; }
 
     /// <summary>
     /// An array containing all Layer instances. **IMPORTANT**: if the project option "*Save
@@ -83,6 +89,8 @@ public struct LDtkLevelInstance
     [JsonProperty("worldDepth")]
     public long WorldDepth { get; set; }
 
+    // TODO: Restore UID member?
+    
     /// <summary>
     /// World X coordinate in pixels.<br/>  Only relevant for world layouts where level spatial
     /// positioning is manual (ie. GridVania, Free). For Horizontal and Vertical layouts, the

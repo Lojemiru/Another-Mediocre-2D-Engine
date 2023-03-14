@@ -7,7 +7,7 @@ namespace AM2E.Actors;
 
 public static class ActorManager
 {
-    private static Dictionary<string, Actor> persistentActors = new();
+    public readonly static Dictionary<string, Actor> PersistentActors = new();
     
     // TODO: Does this pattern make any sense? Now that we don't have to register them with the manager, we may not need this...
     public static Actor Instantiate(Actor actor, string layer, Level level)
@@ -25,7 +25,7 @@ public static class ActorManager
     public static Actor InstantiatePersistent(Actor actor)
     {
         actor.Persistent = true;
-        persistentActors.Add(actor.ID, actor);
+        PersistentActors.Add(actor.ID, actor);
         return actor;
     }
 
@@ -36,19 +36,19 @@ public static class ActorManager
 
     public static void RemovePersistent(string id)
     {
-        persistentActors.Remove(id);
+        PersistentActors.Remove(id);
     }
 
     public static void UpdateActors()
     {
         // Step persistent actors first, then non-persistent ones
-        foreach (var actor in persistentActors.Values)
+        foreach (var actor in PersistentActors.Values)
             actor.Step();
         
         
         // TODO: Lots of layers don't have Actors. Would it significantly save performance to ignore those layers with some filtering at the Level class layer?
         // probably not lol
-        foreach (var level in World.LoadedLevels.Values)
+        foreach (var level in World.ActiveLevels.Values)
         {
             foreach (var layer in level.Layers.Values)
             {
@@ -63,13 +63,13 @@ public static class ActorManager
 
     public static Actor GetActor(string id)
     {
-        foreach (var actor in persistentActors.Values)
+        foreach (var actor in PersistentActors.Values)
         {
             if (actor.ID == id)
                 return actor;
         }
 
-        foreach (var level in World.LoadedLevels.Values)
+        foreach (var level in World.ActiveLevels.Values)
         {
             foreach (var layer in level.Layers.Values)
             {
@@ -87,9 +87,10 @@ public static class ActorManager
     /// <summary>
     /// Deregisters all non-persistent <see cref="Actor"/>s and runs their OnRoomEnd events.
     /// </summary>
+    // TODO: Shouldn't this be in Level instead?
     public static void LevelEnd(Level level)
     {
-        foreach (var actor in persistentActors.Values)
+        foreach (var actor in PersistentActors.Values)
             actor.OnRoomEnd();
         
         foreach (var layer in level.Layers.Values)

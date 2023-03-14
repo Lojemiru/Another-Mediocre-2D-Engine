@@ -18,7 +18,8 @@ public static class World
     private static LDtkLevelInstance[] ldtkLevels;
     private static readonly Dictionary<int, LDtkTilesetDefinition> tilesets = new();
     private static readonly Dictionary<int, PageIndex> tilesetPageMappings = new();
-    public static Dictionary<int, Level> LoadedLevels = new();
+    public static Dictionary<string, Level> LoadedLevels = new();
+    public static Dictionary<string, Level> ActiveLevels = new();
     public static void LoadWorld(string path)
     {
         JsonSerializer serializer = new();
@@ -61,12 +62,13 @@ public static class World
         var depth = 500;
         
         // TODO: Throw if already exists
-        LoadedLevels.Add(id, new Level(level.Identifier, level.WorldX, level.WorldY, level.PxWid, level.PxHei));
+        //LoadedLevels.Add(level.Iid, new Level(level.Identifier, level.WorldX, level.WorldY, level.PxWid, level.PxHei));
+        LoadedLevels.Add(level.Iid, new Level(level));
         
         foreach (var ldtkLayer in level.LayerInstances.Reverse())
         {
             // Create layer if it doesn't already exist.
-            var layer = LoadedLevels[id].AddLayer(ldtkLayer.Identifier, depth);
+            var layer = LoadedLevels[level.Iid].AddLayer(ldtkLayer.Identifier, depth);
             
             // Handle collision first, since it's technically an Entities layer but we don't want to treat it as such
             // TODO: We need to have a means of loading multiple collision layers.
@@ -89,7 +91,7 @@ public static class World
                         {
                             var entityType = Type.GetType("GameContent." + entity.Identifier);
                             var ent = (Actor)Activator.CreateInstance(entityType, entity, level.WorldX + entity.Px[0], level.WorldY + entity.Px[1]);
-                            ActorManager.Instantiate(ent, layer, LoadedLevels[id]);
+                            ActorManager.Instantiate(ent, layer, LoadedLevels[level.Iid]);
                         }
                         break;
                     case LDtkLayerType.Tiles:
@@ -101,7 +103,7 @@ public static class World
                         
                         // Instantiate each tile.
                         foreach (var tile in ldtkLayer.GridTiles)
-                            LoadedLevels[id].AddDrawable(ldtkLayer.Identifier, new Tile(tile, sprite, level.WorldX + tile.Px[0], level.WorldY + tile.Px[1], set.TileGridSize));
+                            LoadedLevels[level.Iid].AddDrawable(ldtkLayer.Identifier, new Tile(tile, sprite, level.WorldX + tile.Px[0], level.WorldY + tile.Px[1], set.TileGridSize));
                         
                         break;
                     case LDtkLayerType.AutoLayer:
@@ -123,6 +125,32 @@ public static class World
         }
     }
 
+    public static void ActivateLevel(string iid)
+    {
+        if (!LoadedLevels.ContainsKey(iid) || ActiveLevels.ContainsKey(iid))
+            return;
+        
+        Console.WriteLine("REALLY activating level " + LoadedLevels[iid].Name);
+        
+        ActiveLevels.Add(iid, LoadedLevels[iid]);
+    }
+    
+    public static void ActivateLevel(Level level)
+    {
+        Console.WriteLine("Activating level " + level.Name);
+        ActivateLevel(level.Iid);
+    }
+
+    public static void ActivateLevelByName(string name)
+    {
+        foreach (var level in LoadedLevels.Values)
+        {
+            Console.WriteLine("level " + level.Name);
+            if (level.Name == name)
+                ActivateLevel(level);
+        }
+    }
+    
     public static PageIndex GetTilesetPage(int uid)
     {
         // TODO: Throw if invalid uid is passed in.
@@ -136,8 +164,7 @@ public static class World
 
     public static void RenderLevels()
     {
-        // TODO: switch drawing based on whether or not level is flagged as active... or have two variables? One for visibility, one for activeness?
-        foreach (var level in LoadedLevels.Values)
+        foreach (var level in ActiveLevels.Values)
         {
             level.Draw();
         }
