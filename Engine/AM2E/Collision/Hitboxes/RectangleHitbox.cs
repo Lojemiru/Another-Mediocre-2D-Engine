@@ -40,7 +40,6 @@ public class RectangleHitbox : Hitbox
 
     protected override bool Intersects(RectangleHitbox hitbox)
     {
-        // TODO: There's probably a better way to structure this boolean check for speed. If we care.
         return !(BoundRight < hitbox.BoundLeft || hitbox.BoundRight < BoundLeft || BoundBottom < hitbox.BoundTop || hitbox.BoundBottom < BoundTop);
     }
 

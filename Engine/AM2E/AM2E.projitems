@@ -34,6 +34,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\TexturePage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Tile.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\TileChunk.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Graphics\Tileset.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\InputManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\KeyboardInput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\IDrawable.cs" />

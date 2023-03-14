@@ -8,6 +8,7 @@ using AM2E.Actors;
 using AM2E.Collision;
 using AM2E.Graphics;
 using GameContent;
+using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 
 namespace AM2E.Levels;
@@ -16,8 +17,7 @@ public static class World
 {
     private static LDtkWorldInstance world;
     private static LDtkLevelInstance[] ldtkLevels;
-    private static readonly Dictionary<int, LDtkTilesetDefinition> tilesets = new();
-    private static readonly Dictionary<int, PageIndex> tilesetPageMappings = new();
+    private static readonly Dictionary<int, Tileset> Tilesets = new();
     public static Dictionary<string, Level> LoadedLevels = new();
     public static Dictionary<string, Level> ActiveLevels = new();
     public static void LoadWorld(string path)
@@ -33,10 +33,11 @@ public static class World
         {
             // TODO: Throw nicer error message here when RelPath is invalid... and when this doesn't match an enum... etc.
             var entries = tileset.RelPath.Split('/');
-            Enum.TryParse(entries[^2], out PageIndex index);
-            tilesetPageMappings.Add(tileset.Uid, index);
-
-            tilesets.Add(tileset.Uid, tileset);
+            Enum.TryParse(entries[^2], out PageIndex pageIndex);
+            Enum.TryParse(tileset.Identifier, out SpriteIndex spriteIndex);
+            var sprite = TextureManager.GetPage(pageIndex).Sprites[spriteIndex];
+            
+            Tilesets.Add(tileset.Uid, new Tileset(sprite, tileset));
         }
         
         ldtkLevels = new LDtkLevelInstance[world.Levels.Length];
@@ -94,16 +95,15 @@ public static class World
                         }
                         break;
                     case LDtkLayerType.Tiles:
-                        // Get tileset sprite and other metadata.
+                        // Get tileset.
                         // TODO: This nullable is probably bad lol
-                        var set = tilesets[ldtkLayer.TilesetDefUid ?? 0];
-                        Enum.TryParse(set.Identifier, out SpriteIndex index);
-                        var sprite = TextureManager.GetPage(GetTilesetPage(set.Uid)).Sprites[index];
+                        var set = Tilesets[ldtkLayer.TilesetDefUid ?? 0];
                         
                         // Instantiate each tile.
                         foreach (var tile in ldtkLayer.GridTiles)
-                            LoadedLevels[level.Iid].AddDrawable(ldtkLayer.Identifier, new Tile(tile, sprite, level.WorldX + tile.Px[0], level.WorldY + tile.Px[1], set.TileGridSize));
+                            LoadedLevels[level.Iid].AddDrawable(ldtkLayer.Identifier, new Tile(tile, set, level.WorldX + tile.Px[0], level.WorldY + tile.Px[1]));
                         
+
                         break;
                     case LDtkLayerType.AutoLayer:
                     case LDtkLayerType.IntGrid:
@@ -127,15 +127,12 @@ public static class World
     {
         if (!LoadedLevels.ContainsKey(iid) || ActiveLevels.ContainsKey(iid))
             return;
-        
-        Console.WriteLine("REALLY activating level " + LoadedLevels[iid].Name);
-        
+
         ActiveLevels.Add(iid, LoadedLevels[iid]);
     }
     
     public static void ActivateLevel(Level level)
     {
-        Console.WriteLine("Activating level " + level.Name);
         ActivateLevel(level.Iid);
     }
 
@@ -143,16 +140,9 @@ public static class World
     {
         foreach (var level in LoadedLevels.Values)
         {
-            Console.WriteLine("level " + level.Name);
             if (level.Name == name)
                 ActivateLevel(level);
         }
-    }
-    
-    public static PageIndex GetTilesetPage(int uid)
-    {
-        // TODO: Throw if invalid uid is passed in.
-        return tilesetPageMappings[uid];
     }
 
     public static Level GetLevel(string name)

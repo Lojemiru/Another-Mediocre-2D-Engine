@@ -1,3 +1,4 @@
+using System;
 using AM2E.Levels;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -12,16 +13,15 @@ public class Tile : IDrawable
     private Rectangle tileRect;
     private SpriteEffects flips;
 
-    public Tile(LDtkTileInstance tile, Sprite tileset, int x, int y, int size)
+    public Tile(LDtkTileInstance tile, Tileset tileset, int x, int y)
     {
         X = x;
         Y = y;
-        tilesetSprite = tileset;
-        // TODO: Index tileset tile rectangles somehow and load that into this constructor instead. Should be a lot less memory intensive.
-        tileRect = new Rectangle(tile.Src[0], tile.Src[1], size, size);
+        tilesetSprite = tileset.Sprite;
+        tileRect = tileset.GetCachedTileRectangle(tile.Src[0] / tileset.GridSize, tile.Src[1] / tileset.GridSize);
         flips = (SpriteEffects)tile.F;
     }
-    
+
     public void Draw(SpriteBatch spriteBatch)
     {
         tilesetSprite.Draw(spriteBatch, X, Y, 0, tileRect, 0, flips);
