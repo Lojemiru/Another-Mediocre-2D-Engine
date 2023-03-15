@@ -32,5 +32,5 @@ do
 done
 
 # Rebuild enums
-TexturePacker/TexturePacker enum --input "../GameContent/Graphics/output/enums/sprites" --output ../Engine/AM2E/Graphics/SpriteIndex.cs --name SpriteIndex --namespace AM2E.Graphics
-TexturePacker/TexturePacker enum --input "../GameContent/Graphics/output/enums" --output ../Engine/AM2E/Graphics/PageIndex.cs --name PageIndex --namespace AM2E.Graphics
+TexturePacker/TexturePacker enum --input "../GameContent/Graphics/output/enums/sprites" --output ../GameContent/GameContent/AM2EAutomated/SpriteIndex.cs --name SpriteIndex --namespace GameContent
+TexturePacker/TexturePacker enum --input "../GameContent/Graphics/output/enums" --output ../GameContent/GameContent/AM2EAutomated/PageIndex.cs --name PageIndex --namespace GameContent

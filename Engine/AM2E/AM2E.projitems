@@ -26,8 +26,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Collision\LOIC.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Animation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EngineCore.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Graphics\PageIndex.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Graphics\SpriteIndex.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Layer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Sprite.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\TextureManager.cs" />

@@ -5,6 +5,7 @@ using Newtonsoft.Json.Converters;
 using Microsoft.Xna.Framework.Graphics;
 using System.IO;
 using AM2E.IO;
+using GameContent;
 
 /*
     * UNQUENCHED THIRST FOR GLORY

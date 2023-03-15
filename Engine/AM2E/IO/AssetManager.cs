@@ -1,4 +1,4 @@
-﻿using AM2E.Graphics;
+﻿using GameContent;
 
 namespace AM2E.IO;
 

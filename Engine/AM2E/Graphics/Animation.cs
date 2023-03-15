@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using AM2E.Graphics;
 using System;
+using GameContent;
 
 namespace AM2E;
 
