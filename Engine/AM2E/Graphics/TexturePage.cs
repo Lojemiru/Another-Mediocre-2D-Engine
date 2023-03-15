@@ -58,8 +58,8 @@ public class TexturePage
         fileStream.Dispose();
 
         // Assign sprites their TexturePage. Not the fastest thing ever, but I don't think I have any better options due to the direction JSON serializes in.
-        // Unless we bake the name earlier in the process... that might be worth doing.
-        // TODO: above.
+        // Baking the name earlier in the process results in nullrefs so I believe this is the best option.
+        // Probably not that slow in the grand scheme of things.
         foreach (var spr in output.Sprites.Values)
         {
             spr.TexturePage = output;
