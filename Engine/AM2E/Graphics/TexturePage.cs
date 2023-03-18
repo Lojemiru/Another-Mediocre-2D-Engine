@@ -25,8 +25,14 @@ namespace AM2E.Graphics;
 
 public class TexturePage
 {
+    /// <summary>
+    /// The <see cref="Texture2D"/> represented by this <see cref="TexturePage"/>.
+    /// </summary>
     public Texture2D Texture { get; private set; }
-
+    
+    /// <summary>
+    /// Collection of all <see cref="Sprite"/>s contained within this <see cref="TexturePage"/>.
+    /// </summary>
     [JsonProperty("sprites")]
     public Dictionary<SpriteIndex, Sprite> Sprites { get; private set; }
 
@@ -44,10 +50,13 @@ public class TexturePage
 
     private static TexturePage FromJson(string json) => JsonConvert.DeserializeObject<TexturePage>(json, Settings);
 
-        
-
     #endregion
-
+    
+    /// <summary>
+    /// Instantiates the <see cref="TexturePage"/> associated with the given <see cref="PageIndex"/>.
+    /// </summary>
+    /// <param name="index">The index of the <see cref="TexturePage"/> to be instantiated.</param>
+    /// <returns>The instantiated <see cref="TexturePage"/>.</returns>
     public static TexturePage Load(PageIndex index)
     {
         // TODO: Make this safe or something lol
@@ -61,10 +70,8 @@ public class TexturePage
         // Baking the name earlier in the process results in nullrefs so I believe this is the best option.
         // Probably not that slow in the grand scheme of things.
         foreach (var spr in output.Sprites.Values)
-        {
             spr.TexturePage = output;
-        }
-
+        
         return output;
     }
 }
