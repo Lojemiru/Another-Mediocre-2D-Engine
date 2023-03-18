@@ -26,15 +26,15 @@ namespace AM2E.Graphics;
 public class TexturePage
 {
     /// <summary>
-    /// The <see cref="Texture2D"/> represented by this <see cref="TexturePage"/>.
-    /// </summary>
-    public Texture2D Texture { get; private set; }
-    
-    /// <summary>
     /// Collection of all <see cref="Sprite"/>s contained within this <see cref="TexturePage"/>.
     /// </summary>
     [JsonProperty("sprites")]
     public Dictionary<SpriteIndex, Sprite> Sprites { get; private set; }
+    
+    /// <summary>
+    /// The <see cref="Texture2D"/> represented by this <see cref="TexturePage"/>.
+    /// </summary>
+    public Texture2D Texture { get; private set; }
 
     #region Templated JSON nonsense
 
