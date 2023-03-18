@@ -38,7 +38,6 @@ public class Sprite
     #endregion
     
     
-    
     #region Private variables
     
     /// <summary>
@@ -67,7 +66,6 @@ public class Sprite
     private static Rectangle subPos;
     
     #endregion
-    
     
     
     [JsonConstructor]
