@@ -66,17 +66,22 @@ public abstract partial class Actor : IDrawable, ICollider
     
     #region Public Methods
     
+    /// <summary>
+    /// Draws this <see cref="Actor"/> to the supplied <see cref="SpriteBatch"/>.
+    /// </summary>
+    /// <param name="spriteBatch">The <see cref="SpriteBatch"/> to which this <see cref="Actor"/> should be drawn.</param>
     public void Draw(SpriteBatch spriteBatch)
     {
         OnDraw(spriteBatch);
     }
-
+    
+    /// <summary>
+    /// Returns the appropriate <see cref="SpriteEffects"/> for the current values of <see cref="FlippedX"/> and <see cref="FlippedY"/>.
+    /// </summary>
+    /// <returns>The corresponding member of <see cref="SpriteEffects"/>, including an "overflow" value for simultaneous horizontal and vertical.</returns>
     public SpriteEffects GetSpriteFlips()
     {
-        if (FlippedX && FlippedY)
-            return SpriteEffects.FlipHorizontally & SpriteEffects.FlipVertically;
-            
-        return FlippedX ? SpriteEffects.FlipHorizontally : (FlippedY ? SpriteEffects.FlipVertically : SpriteEffects.None);
+        return (FlippedX ? SpriteEffects.FlipHorizontally : 0) | (FlippedY ? SpriteEffects.FlipVertically : 0);
     }
     
     #endregion
@@ -84,6 +89,9 @@ public abstract partial class Actor : IDrawable, ICollider
     
     #region Internal Methods
     
+    /// <summary>
+    /// Deregisters this <see cref="Actor"/>.
+    /// </summary>
     internal void Deregister()
     {
         Exists = false;
@@ -92,6 +100,9 @@ public abstract partial class Actor : IDrawable, ICollider
         // TODO: Need to factor persistent behavior into this.
     }
     
+    /// <summary>
+    /// Calls this <see cref="Actor"/>'s <see cref="OnStep"/> event.
+    /// </summary>
     internal void Step()
     {
         OnStep();
@@ -102,6 +113,11 @@ public abstract partial class Actor : IDrawable, ICollider
     
     #region Protected Methods
     
+    /// <summary>
+    /// Applies the specified axis flips to this <see cref="Actor"/> and its <see cref="Hitbox"/>.
+    /// </summary>
+    /// <param name="xFlip">Whether this <see cref="Actor"/> is flipped on the X axis.</param>
+    /// <param name="yFlip">Whether this <see cref="Actor"/> is flipped on the Y axis.</param>
     protected void ApplyFlips(bool xFlip, bool yFlip)
     {
         FlippedX = xFlip;
@@ -109,11 +125,22 @@ public abstract partial class Actor : IDrawable, ICollider
         Collider.ApplyFlips(FlippedX, FlippedY);
     }
     
+    /// <summary>
+    /// Applies the specified axis flips to this <see cref="Actor"/> and its <see cref="Hitbox"/>.
+    /// </summary>
+    /// <param name="bits">The flips to be applied in binary format - only the two least significant bits are valid.</param>
+    /// <exception cref="ArgumentOutOfRangeException">If the value of <paramref name="bits"/> is greater than decimal 3.</exception>
     protected void ApplyFlipsFromBits(byte bits)
     {
+        if (bits > 3)
+            throw new ArgumentOutOfRangeException(nameof(bits), "Bits must be equal to or less than decimal 3!");
+        
         ApplyFlips((bits & 1) != 0, (bits & 2) != 0);
     }
     
+    /// <summary>
+    /// Destroys this <see cref="Actor"/>.
+    /// </summary>
     protected internal void Destroy()
     {
         OnDestroy();
@@ -125,36 +152,58 @@ public abstract partial class Actor : IDrawable, ICollider
     
     #region Virtual Methods
     
+    /// <summary>
+    /// Overridable method that gets called when this <see cref="Actor"/> is deconstructed.
+    /// </summary>
     protected virtual void OnCleanup()
     {
         // Nothing - we want an empty cleanup event so actors don't /have/ to define it.
     }
     
+    /// <summary>
+    /// Overridable method that gets called when this <see cref="Actor"/> is destroyed.
+    /// </summary>
     protected virtual void OnDestroy()
     {
         // Nothing - we want an empty destroy so actors don't /have/ to define it.
     }
     
+    /// <summary>
+    /// Overridable method that gets called every render frame.
+    /// </summary>
+    /// <param name="spriteBatch"></param>
     protected virtual void OnDraw(SpriteBatch spriteBatch)
     {
         // Nothing - we want an empty draw so actors don't /have/ to define it.
     }
     
-    protected internal virtual void OnRoomEnd()
+    /// <summary>
+    /// Overridable method that gets called when this <see cref="Actor"/>'s <see cref="Level"/> is reset or unloaded.
+    /// </summary>
+    protected internal virtual void OnLevelEnd()
     {
         // Nothing - we want an empty room end so actors don't /have/ to define it.
     }
     
-    protected internal virtual void OnRoomStart()
+    /// <summary>
+    /// Overridable method that gets called when this <see cref="Actor"/>'s <see cref="Level"/> is first made active after loading.
+    /// </summary>
+    protected internal virtual void OnLevelStart()
     {
         // Nothing - we want an empty event so actors don't /have/ to define it.
     }
     
+    /// <summary>
+    /// Overridable method that gets called every logical tick.
+    /// </summary>
     protected virtual void OnStep()
     {
         // Nothing - we want an empty event so actors don't /have/ to define it.
     }
     
+    /// <summary>
+    /// Overridable method that gets called after this <see cref="Actor"/>'s constructor is run.
+    /// </summary>
     protected internal virtual void PostConstructor()
     {
         // Nothing - we want an empty event so actors don't /have/ to define it.
@@ -165,6 +214,10 @@ public abstract partial class Actor : IDrawable, ICollider
     
     #region Private Methods
     
+    /// <summary>
+    /// Generates a new 16x16 <see cref="RectangleHitbox"/>. 
+    /// </summary>
+    /// <returns></returns>
     private static Hitbox GetDefaultHitbox() => new RectangleHitbox(0, 0, 16, 16);
 
     #endregion

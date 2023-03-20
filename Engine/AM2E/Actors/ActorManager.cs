@@ -97,7 +97,7 @@ public static class ActorManager
     internal static void LevelEnd(Level level)
     {
         foreach (var actor in PersistentActors.Values)
-            actor.OnRoomEnd();
+            actor.OnLevelEnd();
         
         foreach (var layer in level.Layers.Values)
         {
@@ -106,7 +106,7 @@ public static class ActorManager
                 if (actor.Persistent)
                     continue;
                 
-                actor.OnRoomEnd();
+                actor.OnLevelEnd();
                 // TODO: Do we actually need to deregister?
                 actor.Deregister();
             }
