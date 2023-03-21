@@ -10,6 +10,9 @@ using Newtonsoft.Json;
 
 namespace AM2E.Levels;
 
+// TODO: Generic ILevelElement interface for collision/triggers/etc. - things that aren't Actors but need to retain a link to their Layer, Level, etc.
+// TODO: Use a similar pattern and the is keyword to instantiate level elements and Actors without relying on layer names in LDtk.
+
 public static class World
 {
     private static LDtkWorldInstance world;

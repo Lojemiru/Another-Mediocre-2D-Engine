@@ -24,6 +24,7 @@ public abstract partial class Actor
     
     public readonly string ID;
     
+    // TODO: Level property in addition to Layer?
     public Layer Layer { get; internal set; }
     
     // TODO: Setting this manually will break things with the ActorManager... make setting it a method!
