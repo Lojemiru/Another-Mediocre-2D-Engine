@@ -14,4 +14,16 @@ public struct LDtkWorldInstance
     
     [JsonProperty("defs")]
     public LDtkDefinition Defs { get; set; }
+    
+    /// <summary>
+    /// Height of the world grid in pixels.
+    /// </summary>
+    [JsonProperty("worldGridHeight")]
+    public int WorldGridHeight { get; set; }
+
+    /// <summary>
+    /// Width of the world grid in pixels.
+    /// </summary>
+    [JsonProperty("worldGridWidth")]
+    public int WorldGridWidth { get; set; }
 }

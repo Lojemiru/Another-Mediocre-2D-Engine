@@ -17,6 +17,10 @@ public static class World
     private static readonly Dictionary<int, Tileset> Tilesets = new();
     public static Dictionary<string, Level> LoadedLevels = new();
     public static Dictionary<string, Level> ActiveLevels = new();
+
+    public static int LevelUnitHeight => world.WorldGridHeight;
+    public static int LevelUnitWidth => world.WorldGridWidth;
+
     public static void LoadWorld(string path)
     {
         JsonSerializer serializer = new();
