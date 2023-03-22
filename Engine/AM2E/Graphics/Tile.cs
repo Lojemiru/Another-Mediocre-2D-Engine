@@ -1,11 +1,10 @@
-using System;
 using AM2E.Levels;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Graphics;
 
-public class Tile : IDrawable
+public sealed class Tile : IDrawable
 {
     public int X { get; }
     public int Y { get; }

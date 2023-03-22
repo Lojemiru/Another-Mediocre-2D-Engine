@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Graphics;
 
-public class TileChunk : IDrawable, IDisposable
+public sealed class TileChunk : IDrawable, IDisposable
 {
     // TODO: This class is currently unused. Implement if needed for performance saves!
     

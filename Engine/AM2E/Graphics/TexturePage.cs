@@ -23,7 +23,7 @@ using GameContent;
 
 namespace AM2E.Graphics;
 
-public class TexturePage
+public sealed class TexturePage
 {
     /// <summary>
     /// Collection of all <see cref="Sprite"/>s contained within this <see cref="TexturePage"/>.

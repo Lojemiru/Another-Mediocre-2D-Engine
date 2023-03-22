@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace AM2E.Graphics;
 
-public class Sprite
+public sealed class Sprite
 {
     #region Properties
     

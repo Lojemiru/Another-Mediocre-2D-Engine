@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using AM2E.Actors;
+﻿using AM2E.Actors;
 using AM2E.Levels;
 
 // We do NOT want to use LINQ in the collision engine. This class is a bottleneck and we need it to run efficiently.

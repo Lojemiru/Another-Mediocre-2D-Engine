@@ -1,10 +1,9 @@
-using System;
 using AM2E.Levels;
 using Microsoft.Xna.Framework;
 
 namespace AM2E.Graphics;
 
-public class Tileset
+public sealed class Tileset
 {
     public readonly Sprite Sprite;
     private readonly Rectangle[,] tileCache;

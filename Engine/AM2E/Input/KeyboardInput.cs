@@ -2,7 +2,7 @@
 
 namespace AM2E.Control;
 
-public class KeyboardInput
+public sealed class KeyboardInput
 {
     public bool InputReleased { get; private set; } = false;
     public bool InputPressed { get; private set; } = false;

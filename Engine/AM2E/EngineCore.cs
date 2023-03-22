@@ -7,7 +7,7 @@ using AM2E.Graphics;
 
 namespace AM2E;
 
-public class EngineCore : Game
+public sealed class EngineCore : Game
 {
     public static GraphicsDeviceManager _graphics;
     private double updateAccumulator = 0d;

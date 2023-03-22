@@ -12,7 +12,7 @@ public enum CollisionDirection
     Up,
     Down
 }
-public class Collider
+public sealed class Collider
 {
     private enum Axis
     {

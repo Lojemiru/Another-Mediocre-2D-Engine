@@ -7,7 +7,7 @@ using AM2E.Levels;
 
 namespace AM2E.Graphics;
 
-public class Layer
+public sealed class Layer
 {
     // TODO: tiles should be handled under a specific collection or class for easier access in-code.
     public readonly string Name;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace AM2E;
 
-public class StateMachine <TKey, TState> where TState : State
+public sealed class StateMachine <TKey, TState> where TState : State
 {
     /// <summary>
     /// A key-state dictionary, which lists all possible states of the state machine. 

@@ -5,7 +5,7 @@ using GameContent;
 
 namespace AM2E;
 
-public class Animation
+public sealed class Animation
 {
     public Sprite Sprite { get; private set; }
     private float _index = 0;

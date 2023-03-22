@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using AM2E.Actors;
 using AM2E.Graphics;
 
 namespace AM2E.Levels;
 
-public class Level
+public sealed class Level
 {
     public readonly string Name;
     public readonly int X;

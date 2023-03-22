@@ -23,7 +23,7 @@ namespace AM2E;
 /// This example will print <c>You rolled 6 six times! How lucky!</c> after the user rolled a 6 six times.
 /// </example>
 /// </remarks>>
-public class Alarm
+public sealed class Alarm
 {
     /// <summary>
     /// The time, in <see cref="Run(Alarm)"/> calls, before the callback should run.
