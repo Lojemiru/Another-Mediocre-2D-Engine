@@ -87,6 +87,11 @@ public class Collider
         hitbox.Y = Y;
         return hitboxes.Count - 1;
     }
+
+    public void RemoveHitbox(Hitbox hitbox)
+    {
+        hitboxes.Remove(hitbox);
+    }
         
     public bool FlippedX { get; protected set; } = false;
     public bool FlippedY { get; protected set; } = false;

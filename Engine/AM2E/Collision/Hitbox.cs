@@ -50,7 +50,7 @@ public abstract class Hitbox
         return false;
     }
 
-    public void BindInterface<T>() where T : ICollider
+    public void BindToInterface<T>() where T : ICollider
     {
         boundInterfaces ??= new List<object>();
         boundInterfaces.Add(new TypeContainer<T>());

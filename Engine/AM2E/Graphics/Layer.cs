@@ -32,7 +32,6 @@ public class Layer
 
     public void Add(Actor actor)
     {
-        Console.WriteLine(actor.GetType());
         actor.Layer?.Remove(actor);
         actor.Layer = this;
         // TODO: Level doesn't get adjusted for other types yet...
