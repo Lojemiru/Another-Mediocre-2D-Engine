@@ -15,6 +15,7 @@ public class EngineCore : Game
     private const double MAX_ACCUMULATOR_VALUE = 8.0 / 60.0;
     private bool resetDeltaTime = false;
     private static EngineCore staticThis;
+    private GameContent.EntryPoint entryPoint;
 
     public EngineCore()
     {
@@ -46,8 +47,8 @@ public class EngineCore : Game
     {
         Renderer.Initialize(_graphics);
 
-        // TODO: Find a better entry point for the game content...
-        ActorManager.InstantiatePersistent(new GameContent.GameManager(0, 0));
+        // Run GameContent's EntryPoint.
+        entryPoint = new GameContent.EntryPoint();
 
         // TODO: Proper initialization logic.
         

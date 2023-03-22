@@ -1,7 +1,9 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using System;
+using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using AM2E.Actors;
 using AM2E.Collision;
+using AM2E.Levels;
 
 namespace AM2E.Graphics;
 
@@ -15,10 +17,12 @@ public class Layer
     public readonly List<object> Objects = new();
     public readonly List<ICollider> Colliders = new();
     public bool Visible = true;
+    public readonly Level Level;
 
-    public Layer(string name)
+    public Layer(string name, Level level)
     {
         Name = name;
+        Level = level;
     }
 
     public void Add(IDrawable drawable)
@@ -28,18 +32,38 @@ public class Layer
 
     public void Add(Actor actor)
     {
+        Console.WriteLine(actor.GetType());
         actor.Layer?.Remove(actor);
         actor.Layer = this;
+        // TODO: Level doesn't get adjusted for other types yet...
+        actor.Level = Level;
         Actors.Add(actor);
         Drawables.Add(actor);
         Colliders.Add(actor);
     }
 
+    public void Add(ICollider collider)
+    {
+        Colliders.Add(collider);
+    }
+
     public void Add(object obj)
     {
-        Objects.Add(obj);
-        if (obj is ICollider collider)
-            Colliders.Add(collider);
+        switch (obj)
+        {
+            case Actor actor:
+                Add(actor);
+                break;
+            case ICollider collider:
+                Add(collider);
+                break;
+            case IDrawable drawable:
+                Add(drawable);
+                break;
+            default:
+                Objects.Add(obj);
+                break;
+        }
     }
 
     public void Remove(IDrawable drawable)
@@ -52,6 +76,11 @@ public class Layer
         Actors.Remove(actor);
         Drawables.Remove(actor);
         Colliders.Remove(actor);
+    }
+
+    public void Remove(ICollider collider)
+    {
+        Colliders.Remove(collider);
     }
 
     public void Draw()

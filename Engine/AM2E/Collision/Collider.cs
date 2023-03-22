@@ -114,6 +114,12 @@ public class Collider
         }
     }
 
+    public Collider(int x, int y)
+    {
+        X = x;
+        Y = y;
+    }
+    
     public Collider(int x, int y, Hitbox hitbox)
     {
         X = x;

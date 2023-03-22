@@ -72,6 +72,7 @@ public static class ActorManager
     {
         actor.Persistent = true;
         PersistentActors.Add(actor.ID, actor);
+        actor.PostConstructor();
         return actor;
     }
     

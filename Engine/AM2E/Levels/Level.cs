@@ -15,6 +15,7 @@ public class Level
     public readonly int Height;
     public readonly Dictionary<string, Layer> Layers = new();
     public readonly string Iid;
+    public bool Active { get; internal set; } = false;
 
     public Level(LDtkLevelInstance level)
     {
@@ -39,7 +40,7 @@ public class Level
         if (Layers.ContainsKey(name))
             throw new ArgumentException("A layer with the specified name \"" + name + "\" already exists in level \"" + Name + "\"");
         
-        Layers.Add(name, new Layer(name));
+        Layers.Add(name, new Layer(name, this));
 
         return Layers[name];
     }

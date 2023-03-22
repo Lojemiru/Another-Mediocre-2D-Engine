@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using AM2E.Collision;
 using System;
+using AM2E.Graphics;
 using AM2E.Levels;
 
 namespace AM2E.Actors;
@@ -21,27 +22,25 @@ namespace AM2E.Actors;
 
 #endregion
 
-public abstract partial class Actor : IDrawable, ICollider
+public abstract partial class Actor : ColliderBase, IDrawable
 {
     #region Constructors/deconstructor
-    
+
     /// <summary>
     /// Standard constructor.
     /// </summary>
     /// <param name="x"></param>
     /// <param name="y"></param>
+    /// <param name="layer"></param>
     /// <param name="hitbox"></param>
     /// <param name="flipX"></param>
     /// <param name="flipY"></param>
     /// <param name="id"></param>
-    protected Actor(int x, int y, Hitbox hitbox = null, bool flipX = false, bool flipY = false, string id = null)
+    protected Actor(int x, int y, Layer layer, Hitbox hitbox = null, bool flipX = false, bool flipY = false, string id = null) : base(x, y, layer)
     {
         ID = id ?? Guid.NewGuid().ToString();
-        // TODO: This is bad code! Will result in a shared hitbox.
         hitbox ??= GetDefaultHitbox();
-        Collider = new Collider(x, y, hitbox);
-        X = x;
-        Y = y;
+        Collider.AddHitbox(hitbox);
         ApplyFlips(flipX, flipY);
     }
 
@@ -51,8 +50,9 @@ public abstract partial class Actor : IDrawable, ICollider
     /// <param name="entity"></param>
     /// <param name="x"></param>
     /// <param name="y"></param>
+    /// <param name="layer"></param>
     /// <param name="hitbox"></param>
-    protected Actor(LDtkEntityInstance entity, int x, int y, Hitbox hitbox = null) : this(x, y, hitbox, (entity.F & 1) != 0, (entity.F & 2) != 0, entity.Iid)
+    protected Actor(LDtkEntityInstance entity, int x, int y, Layer layer, Hitbox hitbox = null) : this(x, y, layer, hitbox, (entity.F & 1) != 0, (entity.F & 2) != 0, entity.Iid)
     {
     }
     

@@ -74,46 +74,46 @@ public static class World
             // Create layer if it doesn't already exist.
             var layer = LoadedLevels[level.Iid].AddLayer(ldtkLayer.Identifier);
             
-            // Handle collision first, since it's technically an Entities layer but we don't want to treat it as such
-            // TODO: We need to have a means of loading multiple collision layers.
             // TODO: We may need to have a means of intentionally choosing *not* to instantiate a layer.
-            if (ldtkLayer.Identifier == "Collision")
+            
+            switch (ldtkLayer.Type)
             {
-                foreach (var entity in ldtkLayer.EntityInstances)
-                {
-                    var solidType = Type.GetType("GameContent." + entity.Identifier);
-                    var solid = (ICollider)Activator.CreateInstance(solidType, entity, level.WorldX, level.WorldY);
-                    layer.Add(solid);
-                }
-            }
-            else
-                switch (ldtkLayer.Type)
-                {
-                    // TODO: asset layers :)
-                    case LDtkLayerType.Entities:
-                        foreach (var entity in ldtkLayer.EntityInstances)
+                // TODO: asset layers :)
+                case LDtkLayerType.Entities:
+                    foreach (var entity in ldtkLayer.EntityInstances)
+                    {
+                        var entityType = Type.GetType("GameContent." + entity.Identifier);
+                        var ent = Activator.CreateInstance(entityType, entity, level.WorldX + entity.Px[0], level.WorldY + entity.Px[1], layer);
+                        switch (ent)
                         {
-                            var entityType = Type.GetType("GameContent." + entity.Identifier);
-                            var ent = (Actor)Activator.CreateInstance(entityType, entity, level.WorldX + entity.Px[0], level.WorldY + entity.Px[1]);
-                            ActorManager.Instantiate(ent, layer, LoadedLevels[level.Iid]);
+                            case Actor actor:
+                                ActorManager.Instantiate(actor, layer, LoadedLevels[level.Iid]);
+                                break;
+                            case ColliderBase colliderBase:
+                                layer.Add(colliderBase);
+                                break;
+                            case GenericLevelElement:
+                                layer.Add(ent);
+                                break;
                         }
-                        break;
-                    case LDtkLayerType.Tiles:
-                        // Get tileset.
-                        // TODO: This nullable is probably bad lol
-                        var set = Tilesets[ldtkLayer.TilesetDefUid ?? 0];
-                        
-                        // Instantiate each tile.
-                        foreach (var tile in ldtkLayer.GridTiles)
-                            LoadedLevels[level.Iid].AddDrawable(ldtkLayer.Identifier, new Tile(tile, set, level.WorldX + tile.Px[0], level.WorldY + tile.Px[1]));
-                        
+                    }
+                    break;
+                case LDtkLayerType.Tiles:
+                    // Get tileset.
+                    // TODO: This nullable is probably bad lol
+                    var set = Tilesets[ldtkLayer.TilesetDefUid ?? 0];
+                    
+                    // Instantiate each tile.
+                    foreach (var tile in ldtkLayer.GridTiles)
+                        LoadedLevels[level.Iid].AddDrawable(ldtkLayer.Identifier, new Tile(tile, set, level.WorldX + tile.Px[0], level.WorldY + tile.Px[1]));
+                    
 
-                        break;
-                    case LDtkLayerType.AutoLayer:
-                    case LDtkLayerType.IntGrid:
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                    break;
+                case LDtkLayerType.AutoLayer:
+                case LDtkLayerType.IntGrid:
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
             // TODO: Handle entities, tiles, etc. etc.
         }
         
@@ -133,6 +133,7 @@ public static class World
             return;
 
         ActiveLevels.Add(iid, LoadedLevels[iid]);
+        LoadedLevels[iid].Active = true;
     }
     
     public static void ActivateLevel(Level level)
@@ -145,7 +146,30 @@ public static class World
         foreach (var level in LoadedLevels.Values)
         {
             if (level.Name == name)
-                ActivateLevel(level);
+                ActivateLevel(level.Iid);
+        }
+    }
+
+    public static void DeactivateLevel(string iid)
+    {
+        if (!ActiveLevels.ContainsKey(iid))
+            return;
+
+        ActiveLevels.Remove(iid);
+        LoadedLevels[iid].Active = false;
+    }
+
+    public static void DeactivateLevel(Level level)
+    {
+        DeactivateLevel(level.Iid);
+    }
+
+    public static void DeactivateLevelByName(string name)
+    {
+        foreach (var level in ActiveLevels.Values)
+        {
+            if (level.Name == name)
+                DeactivateLevel(level.Iid);
         }
     }
 
