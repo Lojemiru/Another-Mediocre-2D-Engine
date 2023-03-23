@@ -44,6 +44,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkEntityInstance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkEnums.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkFieldInstance.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkFieldInstanceEntityReference.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkLayerInstance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkLevelBackgroundPosition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkLevelInstance.cs" />

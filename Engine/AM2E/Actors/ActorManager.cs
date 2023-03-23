@@ -33,6 +33,8 @@ public static class ActorManager
     
     public static Actor GetActor(string id)
     {
+        // TODO: Rework this to do Dictionary lookups by ID instead of this crap.
+        
         // Search persistent first, then in each level.
         foreach (var actor in PersistentActors.Values)
         {

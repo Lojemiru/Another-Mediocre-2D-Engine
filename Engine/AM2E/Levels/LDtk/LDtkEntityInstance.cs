@@ -50,4 +50,18 @@ public struct LDtkEntityInstance
     /// </summary>
     [JsonProperty("f")]
     public byte F { get; set; }
+
+    public dynamic GetFieldInstance(string identifier)
+    {
+        // ReSharper disable once LoopCanBeConvertedToQuery
+        foreach (var field in FieldInstances)
+        {
+            if (field.Identifier != identifier)
+                continue;
+
+            return field.Value;
+        }
+
+        return null;
+    }
 }

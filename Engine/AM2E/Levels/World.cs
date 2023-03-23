@@ -184,9 +184,14 @@ public static class World
         }
     }
 
-    public static Level GetLevel(string name)
+    public static Level GetLevelByName(string name)
     {
         return LoadedLevels.Values.FirstOrDefault(level => level.Name == name);
+    }
+
+    public static Level GetLevelByIid(string iid)
+    {
+        return LoadedLevels[iid];
     }
 
     public static void RenderLevels()

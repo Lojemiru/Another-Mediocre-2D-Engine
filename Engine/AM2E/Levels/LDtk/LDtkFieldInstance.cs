@@ -18,6 +18,8 @@ public struct LDtkFieldInstance
     [JsonProperty("__type")]
     public string Type { get; set; }
 
+    // TODO: Is there ANY better way of handling this than using the dynamic type!?
+    
     /// <summary>
     /// Actual value of the field instance. The value type varies, depending on `__type`:<br/>
     /// - For **classic types** (ie. Integer, Float, Boolean, String, Text and FilePath), you
