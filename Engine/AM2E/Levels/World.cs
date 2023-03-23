@@ -130,6 +130,21 @@ public static class World
 
         ActiveLevels.Add(iid, LoadedLevels[iid]);
         LoadedLevels[iid].Active = true;
+        
+        // TODO: This doesn't take into account level resets yet.
+        // (level resets don't exist at all as of writing)
+        foreach (var actor in ActorManager.PersistentActors.Values)
+        {
+            actor.OnLevelStart();
+        }
+        
+        foreach (var layer in LoadedLevels[iid].Layers.Values)
+        {
+            foreach (var actor in layer.Actors)
+            {
+                actor.OnLevelStart();
+            }
+        }
     }
     
     public static void ActivateLevel(Level level)
