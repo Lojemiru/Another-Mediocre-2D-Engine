@@ -1,6 +1,6 @@
 namespace AM2E.Collision;
 
-public class CircleHitbox : Hitbox
+public sealed class CircleHitbox : Hitbox
 {
     // TODO: Actually finish circle -> other hitbox interactions
     // TODO: Constructor
@@ -14,18 +14,18 @@ public class CircleHitbox : Hitbox
 
     public override int BoundBottom => Y + Radius;
 
-    protected override bool Intersects(RectangleHitbox hitbox)
+    public override bool Intersects(RectangleHitbox hitbox)
     {
         return hitbox.Intersects(this);
     }
 
-    protected override bool Intersects(CircleHitbox hitbox)
+    public override bool Intersects(CircleHitbox hitbox)
     {
         // Add radii, compare to distance between both centers
         return (Radius + hitbox.Radius) >= MathHelper.PointDistance(X, Y, hitbox.X, hitbox.Y);
     }
 
-    protected override bool Intersects(PreciseHitbox hitbox)
+    public override bool Intersects(PreciseHitbox hitbox)
     {
         return hitbox.Intersects(this);
     }

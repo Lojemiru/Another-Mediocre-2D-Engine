@@ -1,5 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 // ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
@@ -26,6 +25,9 @@ public abstract class Hitbox
 
     public bool FlippedX { get; private set; } = false;
     public bool FlippedY { get; private set; } = false;
+    
+    // This SHOULD disallow publicly inheriting from this class. I think. Sorry guys, no custom Hitboxes :P
+    private protected Hitbox() { }
         
     public virtual void ApplyFlips(bool xFlip, bool yFlip)
     {
@@ -76,9 +78,9 @@ public abstract class Hitbox
         targetInterfaces.Add(new TypeContainer<T>());
     }
 
-    protected abstract bool Intersects(RectangleHitbox hitbox);
-    protected abstract bool Intersects(CircleHitbox hitbox);
-    protected abstract bool Intersects(PreciseHitbox hitbox);
+    public abstract bool Intersects(RectangleHitbox hitbox);
+    public abstract bool Intersects(CircleHitbox hitbox);
+    public abstract bool Intersects(PreciseHitbox hitbox);
     public abstract bool ContainsPoint(int x, int y);
     public bool Intersects(Hitbox hitbox)
     {
@@ -90,5 +92,16 @@ public abstract class Hitbox
             CircleHitbox circleHitbox => Intersects(circleHitbox),
             _ => throw new ArgumentException("Hitbox type " + hitbox.GetType() + " is not a valid intersection target!")
         };
+    }
+
+    protected bool IntersectsBounds(Hitbox hitbox)
+    {
+        return !(BoundRight < hitbox.BoundLeft || hitbox.BoundRight < BoundLeft || BoundBottom < hitbox.BoundTop ||
+                 hitbox.BoundBottom < BoundTop);
+    }
+
+    protected bool ContainsPointInBounds(int x, int y)
+    {
+        return !(x < BoundLeft || x > BoundRight || y < BoundTop || y > BoundBottom);
     }
 }

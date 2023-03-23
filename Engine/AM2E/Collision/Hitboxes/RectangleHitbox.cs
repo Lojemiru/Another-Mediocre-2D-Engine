@@ -2,48 +2,25 @@ using Microsoft.Xna.Framework;
 
 namespace AM2E.Collision;
 
-public class RectangleHitbox : Hitbox
+public sealed class RectangleHitbox : RectangleHitboxBase
 {
-    public int Width { get; private set; }
-    public int Height { get; private set; }
-
-    public override int BoundLeft => X - OffsetX;
-
-    public override int BoundRight => BoundLeft + Width - 1;
-
-    public override int BoundTop => Y - OffsetY;
-
-    public override int BoundBottom => BoundTop + Height - 1;
-
-    public RectangleHitbox(int x, int y, int w, int h, int offsetX = 0, int offsetY = 0)
+    public RectangleHitbox(int x, int y, int w, int h, int offsetX = 0, int offsetY = 0) : 
+        base(x, y, w, h, offsetX, offsetY)
     {
-        X = x;
-        Y = y;
-        Width = w;
-        Height = h;
-        OffsetX = InitialOffsetX = offsetX;
-        OffsetY = InitialOffsetY = offsetY;
     }
-
+    
     public void Resize(int width, int height)
     {
         Width = width;
         Height = height;
     }
-
-    public override void ApplyFlips(bool xFlip, bool yFlip)
+    
+    public override bool Intersects(RectangleHitbox hitbox)
     {
-        base.ApplyFlips(xFlip, yFlip);
-        OffsetX = FlippedX ? (Width - 1) - InitialOffsetX : InitialOffsetX;
-        OffsetY = FlippedY ? (Height - 1) - InitialOffsetY : InitialOffsetY;
+        return IntersectsBounds(hitbox);
     }
 
-    protected override bool Intersects(RectangleHitbox hitbox)
-    {
-        return !(BoundRight < hitbox.BoundLeft || hitbox.BoundRight < BoundLeft || BoundBottom < hitbox.BoundTop || hitbox.BoundBottom < BoundTop);
-    }
-
-    protected override bool Intersects(CircleHitbox hitbox)
+    public override bool Intersects(CircleHitbox hitbox)
     {
         // Only two conditions: circle center is in rectangle, or endpoint of radius is in rectangle
         if (ContainsPoint(hitbox.X, hitbox.Y)) return true;
@@ -53,6 +30,7 @@ public class RectangleHitbox : Hitbox
 
         var pos = new Vector2(centerX - hitbox.X, centerY - hitbox.Y);
         
+        // ReSharper disable once InvertIf
         if ((int)pos.Length() > hitbox.Radius) 
         {
             pos.Normalize();
@@ -62,13 +40,13 @@ public class RectangleHitbox : Hitbox
         return ContainsPoint((int)(hitbox.X - pos.X), (int)(hitbox.Y - pos.Y));
     }
 
-    protected override bool Intersects(PreciseHitbox hitbox)
+    public override bool Intersects(PreciseHitbox hitbox)
     {
         return hitbox.Intersects(this);
     }
 
     public override bool ContainsPoint(int x, int y)
     {
-        return !(x < BoundLeft || x > BoundRight || y < BoundTop || y > BoundBottom);
+        return ContainsPointInBounds(x, y);
     }
 }
