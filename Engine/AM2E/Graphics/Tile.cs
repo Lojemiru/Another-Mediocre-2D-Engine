@@ -21,6 +21,15 @@ public sealed class Tile : IDrawable
         flips = (SpriteEffects)tile.F;
     }
 
+    public Tile(int x, int y, Sprite tilesetSprite, Rectangle tileBounds, byte flips)
+    {
+        X = x;
+        Y = y;
+        this.tilesetSprite = tilesetSprite;
+        tileRect = tileBounds;
+        this.flips = (SpriteEffects)flips;
+    }
+
     public void Draw(SpriteBatch spriteBatch)
     {
         tilesetSprite.Draw(spriteBatch, X, Y, 0, tileRect, 0, flips);
