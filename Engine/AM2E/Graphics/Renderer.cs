@@ -10,6 +10,8 @@ public static class Renderer
     public static GraphicsDeviceManager GraphicsDeviceManager { get; private set; }
     private static Rectangle applicationSpace = new Rectangle(0, 0, 426, 240);
     private static SpriteBatch applicationBatch;
+    public static int GameWidth;
+    public static int GameHeight;
 
     public static int UpscaleAmount { get; private set; } = 1;
 
@@ -30,6 +32,8 @@ public static class Renderer
 
     public static void SetGameResolution(int width, int height)
     {
+        GameWidth = width;
+        GameHeight = height;
         ApplicationSurface = new RenderTarget2D(GraphicsDeviceManager.GraphicsDevice, width * UpscaleAmount, height * UpscaleAmount, false, SurfaceFormat.Color, DepthFormat.None, 8, RenderTargetUsage.DiscardContents);
         Camera.UpdateTransform();
     }

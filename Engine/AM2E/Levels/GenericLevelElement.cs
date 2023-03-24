@@ -9,10 +9,12 @@ public abstract class GenericLevelElement
     public Layer Layer { get; internal set; }
     public Level Level { get; internal set; }
 
-    protected GenericLevelElement(Layer layer)
+    protected GenericLevelElement(int x, int y, Layer layer)
     {
         Layer = layer;
         Layer.Add(this);
         Level = layer.Level;
+        X = x;
+        Y = y;
     }
 }

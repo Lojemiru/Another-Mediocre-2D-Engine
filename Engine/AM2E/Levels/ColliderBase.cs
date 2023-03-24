@@ -19,7 +19,7 @@ public abstract class ColliderBase : GenericLevelElement, ICollider
         set => Collider.Y = value;
     }
 
-    protected ColliderBase(int x, int y, Layer layer) : base(layer)
+    protected ColliderBase(int x, int y, Layer layer) : base(x, y, layer)
     {
         Collider = new Collider(x, y);
     }
