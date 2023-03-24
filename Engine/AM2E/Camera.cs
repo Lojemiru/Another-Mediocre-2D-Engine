@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 
 namespace AM2E;
 
-public static class GameCamera
+public static class Camera
 {
     // I have NO CLUE how matrices work
     // ...but this guy does: https://www.youtube.com/watch?v=ceBCDKU_mNw
@@ -11,7 +11,7 @@ public static class GameCamera
     public static int Y { get; private set; } = 0;
     public static Matrix Transform { get; private set; }
 
-    static GameCamera()
+    static Camera()
     {
         UpdateTransform();
     }

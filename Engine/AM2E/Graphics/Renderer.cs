@@ -31,7 +31,7 @@ public static class Renderer
     public static void SetGameResolution(int width, int height)
     {
         ApplicationSurface = new RenderTarget2D(GraphicsDeviceManager.GraphicsDevice, width * UpscaleAmount, height * UpscaleAmount, false, SurfaceFormat.Color, DepthFormat.None, 8, RenderTargetUsage.DiscardContents);
-        GameCamera.UpdateTransform();
+        Camera.UpdateTransform();
     }
 
     public static void SetUpscaleAmount(int amount)

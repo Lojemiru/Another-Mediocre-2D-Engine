@@ -20,7 +20,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Collision\Hitboxes\RectangleHitbox.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\Hitboxes\RectangleHitboxBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\MaskCache.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)GameCamera.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Camera.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\Collider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\Hitbox.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\ICollider.cs" />
