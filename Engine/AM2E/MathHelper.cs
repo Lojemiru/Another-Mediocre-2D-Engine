@@ -15,6 +15,18 @@ public static class MathHelper
     {
         return a + (amount * (b - a));
     }
+
+    /// <summary>
+    /// Interpolates between two values.
+    /// </summary>
+    /// <param name="a">The starting value.</param>
+    /// <param name="b">The target value.</param>
+    /// <param name="amount">The amount to interpolate between the two values.</param>
+    /// <returns>The interpolated value.</returns>
+    public static float Lerp(float a, float b, float amount)
+    {
+        return a + (amount * (b - a));
+    }
     
     /// <summary>
     /// Wraps the supplied value within the specified bounds.
