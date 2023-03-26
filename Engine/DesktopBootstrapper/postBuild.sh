@@ -5,8 +5,8 @@
 # TODO: Run texturepage regeneration routine?
 
 # Remove old texturepages and metadata, copy in new ones
-rm $1textures/*
-cp ../../GameContent/Graphics/output/*.* $1textures/
+rm -r $1textures
+cp ../../GameContent/Graphics/output/*.* $1textures
 
 # Remove old level data, copy in new
 rm -r $1worlds
