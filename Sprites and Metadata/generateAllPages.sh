@@ -39,6 +39,14 @@ do
 	fi
 done
 
+echo "Removing old GameContent enums..."
+
+rm -f "../GameContent/GameContent/AM2EAutomated/SpriteIndex.cs"
+rm -f "../GameContent/GameContent/AM2EAutomated/PageIndex.cs"
+
+touch "../GameContent/GameContent/AM2EAutomated/SpriteIndex.cs"
+touch "../GameContent/GameContent/AM2EAutomated/PageIndex.cs"
+
 # Rebuild enums
 TexturePacker/TexturePacker enum --input "../GameContent/Graphics/output/enums/sprites" --output ../GameContent/GameContent/AM2EAutomated/SpriteIndex.cs --name SpriteIndex --namespace GameContent
 TexturePacker/TexturePacker enum --input "../GameContent/Graphics/output/enums" --output ../GameContent/GameContent/AM2EAutomated/PageIndex.cs --name PageIndex --namespace GameContent
