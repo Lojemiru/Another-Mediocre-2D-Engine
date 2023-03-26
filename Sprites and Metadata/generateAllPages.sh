@@ -2,7 +2,7 @@
 
 echo "Cleaning up old texturepages and metadata..."
 
-rn -rf "../GameContent/Graphics/output"
+rm -rf "../GameContent/Graphics/output"
 
 mkdir "../GameContent/Graphics/output"
 
