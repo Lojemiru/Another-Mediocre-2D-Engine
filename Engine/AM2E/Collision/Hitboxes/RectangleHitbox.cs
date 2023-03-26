@@ -14,6 +14,13 @@ public sealed class RectangleHitbox : RectangleHitboxBase
         Width = width;
         Height = height;
     }
+
+    public void Resize(int width, int height, int offsetX, int offsetY)
+    {
+        Resize(width, height);
+        OffsetX = offsetX;
+        OffsetY = offsetY;
+    }
     
     public override bool Intersects(RectangleHitbox hitbox)
     {
