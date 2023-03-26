@@ -2,17 +2,25 @@
 
 echo "Cleaning up old texturepages and metadata..."
 
+rn -rf "../GameContent/Graphics/output"
+
+mkdir "../GameContent/Graphics/output"
+
+mkdir "../GameContent/Graphics/output/enums"
+
+mkdir "../GameContent/Graphics/output/enums/sprites"
+
 # Remove old enum data
-for f in "../GameContent/Graphics/output/enums/"*
-do
-	rm $f
-done
+#for f in "../GameContent/Graphics/output/enums/"*
+#do
+#	rm $f
+#done
 
 # Clean up output directory
-for f in "../GameContent/Graphics/output/"*
-do
-	rm $f
-done
+#for f in "../GameContent/Graphics/output/"*
+#do
+#	rm $f
+#done
 
 echo "Building texturepages and metadata..."
 
