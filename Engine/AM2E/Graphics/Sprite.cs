@@ -49,7 +49,7 @@ public sealed class Sprite
     /// Static <see cref="Vector2"/> used to translate int/int positions for <see cref="SpriteBatch"/> draw calls.
     /// </summary>
     private static Vector2 drawPos;
-    
+
     /// <summary>
     /// A collection of origin transforms for each variant of the <see cref="SpriteEffects"/> passed into draw calls.
     /// </summary>
@@ -61,10 +61,15 @@ public sealed class Sprite
     private readonly Rectangle[] positions;
     
     /// <summary>
+    /// Static <see cref="Vector2"/> used to translate x/y scale values for <see cref="SpriteBatch"/> draw calls.
+    /// </summary>
+    private static Vector2 scale;
+    
+    /// <summary>
     /// Static <see cref="Rectangle"/> used to translate sub-rectangles for sub-rectangle draw calls.
     /// </summary>
     private static Rectangle subPos;
-    
+
     #endregion
     
     
@@ -102,12 +107,14 @@ public sealed class Sprite
     /// <param name="effects">The <see cref="SpriteEffects"/> that should be applied during drawing.</param>
     /// <param name="alpha">The alpha value that should be applied during drawing; ranges from 0 to 1 inclusive.</param>
     public void Draw(SpriteBatch batch, int x, int y, int frame, float rotation = 0,
-        SpriteEffects effects = SpriteEffects.None, float alpha = 1)
+        SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1)
     {
         drawPos.X = x;
         drawPos.Y = y;
+        scale.X = scaleX;
+        scale.Y = scaleY;
         batch.Draw(TexturePage.Texture, drawPos, positions[MathHelper.Wrap(frame, 0, Length)], Color.White * alpha,
-            Microsoft.Xna.Framework.MathHelper.ToRadians(rotation), flippedOrigins[(int)effects], 1, effects, 0);
+            Microsoft.Xna.Framework.MathHelper.ToRadians(rotation), flippedOrigins[(int)effects], scale, effects, 0);
     }
     
     /// <summary>
