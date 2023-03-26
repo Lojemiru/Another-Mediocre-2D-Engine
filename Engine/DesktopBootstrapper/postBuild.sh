@@ -6,6 +6,7 @@
 
 # Remove old texturepages and metadata, copy in new ones
 rm -r $1textures
+mkdir $1textures
 cp ../../GameContent/Graphics/output/*.* $1textures
 
 # Remove old level data, copy in new
