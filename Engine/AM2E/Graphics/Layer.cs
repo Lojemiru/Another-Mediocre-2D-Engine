@@ -10,6 +10,7 @@ namespace AM2E.Graphics;
 public sealed class Layer
 {
     // TODO: tiles should be handled under a specific collection or class for easier access in-code.
+    // TODO: We can't delete things right now because it will wipe them from the collection before it finishes enumeration, which inevitably crashes.
     public readonly string Name;
     private readonly SpriteBatch spriteBatch = new(EngineCore._graphics.GraphicsDevice);
     public readonly List<IDrawable> Drawables = new();
