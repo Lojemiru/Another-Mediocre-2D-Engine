@@ -27,7 +27,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Collision\LOIC.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Animation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EngineCore.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Graphics\Layer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Sprite.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\TextureManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\TexturePage.cs" />
@@ -40,6 +39,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Renderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\ColliderBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\GenericLevelElement.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Levels\Layer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkDefinitions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkEntityInstance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkEnums.cs" />

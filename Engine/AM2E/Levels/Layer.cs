@@ -1,11 +1,9 @@
-﻿using System;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using AM2E.Actors;
 using AM2E.Collision;
-using AM2E.Levels;
 
-namespace AM2E.Graphics;
+namespace AM2E.Levels;
 
 public sealed class Layer
 {
