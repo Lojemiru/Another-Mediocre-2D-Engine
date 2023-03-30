@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using System;
+using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using AM2E.Actors;
 using AM2E.Collision;
@@ -13,8 +14,12 @@ public sealed class Layer
     private readonly SpriteBatch spriteBatch = new(EngineCore._graphics.GraphicsDevice);
     public readonly List<IDrawable> Drawables = new();
     public readonly List<Actor> Actors = new();
-    public readonly List<object> Objects = new();
     public readonly List<ICollider> Colliders = new();
+    public readonly List<GenericLevelElement> GenericLevelElements = new();
+    private readonly List<GenericLevelElement> genericLevelElementsForRemoval = new();
+    private readonly List<GenericLevelElement> genericLevelElementsForAddition = new();
+    private bool inTick = false;
+    
     public bool Visible = true;
     public readonly Level Level;
 
@@ -31,6 +36,12 @@ public sealed class Layer
 
     public void Add(Actor actor)
     {
+        if (inTick)
+        {
+            QueueForAddition(actor);
+            return;
+        }
+        
         actor.Layer?.Remove(actor);
         actor.Layer = this;
         // TODO: Level doesn't get adjusted for other types yet...
@@ -45,8 +56,25 @@ public sealed class Layer
         Colliders.Add(collider);
     }
 
-    public void Add(object obj)
+    public void Add(GenericLevelElement genericLevelElement)
     {
+        if (inTick)
+        {
+            QueueForAddition(genericLevelElement);
+            return;
+        }
+        
+        GenericLevelElements.Add(genericLevelElement);
+    }
+
+    internal void AddGeneric(GenericLevelElement obj)
+    {
+        if (inTick)
+        {
+            QueueForAddition(obj);
+            return;
+        }
+        
         switch (obj)
         {
             case Actor actor:
@@ -55,13 +83,43 @@ public sealed class Layer
             case ICollider collider:
                 Add(collider);
                 break;
-            case IDrawable drawable:
-                Add(drawable);
-                break;
-            default:
-                Objects.Add(obj);
+            case { }:
+                Add(obj);
                 break;
         }
+    }
+
+    internal void RemoveGeneric(GenericLevelElement gle)
+    {
+        if (inTick)
+        {
+            QueueForRemoval(gle);
+            return;
+        }
+        
+        switch (gle)
+        {
+            case Actor actor:
+                Remove(actor);
+                break;
+            case ICollider collider:
+                throw new NotImplementedException();
+            case {}:
+                Remove(gle);
+                break;
+        }
+    }
+
+    private void QueueForAddition(GenericLevelElement gle)
+    {
+        if (!genericLevelElementsForAddition.Contains(gle))
+            genericLevelElementsForAddition.Add(gle);
+    }
+    
+    private void QueueForRemoval(GenericLevelElement gle)
+    {
+        if (!genericLevelElementsForRemoval.Contains(gle))
+            genericLevelElementsForRemoval.Add(gle);
     }
 
     public void Remove(IDrawable drawable)
@@ -69,19 +127,31 @@ public sealed class Layer
         Drawables.Remove(drawable);
     }
 
-    public void Remove(Actor actor)
+    internal void Remove(Actor actor)
     {
+        if (inTick) 
+        {
+            QueueForRemoval(actor);
+            return;
+        }
+        
         Actors.Remove(actor);
         Drawables.Remove(actor);
         Colliders.Remove(actor);
     }
 
-    public void Remove(ICollider collider)
+    internal void Remove(GenericLevelElement genericLevelElement)
     {
-        Colliders.Remove(collider);
+        if (inTick)
+        {
+            QueueForRemoval(genericLevelElement);
+            return;
+        }
+
+        GenericLevelElements.Remove(genericLevelElement);
     }
 
-    public void Draw()
+    internal void Draw()
     {
         if (!Visible) return;
             
@@ -93,5 +163,33 @@ public sealed class Layer
             drawable.Draw(spriteBatch);
         }
         spriteBatch.End();
+    }
+
+    internal void Tick()
+    {
+        inTick = true;
+        
+        foreach (var actor in Actors)
+        {
+            actor.Step();
+        }
+        
+        inTick = false;
+        
+        // TODO: Review addition/removal order.
+
+        foreach (var gle in genericLevelElementsForAddition)
+        {
+            AddGeneric(gle);
+        }
+        
+        genericLevelElementsForAddition.Clear();
+
+        foreach (var gle in genericLevelElementsForRemoval)
+        {
+            RemoveGeneric(gle);
+        }
+        
+        genericLevelElementsForRemoval.Clear();
     }
 }

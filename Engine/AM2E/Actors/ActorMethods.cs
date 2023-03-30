@@ -88,18 +88,7 @@ public abstract partial class Actor : ColliderBase, IDrawable
     
     
     #region Internal Methods
-    
-    /// <summary>
-    /// Deregisters this <see cref="Actor"/>.
-    /// </summary>
-    internal void Deregister()
-    {
-        Exists = false;
-        Layer.Remove(this);
-        // TODO: Does this cause the object to get automatically cleaned up? We probably want to do it manually anyway.
-        // TODO: Need to factor persistent behavior into this.
-    }
-    
+
     /// <summary>
     /// Calls this <see cref="Actor"/>'s <see cref="OnStep"/> event.
     /// </summary>
@@ -137,15 +126,6 @@ public abstract partial class Actor : ColliderBase, IDrawable
         
         ApplyFlips((bits & 1) != 0, (bits & 2) != 0);
     }
-    
-    /// <summary>
-    /// Destroys this <see cref="Actor"/>.
-    /// </summary>
-    protected internal void Destroy()
-    {
-        OnDestroy();
-        Deregister();
-    }
 
     #endregion
     
@@ -159,15 +139,7 @@ public abstract partial class Actor : ColliderBase, IDrawable
     {
         // Nothing - we want an empty cleanup event so actors don't /have/ to define it.
     }
-    
-    /// <summary>
-    /// Overridable method that gets called when this <see cref="Actor"/> is destroyed.
-    /// </summary>
-    protected virtual void OnDestroy()
-    {
-        // Nothing - we want an empty destroy so actors don't /have/ to define it.
-    }
-    
+
     /// <summary>
     /// Overridable method that gets called every render frame.
     /// </summary>

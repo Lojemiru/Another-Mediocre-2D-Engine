@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using AM2E.Actors;
+using AM2E.Collision;
 using AM2E.Graphics;
 using GameContent;
 using Newtonsoft.Json;
@@ -16,6 +17,9 @@ public static class World
     private static readonly Dictionary<int, Tileset> Tilesets = new();
     public static Dictionary<string, Level> LoadedLevels = new();
     public static Dictionary<string, Level> ActiveLevels = new();
+    private static bool inTick = false;
+    private static List<Level> levelsToBeActivated = new();
+    private static List<Level> levelsToBeDeactivated = new();
 
     public static int LevelUnitHeight => world.WorldGridHeight;
     public static int LevelUnitWidth => world.WorldGridWidth;
@@ -86,11 +90,11 @@ public static class World
                             case Actor actor:
                                 ActorManager.Instantiate(actor, layer, LoadedLevels[level.Iid]);
                                 break;
-                            case ColliderBase colliderBase:
-                                layer.Add(colliderBase);
+                            case ICollider collider:
+                                layer.Add(collider);
                                 break;
-                            case GenericLevelElement:
-                                layer.Add(ent);
+                            case GenericLevelElement genericLevelElement:
+                                layer.Add(genericLevelElement);
                                 break;
                         }
                     }
@@ -129,6 +133,12 @@ public static class World
         if (!LoadedLevels.ContainsKey(iid) || ActiveLevels.ContainsKey(iid))
             return;
 
+        if (inTick)
+        {
+            QueueLevelForActivation(LoadedLevels[iid]);
+            return;
+        }
+
         ActiveLevels.Add(iid, LoadedLevels[iid]);
         LoadedLevels[iid].Active = true;
         
@@ -162,10 +172,17 @@ public static class World
         }
     }
 
+    // TODO: Review hierarchy of overloads here.
     public static void DeactivateLevel(string iid)
     {
         if (!ActiveLevels.ContainsKey(iid))
             return;
+
+        if (inTick)
+        {
+            QueueLevelForDeactivation(LoadedLevels[iid]);
+            return;
+        }
 
         ActiveLevels.Remove(iid);
         LoadedLevels[iid].Active = false;
@@ -201,5 +218,49 @@ public static class World
         {
             level.Draw();
         }
+    }
+
+    private static void QueueLevelForDeactivation(Level level)
+    {
+        if (!levelsToBeDeactivated.Contains(level))
+            levelsToBeDeactivated.Add(level);
+    }
+    
+    private static void QueueLevelForActivation(Level level)
+    {
+        if (!levelsToBeActivated.Contains(level))
+            levelsToBeActivated.Add(level);
+    }
+
+    public static void Tick()
+    {
+        inTick = true;
+        
+        // TODO: Refactor this loop into each level individually?
+        foreach (var level in ActiveLevels.Values)
+        {
+            foreach (var layer in level.Layers.Values)
+            {
+                layer.Tick();
+            }
+        }
+
+        inTick = false;
+        
+        // TODO: Review activation/deactivation order.
+
+        foreach (var level in levelsToBeActivated)
+        {
+            ActivateLevel(level);
+        }
+        
+        levelsToBeActivated.Clear();
+
+        foreach (var level in levelsToBeDeactivated)
+        {
+            DeactivateLevel(level);
+        }
+        
+        levelsToBeDeactivated.Clear();
     }
 }

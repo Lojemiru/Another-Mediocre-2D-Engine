@@ -11,8 +11,6 @@
 // TODO: Need to implement IDisposable?
 public abstract partial class Actor
 {
-    public bool Exists { get; private set; } = true;
-    
     public bool FlippedX { get; private set; } = false;
     
     public bool FlippedY { get; private set; } = false;

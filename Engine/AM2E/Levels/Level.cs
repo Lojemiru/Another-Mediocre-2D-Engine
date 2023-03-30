@@ -75,9 +75,9 @@ public sealed class Level
         Layers[layerName].Add(actor);
     }
     
-    public void Add(string layerName, object obj)
+    public void Add(string layerName, GenericLevelElement genericLevelElement)
     {
-        Layers[layerName].Add(obj);
+        Layers[layerName].Add(genericLevelElement);
     }
 
     public void Draw()

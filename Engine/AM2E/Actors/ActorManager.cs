@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AM2E.Graphics;
 using AM2E.Levels;
 
@@ -111,28 +112,21 @@ public static class ActorManager
                 
                 actor.OnLevelEnd();
                 // TODO: Do we actually need to deregister?
-                actor.Deregister();
+                actor.Destroy(false);
             }
         }
     }
     
     internal static void UpdateActors()
     {
-        // Step persistent actors first, then non-persistent ones
+        // Step persistent actors with no layer first, then everything else by layer.
         foreach (var actor in PersistentActors.Values)
-            actor.Step();
-        
-        foreach (var level in World.ActiveLevels.Values)
         {
-            foreach (var layer in level.Layers.Values)
-            {
-                foreach (var actor in layer.Actors)
-                {
-                    if (!actor.Persistent)
-                        actor.Step();
-                }
-            }
+            if (actor.Layer == null)
+                actor.Step();
         }
+
+        World.Tick();
     }
     
     #endregion
