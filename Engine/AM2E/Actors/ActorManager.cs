@@ -59,6 +59,7 @@ public static class ActorManager
     }
     
     // TODO: Move instantiation/removal into Actor itself.
+    // TODO: Fix this awful pattern - doesn't the base class add itself to the specified layer!?
     public static Actor Instantiate(Actor actor, string layer, Level level)
     {
         level.Add(layer, actor);
