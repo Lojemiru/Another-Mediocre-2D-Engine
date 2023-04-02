@@ -28,7 +28,7 @@ public sealed class TileChunk : IDrawable, IDisposable
         Width = cellsWide * tileSize;
         Height = cellsWide * tileSize;
 
-        texture = new RenderTarget2D(EngineCore._graphics.GraphicsDevice, Width, Height, false, SurfaceFormat.Rgba64, DepthFormat.None);
+        texture = new RenderTarget2D(EngineCore._graphics.GraphicsDevice, Width, Height);
     }
 
     public void SetAtPosition(int x, int y, Tile tile)

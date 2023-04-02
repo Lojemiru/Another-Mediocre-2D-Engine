@@ -14,7 +14,7 @@ public sealed class TileManager : IDrawable
     private int worldX;
     private int worldY;
     
-    public TileManager(Level level, int tileSize = 16, int chunkSize = 16)
+    public TileManager(Level level, int tileSize = 16, int chunkSize = 8)
     {
         chunkSizePx = (tileSize * chunkSize);
         chunks = new TileChunk[(level.Width / chunkSizePx) + 1, (level.Height / chunkSizePx) + 1];

@@ -181,7 +181,7 @@ public sealed class Layer
     internal void Draw()
     {
         if (!Visible) return;
-            
+        
         // Sort by texture to avoid constant swaps - this will save performance (particularly on tiles) but nuke depth,
         // but layers are a single depth so we don't care!!!
         spriteBatch.Begin(SpriteSortMode.Texture, samplerState:SamplerState.PointClamp, transformMatrix:Camera.Transform);
