@@ -65,6 +65,16 @@ public sealed class Level
         Layers[layerName].Add(drawable);
     }
 
+    
+    public void AddTile(string layerName, int x, int y, Tile tile)
+    {
+        if (!Layers.ContainsKey(layerName))
+            throw new ArgumentException("No layer with the specified name \"" + layerName + "\" exists in level \"" + Name + "\"");
+        
+        Layers[layerName].AddTile(x, y, tile);
+    }
+    
+
     public void Add(string layerName, IDrawable drawable)
     {
         Layers[layerName].Add(drawable);

@@ -1,37 +1,33 @@
+using System;
 using AM2E.Levels;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Graphics;
 
-public sealed class Tile : IDrawable
+public sealed class Tile
 {
-    public int X { get; }
-    public int Y { get; }
+    public int Size => tileRect.Width;
     private Sprite tilesetSprite;
     private Rectangle tileRect;
     private SpriteEffects flips;
 
-    public Tile(LDtkTileInstance tile, Tileset tileset, int x, int y)
+    public Tile(LDtkTileInstance tile, Tileset tileset)
     {
-        X = x;
-        Y = y;
         tilesetSprite = tileset.Sprite;
         tileRect = tileset.GetCachedTileRectangle(tile.Src[0] / tileset.GridSize, tile.Src[1] / tileset.GridSize);
         flips = (SpriteEffects)tile.F;
     }
 
-    public Tile(int x, int y, Sprite tilesetSprite, Rectangle tileBounds, byte flips)
+    public Tile(Sprite tilesetSprite, Rectangle tileBounds, byte flips)
     {
-        X = x;
-        Y = y;
         this.tilesetSprite = tilesetSprite;
         tileRect = tileBounds;
         this.flips = (SpriteEffects)flips;
     }
 
-    public void Draw(SpriteBatch spriteBatch)
+    public void Draw(SpriteBatch spriteBatch, int x, int y)
     {
-        tilesetSprite.Draw(spriteBatch, X, Y, 0, tileRect, 0, flips);
+        tilesetSprite.Draw(spriteBatch, x, y, 0, tileRect, 0, flips);
     }
 }

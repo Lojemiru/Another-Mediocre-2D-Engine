@@ -106,7 +106,7 @@ public static class World
                     
                     // Instantiate each tile.
                     foreach (var tile in ldtkLayer.GridTiles)
-                        LoadedLevels[level.Iid].AddDrawable(ldtkLayer.Identifier, new Tile(tile, set, level.WorldX + tile.Px[0], level.WorldY + tile.Px[1]));
+                        LoadedLevels[level.Iid].AddTile(ldtkLayer.Identifier, level.WorldX + tile.Px[0], level.WorldY + tile.Px[1], new Tile(tile, set));
                     
 
                     break;

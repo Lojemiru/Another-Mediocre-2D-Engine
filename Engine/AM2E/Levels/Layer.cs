@@ -3,13 +3,13 @@ using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using AM2E.Actors;
 using AM2E.Collision;
+using AM2E.Graphics;
 
 namespace AM2E.Levels;
 
 public sealed class Layer
 {
     // TODO: tiles should be handled under a specific collection or class for easier access in-code.
-    // TODO: We can't delete things right now because it will wipe them from the collection before it finishes enumeration, which inevitably crashes.
     public readonly string Name;
     private readonly SpriteBatch spriteBatch = new(EngineCore._graphics.GraphicsDevice);
     public readonly List<IDrawable> Drawables = new();
@@ -18,8 +18,11 @@ public sealed class Layer
     public readonly List<GenericLevelElement> GenericLevelElements = new();
     private readonly List<GenericLevelElement> genericLevelElementsForRemoval = new();
     private readonly List<GenericLevelElement> genericLevelElementsForAddition = new();
+
+    public TileManager TileManager;
+
     private bool inTick = false;
-    
+
     public bool Visible = true;
     public readonly Level Level;
 
@@ -27,6 +30,30 @@ public sealed class Layer
     {
         Name = name;
         Level = level;
+    }
+    
+    // TODO: Safety for all tile methods
+
+    public void AddTile(int x, int y, Tile tile)
+    {
+        TileManager ??= new TileManager(Level, tile.Size);
+        
+        TileManager.AddTile(x, y, tile);
+    }
+
+    public Tile GetTile(int x, int y)
+    {
+        return TileManager.GetTile(x, y);
+    }
+
+    public void DeleteTile(int x, int y)
+    {
+        TileManager.DeleteTile(x, y);
+    }
+
+    public void DeleteTiles(int x, int y, int numX, int numY)
+    {
+        TileManager.DeleteTiles(x, y, numX, numY);
     }
 
     public void Add(IDrawable drawable)
@@ -162,6 +189,9 @@ public sealed class Layer
         {
             drawable.Draw(spriteBatch);
         }
+        
+        TileManager?.Draw(spriteBatch);
+        
         spriteBatch.End();
     }
 
@@ -191,5 +221,7 @@ public sealed class Layer
         }
         
         genericLevelElementsForRemoval.Clear();
+        
+        TileManager?.Step();
     }
 }
