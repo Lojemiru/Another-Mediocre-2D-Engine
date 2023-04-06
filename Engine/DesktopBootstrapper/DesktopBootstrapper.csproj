@@ -19,6 +19,7 @@
     <EmbeddedResource Include="Icon.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="FontStashSharp.MonoGame" Version="1.2.8" />
     <PackageReference Include="LanguageExt.Core" Version="4.2.9" />
     <PackageReference Include="MonoGame.Extended" Version="3.8.0" />
     <PackageReference Include="MonoGame.Extended.Input" Version="3.8.0" />
