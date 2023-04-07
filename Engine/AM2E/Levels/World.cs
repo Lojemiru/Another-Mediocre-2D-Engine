@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using AM2E.Actors;
@@ -13,13 +14,15 @@ namespace AM2E.Levels;
 public static class World
 {
     private static LDtkWorldInstance world;
-    private static LDtkLevelInstance[] ldtkLevels;
+    private static readonly Dictionary<string, LDtkLevelInstance> ldtkLevels = new();
     private static readonly Dictionary<int, Tileset> Tilesets = new();
     public static Dictionary<string, Level> LoadedLevels = new();
     public static Dictionary<string, Level> ActiveLevels = new();
     private static bool inTick = false;
     private static List<Level> levelsToBeActivated = new();
     private static List<Level> levelsToBeDeactivated = new();
+    private static readonly List<LDtkLevelInstance> levelsToBeInstantiated = new();
+    private static readonly List<Level> levelsToBeUninstantiated = new();
 
     public static int LevelUnitHeight => world.WorldGridHeight;
     public static int LevelUnitWidth => world.WorldGridWidth;
@@ -31,6 +34,7 @@ public static class World
         ActiveLevels.Clear();
         levelsToBeActivated.Clear();
         levelsToBeDeactivated.Clear();
+        ldtkLevels.Clear();
         
         JsonSerializer serializer = new();
         using (var reader = File.OpenText(path))
@@ -49,29 +53,32 @@ public static class World
             
             Tilesets.Add(tileset.Uid, new Tileset(sprite, tileset));
         }
-        
-        ldtkLevels = new LDtkLevelInstance[world.Levels.Length];
-        
+
         // Load level data.
-        var i = 0;
+        // TODO: Load these from files dynamically? Holding everything in memory all at once is probably kind of bad...
         foreach (var level in world.Levels)
         {
-            using (var reader = File.OpenText("worlds/" + level.ExternalRelPath))
-            {
-                ldtkLevels[i] = (LDtkLevelInstance)serializer.Deserialize(reader, typeof(LDtkLevelInstance));
-            }
-            ++i;
+            using var reader = File.OpenText("worlds/" + level.ExternalRelPath);
+            var instance = (LDtkLevelInstance)serializer.Deserialize(reader, typeof(LDtkLevelInstance));
+            ldtkLevels.Add(instance.Iid, instance);
         }
     }
 
-    public static void InstantiateLevel(int id)
+    public static void InstantiateLevel(string id)
     {
         // TODO: Review instantiation here for security
         
         var level = ldtkLevels[id];
 
         if (LoadedLevels.ContainsKey(level.Iid))
-            throw new Exception("Level with key " + level.Iid + " has already been instantiated!");
+            return;
+        
+        
+        if (inTick)
+        {
+            QueueLevelForInstantiation(level);
+            return;
+        }
         
         LoadedLevels.Add(level.Iid, new Level(level));
         
@@ -123,14 +130,65 @@ public static class World
             }
             // TODO: Handle entities, tiles, etc. etc.
         }
-        
+    }
+
+    public static void InstantiateLevelByName(string name)
+    {
+        foreach (var level in ldtkLevels.Values)
+        {
+            if (level.Identifier == name)
+                InstantiateLevel(level.Iid);
+        }
     }
 
     public static void InstantiateAll()
     {
-        for (var i = 0; i < ldtkLevels.Length; i++)
+        foreach (var level in ldtkLevels.Values)
         {
-            InstantiateLevel(i);
+            InstantiateLevel(level.Iid);
+        }
+    }
+
+    public static void UninstantiateLevel(string iid)
+    {
+        if (inTick)
+        {
+            QueueLevelForUninstantiation(LoadedLevels[iid]);
+            return;
+        }
+        
+        if (ActiveLevels.ContainsKey(iid))
+            ActiveLevels.Remove(iid);
+        
+        LoadedLevels.Remove(iid);
+    }
+
+    public static void UninstantiateLevelByName(string name)
+    {
+        foreach (var level in LoadedLevels.Values)
+        {
+            if (level.Name != name) 
+                continue;
+            
+            LoadedLevels.Remove(level.Iid);
+            return;
+        }
+    }
+
+    public static void UninstantiateAll()
+    {
+        foreach (var level in LoadedLevels.Values)
+        {
+            UninstantiateLevel(level.Iid);
+        }
+    }
+
+    public static void UninstantiateAllExcept(Level targetLevel)
+    {
+        foreach (var level in LoadedLevels.Values)
+        {
+            if (level != targetLevel)
+                UninstantiateLevel(level.Iid);
         }
     }
 
@@ -152,7 +210,8 @@ public static class World
         // (level resets don't exist at all as of writing)
         foreach (var actor in ActorManager.PersistentActors.Values)
         {
-            actor.OnLevelStart();
+            if (actor.Layer == null)
+                actor.OnLevelStart();
         }
         
         foreach (var layer in LoadedLevels[iid].Layers.Values)
@@ -237,6 +296,18 @@ public static class World
         if (!levelsToBeActivated.Contains(level))
             levelsToBeActivated.Add(level);
     }
+    
+    private static void QueueLevelForInstantiation(LDtkLevelInstance level)
+    {
+        if (!levelsToBeInstantiated.Contains(level))
+            levelsToBeInstantiated.Add(level);
+    }
+    
+    private static void QueueLevelForUninstantiation(Level level)
+    {
+        if (!levelsToBeUninstantiated.Contains(level))
+            levelsToBeUninstantiated.Add(level);
+    }
 
     public static void Tick()
     {
@@ -252,15 +323,6 @@ public static class World
         }
 
         inTick = false;
-        
-        // TODO: Review activation/deactivation order.
-
-        foreach (var level in levelsToBeActivated)
-        {
-            ActivateLevel(level);
-        }
-        
-        levelsToBeActivated.Clear();
 
         foreach (var level in levelsToBeDeactivated)
         {
@@ -268,5 +330,26 @@ public static class World
         }
         
         levelsToBeDeactivated.Clear();
+
+        foreach (var level in levelsToBeUninstantiated)
+        {
+            UninstantiateLevel(level.Iid);
+        }
+        
+        levelsToBeUninstantiated.Clear();
+
+        foreach (var level in levelsToBeInstantiated)
+        {
+            InstantiateLevel(level.Iid);
+        }
+        
+        levelsToBeInstantiated.Clear();
+
+        foreach (var level in levelsToBeActivated)
+        {
+            ActivateLevel(level);
+        }
+        
+        levelsToBeActivated.Clear();
     }
 }
