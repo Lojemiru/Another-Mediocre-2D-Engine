@@ -3,12 +3,14 @@ using Microsoft.Xna.Framework.Graphics;
 using AM2E.Actors;
 using AM2E.Control;
 using System;
+using System.Threading;
 using AM2E.Graphics;
 
 namespace AM2E;
 
 public sealed class EngineCore : Game
 {
+    public static readonly string Version = "ALPHA";
     public static GraphicsDeviceManager _graphics;
     private double updateAccumulator = 0d;
     private const double FRAME_ERROR_MARGIN = .0002;
@@ -111,6 +113,8 @@ public sealed class EngineCore : Game
     {
         InputManager.Update();
         ActorManager.UpdateActors();
+        
+        CommandConsole.ExecuteDeferredCommands();
     }
 
     protected override void Draw(GameTime gameTime)

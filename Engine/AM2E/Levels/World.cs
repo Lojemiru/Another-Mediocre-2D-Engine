@@ -26,6 +26,12 @@ public static class World
 
     public static void LoadWorld(string path)
     {
+        Tilesets.Clear();
+        LoadedLevels.Clear();
+        ActiveLevels.Clear();
+        levelsToBeActivated.Clear();
+        levelsToBeDeactivated.Clear();
+        
         JsonSerializer serializer = new();
         using (var reader = File.OpenText(path))
         {
@@ -65,7 +71,7 @@ public static class World
         var level = ldtkLevels[id];
 
         if (LoadedLevels.ContainsKey(level.Iid))
-            throw new Exception("Key " + level.Iid + " has already been instantiated!");
+            throw new Exception("Level with key " + level.Iid + " has already been instantiated!");
         
         LoadedLevels.Add(level.Iid, new Level(level));
         
