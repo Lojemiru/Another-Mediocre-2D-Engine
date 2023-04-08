@@ -91,9 +91,7 @@ public static class CommandConsole
         // Show error and return if command is not defined
         if (!commands.ContainsKey(split[0]))
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("ERROR: Command \"" + split[0] + "\" does not exist!");
-            Console.ResetColor();
+            WriteError("Command \"" + split[0] + "\" does not exist!");
             WriteCursor();
             return;
         }
@@ -128,5 +126,12 @@ public static class CommandConsole
         
         Console.Write("> ");
         wroteCursor = true;
+    }
+
+    public static void WriteError(string message)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("ERROR: " + message);
+        Console.ResetColor();
     }
 }

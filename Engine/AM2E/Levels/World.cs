@@ -54,11 +54,13 @@ public static class World
             Tilesets.Add(tileset.Uid, new Tileset(sprite, tileset));
         }
 
+        var folder = new FileInfo(path).Directory.FullName;
+
         // Load level data.
         // TODO: Load these from files dynamically? Holding everything in memory all at once is probably kind of bad...
         foreach (var level in world.Levels)
         {
-            using var reader = File.OpenText("worlds/" + level.ExternalRelPath);
+            using var reader = File.OpenText(folder + "/" + level.ExternalRelPath);
             var instance = (LDtkLevelInstance)serializer.Deserialize(reader, typeof(LDtkLevelInstance));
             ldtkLevels.Add(instance.Iid, instance);
         }
