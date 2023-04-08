@@ -11,6 +11,7 @@ public static class CommandConsole
     private static Dictionary<string, string> syntaxes = new();
     private static List<DeferredCommand> deferredCommands = new();
     private static bool stopThread = false;
+    private static bool wroteCursor = false;
     
     /// <summary>
     /// Static constructor that adds the built-in AM2E commands.
@@ -55,9 +56,13 @@ public static class CommandConsole
 
     private static void MainLoop()
     {
+        // TODO: Add arrow key history navigation. And history, I guess.
+        
         while (!stopThread)
         {
-            Console.Write("> ");
+            if (!wroteCursor)
+                Console.Write("> ");
+            wroteCursor = false;
             ParseCommand(Console.ReadLine());
         }
 
@@ -86,6 +91,8 @@ public static class CommandConsole
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("ERROR: Command \"" + split[0] + "\" does not exist!");
             Console.ResetColor();
+            Console.Write("> ");
+            wroteCursor = true;
             return;
         }
 
@@ -96,7 +103,7 @@ public static class CommandConsole
             input[i] = split[i + 1];
         }
         
-        commands[split[0]](input);
+        deferredCommands.Add(new DeferredCommand(commands[split[0]], input));
     }
 
     internal static void ExecuteDeferredCommands()
@@ -104,6 +111,12 @@ public static class CommandConsole
         foreach (var command in deferredCommands)
         {
             command.Execute();
+        }
+
+        if (deferredCommands.Count > 0)
+        {
+            Console.Write("> ");
+            wroteCursor = true;
         }
         
         deferredCommands.Clear();
