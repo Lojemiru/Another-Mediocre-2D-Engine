@@ -232,8 +232,11 @@ public static class World
     {
         foreach (var level in LoadedLevels.Values)
         {
-            if (level.Name == name)
-                ActivateLevel(level.Iid);
+            if (level.Name != name)
+                continue;
+            
+            ActivateLevel(level.Iid);
+            return;
         }
     }
 

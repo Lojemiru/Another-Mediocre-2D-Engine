@@ -2,7 +2,7 @@ using System;
 
 namespace AM2E;
 
-internal struct DeferredCommand
+internal class DeferredCommand
 {
     private Action<string[]> action;
     private string[] args;

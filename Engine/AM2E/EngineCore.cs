@@ -114,7 +114,7 @@ public sealed class EngineCore : Game
         InputManager.Update();
         ActorManager.UpdateActors();
         
-        CommandConsole.ExecuteDeferredCommands();
+        CommandConsole.ExecuteDeferredCommand();
     }
 
     protected override void Draw(GameTime gameTime)

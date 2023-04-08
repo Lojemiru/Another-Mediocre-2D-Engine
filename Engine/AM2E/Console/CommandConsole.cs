@@ -9,9 +9,10 @@ public static class CommandConsole
     private static Dictionary<string, Action<string[]>> commands = new();
     private static Dictionary<string, string> descriptions = new();
     private static Dictionary<string, string> syntaxes = new();
-    private static List<DeferredCommand> deferredCommands = new();
+    private static DeferredCommand deferredCommand;
     private static bool stopThread = false;
     private static bool wroteCursor = false;
+    private static bool commandQueued = false;
     
     /// <summary>
     /// Static constructor that adds the built-in AM2E commands.
@@ -60,8 +61,10 @@ public static class CommandConsole
         
         while (!stopThread)
         {
-            if (!wroteCursor)
-                Console.Write("> ");
+            if (commandQueued)
+                continue;
+            
+            WriteCursor();
             wroteCursor = false;
             ParseCommand(Console.ReadLine());
         }
@@ -91,8 +94,7 @@ public static class CommandConsole
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("ERROR: Command \"" + split[0] + "\" does not exist!");
             Console.ResetColor();
-            Console.Write("> ");
-            wroteCursor = true;
+            WriteCursor();
             return;
         }
 
@@ -103,22 +105,28 @@ public static class CommandConsole
             input[i] = split[i + 1];
         }
         
-        deferredCommands.Add(new DeferredCommand(commands[split[0]], input));
+        deferredCommand = new DeferredCommand(commands[split[0]], input);
+        commandQueued = true;
     }
 
-    internal static void ExecuteDeferredCommands()
+    internal static void ExecuteDeferredCommand()
     {
-        foreach (var command in deferredCommands)
+        if (deferredCommand != null)
         {
-            command.Execute();
+            deferredCommand?.Execute();
+            WriteCursor();
         }
 
-        if (deferredCommands.Count > 0)
-        {
-            Console.Write("> ");
-            wroteCursor = true;
-        }
+        deferredCommand = null;
+        commandQueued = false;
+    }
+
+    private static void WriteCursor()
+    {
+        if (wroteCursor)
+            return;
         
-        deferredCommands.Clear();
+        Console.Write("> ");
+        wroteCursor = true;
     }
 }
