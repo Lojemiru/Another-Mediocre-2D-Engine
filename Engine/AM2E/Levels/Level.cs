@@ -97,4 +97,12 @@ public sealed class Level
             layer.Draw();
         }
     }
+
+    public void Tick()
+    {
+        foreach (var layer in Layers.Values)
+        {
+            layer.Tick();
+        }
+    }
 }

@@ -146,9 +146,7 @@ public static class World
     public static void InstantiateAll()
     {
         foreach (var level in ldtkLevels.Values)
-        {
             InstantiateLevel(level.Iid);
-        }
     }
 
     public static void UninstantiateLevel(string iid)
@@ -180,9 +178,7 @@ public static class World
     public static void UninstantiateAll()
     {
         foreach (var level in LoadedLevels.Values)
-        {
             UninstantiateLevel(level.Iid);
-        }
     }
 
     public static void UninstantiateAllExcept(Level targetLevel)
@@ -208,19 +204,17 @@ public static class World
         ActiveLevels.Add(iid, LoadedLevels[iid]);
         LoadedLevels[iid].Active = true;
         
-        // TODO: This doesn't take into account level resets yet.
-        // (level resets don't exist at all as of writing)
         foreach (var actor in ActorManager.PersistentActors.Values)
         {
             if (actor.Layer == null)
-                actor.OnLevelStart();
+                actor.OnLevelActivate();
         }
         
         foreach (var layer in LoadedLevels[iid].Layers.Values)
         {
             foreach (var actor in layer.Actors)
             {
-                actor.OnLevelStart();
+                actor.OnLevelActivate();
             }
         }
     }
@@ -285,9 +279,7 @@ public static class World
     public static void RenderLevels()
     {
         foreach (var level in ActiveLevels.Values)
-        {
             level.Draw();
-        }
     }
 
     private static void QueueLevelForDeactivation(Level level)
@@ -318,43 +310,29 @@ public static class World
     {
         inTick = true;
         
-        // TODO: Refactor this loop into each level individually?
         foreach (var level in ActiveLevels.Values)
-        {
-            foreach (var layer in level.Layers.Values)
-            {
-                layer.Tick();
-            }
-        }
-
+            level.Tick();
+        
         inTick = false;
 
         foreach (var level in levelsToBeDeactivated)
-        {
             DeactivateLevel(level);
-        }
         
         levelsToBeDeactivated.Clear();
 
         foreach (var level in levelsToBeUninstantiated)
-        {
             UninstantiateLevel(level.Iid);
-        }
-        
+
         levelsToBeUninstantiated.Clear();
 
         foreach (var level in levelsToBeInstantiated)
-        {
             InstantiateLevel(level.Iid);
-        }
-        
+
         levelsToBeInstantiated.Clear();
 
         foreach (var level in levelsToBeActivated)
-        {
             ActivateLevel(level);
-        }
-        
+
         levelsToBeActivated.Clear();
     }
 }

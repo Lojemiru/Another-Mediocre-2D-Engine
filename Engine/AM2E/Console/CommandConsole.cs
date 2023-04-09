@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using LanguageExt;
 
 namespace AM2E;
 
 public static class CommandConsole
 {
-    private static Dictionary<string, Action<string[]>> commands = new();
-    private static Dictionary<string, string> descriptions = new();
-    private static Dictionary<string, string> syntaxes = new();
+    private static SortedDictionary<string, Action<string[]>> commands = new();
+    private static SortedDictionary<string, string> descriptions = new();
+    private static SortedDictionary<string, string> syntaxes = new();
     private static DeferredCommand deferredCommand;
     private static bool stopThread = false;
     private static bool wroteCursor = false;

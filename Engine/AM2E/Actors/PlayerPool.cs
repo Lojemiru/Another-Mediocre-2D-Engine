@@ -6,6 +6,8 @@ namespace AM2E.Actors;
 public static class PlayerPool
 {
     private static readonly List<IPlayer> Players = new();
+
+    public static IPlayer LocalPlayer;
     
     public enum Side
     {

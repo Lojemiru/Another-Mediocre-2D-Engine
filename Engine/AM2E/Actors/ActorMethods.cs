@@ -160,7 +160,7 @@ public abstract partial class Actor : ColliderBase, IDrawable
     /// <summary>
     /// Overridable method that gets called when this <see cref="Actor"/>'s <see cref="Level"/> is first made active after loading.
     /// </summary>
-    protected internal virtual void OnLevelStart()
+    protected internal virtual void OnLevelActivate()
     {
         // Nothing - we want an empty event so actors don't /have/ to define it.
     }
