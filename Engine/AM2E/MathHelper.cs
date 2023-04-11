@@ -75,14 +75,31 @@ public static class MathHelper
         var y = y1 - y2;
         return (int)Math.Sqrt((x * x) + (y * y));
     }
+
+    public static float PointDistance(float x1, float y1, float x2, float y2)
+    {
+        var x = x1 - x2;
+        var y = y1 - y2;
+        return (float)Math.Sqrt((x * x) + (y * y));
+    }
+
+    public static float PointAngle(int x1, int y1, int x2, int y2)
+    {
+        return (float)(Math.Atan2(y2, x2) - Math.Atan2(y1, x1));
+    }
     
     public static bool DoLinesIntersect(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
     {
         // https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
-        var t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) 
-                / ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4));
-        var u = ((x1 - x3) * (y1 - y2) - (y1 - y3) * (x1 - x2))
-                / ((x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4));
+        var x12 = x1 - x2;
+        var x13 = x1 - x3;
+        var x34 = x3 - x4;
+        var y12 = y1 - y2;
+        var y13 = y1 - y3;
+        var y34 = y3 - y4;
+        var denominator = x12 * y34 - y12 * x34;
+        var t = (x13 * y34 - y13 * x34) / denominator;
+        var u = (x13 * y12 - y13 * x12) / denominator;
 
         return (u is >= 0 and <= 1 && t is >= 0 and <= 1);
     }

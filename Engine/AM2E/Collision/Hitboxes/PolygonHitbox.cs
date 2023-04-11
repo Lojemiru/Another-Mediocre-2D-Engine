@@ -8,6 +8,8 @@ namespace AM2E.Collision;
 
 public abstract class PolygonHitbox : Hitbox
 {
+    // TODO: Offsets math is probably scuffed
+    
     private Point[] untranslatedPoints;
     private Point[] points;
 
@@ -15,6 +17,7 @@ public abstract class PolygonHitbox : Hitbox
     private int furthestRight;
     private int furthestTop;
     private int furthestBottom;
+    public float Angle { get; private set; } = 0;
 
     public Color Color = Color.White;
 
@@ -36,7 +39,7 @@ public abstract class PolygonHitbox : Hitbox
         OffsetY = offsetY;
         
         pixel = new Texture2D(EngineCore._graphics.GraphicsDevice, 1, 1);
-        pixel.SetData(new[] {Microsoft.Xna.Framework.Color.White});
+        pixel.SetData(new[] { Color.White });
     }
     
     #region DEBUG
@@ -52,9 +55,34 @@ public abstract class PolygonHitbox : Hitbox
         untranslatedPoints[index] = new Point(x, y);
     }
 
-    public void ApplyRotation()
+    public void ApplyRotation(float angle)
     {
-        throw new NotImplementedException();
+        Angle = angle % 360;
+        Console.WriteLine("Degrees: " + Angle + ", Radians: " + (Angle * Math.PI / 180));
+
+        var centerX = X - OffsetX;
+        var centerY = Y - OffsetY;
+        
+        var radAngle = Angle * Math.PI / 180;
+
+        
+        
+        for (var i = 0; i < points.Length; i++)
+        {
+            var x = untranslatedPoints[i].X;
+            var y = untranslatedPoints[i].Y;
+
+            var distance = MathHelper.PointDistance(0, 0, x, y);
+        
+            var originalAngle = MathHelper.PointAngle(0, 0, x, y);
+        
+            Console.WriteLine(i + " " + originalAngle);
+        
+            var cos = (float)Math.Cos(originalAngle + radAngle);
+            var sin = (float)Math.Sin(originalAngle + radAngle);
+
+            points[i] = new Point((int)(cos * distance), (int)(sin * distance));
+        }
         RecalculateBounds();
     }
 
@@ -93,7 +121,7 @@ public abstract class PolygonHitbox : Hitbox
         // If we're not intersecting on bounds, exit early.
         if (!IntersectsBounds(hitbox))
             return false;
-        
+
         // If we contain the center point, the rectangle MUST be intersecting.
         // This also accounts for situations where the rectangle is completely enclosed, not touching any edges.
         if (ContainsPoint((hitbox.BoundRight + hitbox.BoundLeft) / 2, (hitbox.BoundBottom + hitbox.BoundTop) / 2))
@@ -121,12 +149,14 @@ public abstract class PolygonHitbox : Hitbox
 
     public override bool Intersects(PreciseHitbox hitbox)
     {
+        // TODO: Implement this!
         return false;
-        throw new NotImplementedException();
     }
 
     public override bool Intersects(PolygonHitbox hitbox)
     {
+        // TODO: Can we just check endpoints and diagonals? If we are intersecting but do not contain an endpoint, one of our diagonals MUST be intersecting - this would cut local line checks in half, maybe all?
+        
         // Check general bounds collision!
         if (!IntersectsBounds(hitbox))
             return false;
@@ -149,7 +179,7 @@ public abstract class PolygonHitbox : Hitbox
             var x = points[i].X + additiveX;
             var y = points[i].Y + additiveY;
             
-            // Then, do the reverse.
+            // Then, see if the other polygon contains one of our endpoints.
             if (hitbox.ContainsPoint(x, y))
                 return true;
             
@@ -194,6 +224,12 @@ public abstract class PolygonHitbox : Hitbox
         // TODO: Remove debug? This could actually be pretty nice to keep around...
         var vec = new Vector2();
         var origin = new Vector2();
+        
+        vec.X = X - OffsetX;
+        vec.Y = Y - OffsetY;
+        
+        spriteBatch.Draw(pixel, vec, Color.Lime);
+        
         for (var i = 0; i < points.Length; i++)
         {
             var next = points[i < (points.Length - 1) ? i + 1 : 0];
@@ -201,6 +237,12 @@ public abstract class PolygonHitbox : Hitbox
             vec.Y = points[i].Y + (Y - OffsetY);
             var rotation = (float)(Math.Atan2(next.Y - points[i].Y, next.X - points[i].X));
             spriteBatch.Draw(pixel, vec, null, Color, rotation, origin, new Vector2(MathHelper.PointDistance(points[i].X, points[i].Y, next.X, next.Y), 1), SpriteEffects.None, 0);
+            
+            var next2 = untranslatedPoints[i < (points.Length - 1) ? i + 1 : 0];
+            vec.X = untranslatedPoints[i].X + (X - OffsetX);
+            vec.Y = untranslatedPoints[i].Y + (Y - OffsetY);
+            rotation = (float)(Math.Atan2(next2.Y - untranslatedPoints[i].Y, next2.X - untranslatedPoints[i].X));
+            spriteBatch.Draw(pixel, vec, null, Color * 0.2f, rotation, origin, new Vector2(MathHelper.PointDistance(untranslatedPoints[i].X, untranslatedPoints[i].Y, next2.X, next2.Y), 1), SpriteEffects.None, 0);
         }
     }
 }

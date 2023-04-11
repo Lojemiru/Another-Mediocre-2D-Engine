@@ -64,51 +64,12 @@ public sealed class RectangleHitbox : RectangleHitboxBase
 
     public bool IntersectsLine(int x1, int y1, int x2, int y2)
     {
-        // Massive thanks to metamal at https://stackoverflow.com/questions/99353/how-to-test-if-a-line-segment-intersects-an-axis-aligned-rectange-in-2d
-        // I am profoundly stupid when it comes to collisions that aren't perfectly axis-aligned
-        
-        // Find min and max X for the segment
-        var minX = x1 > x2 ? x2 : x1;
-        var maxX = x1 > x2 ? x1 : x2;
+        // If we contain an endpoint of the line segment, it obviously intersects.
+        if (ContainsPoint(x1, y1) || ContainsPoint(x2, y2))
+            return true;
 
-        // Find the intersection of the segment's and rectangle's x-projections
-
-        if (maxX > BoundRight)
-            maxX = BoundRight;
-
-        if (minX < BoundLeft)
-            minX = BoundLeft;
-        
-        // If their projections do not intersect return false
-        if (minX > maxX)
-            return false;
-
-        // Find corresponding min and max Y for min and max X we found before
-        var minY = y1;
-        var maxY = y2;
-
-        var dx = x2 - x1;
-
-        if (dx != 0)
-        {
-            var a = (y2 - y1) / dx;
-            var b = y1 - a * x1;
-            minY = a * minX + b;
-            maxY = a * maxX + b;
-        }
-        
-        if (minY > maxY)
-            (maxY, minY) = (minY, maxY);
-
-        // Find the intersection of the segment's and rectangle's y-projections
-
-        if (maxY > BoundBottom)
-            maxY = BoundBottom;
-
-        if (minY < BoundTop)
-            minY = BoundTop;
-
-        // If Y-projections do not intersect return false
-        return !(minY > maxY); 
+        // Otherwise, the given line segment MUST intersect one of our diagonals if it is intersecting the rectangle.
+        return MathHelper.DoLinesIntersect(x1, y1, x2, y2, BoundLeft, BoundTop, BoundRight, BoundBottom) ||
+               MathHelper.DoLinesIntersect(x1, y1, x2, y2, BoundLeft, BoundBottom, BoundRight, BoundTop);
     }
 }
