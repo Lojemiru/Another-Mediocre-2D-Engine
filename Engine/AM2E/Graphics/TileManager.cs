@@ -1,7 +1,5 @@
-using System;
 using AM2E.Levels;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended.Serialization;
 
 namespace AM2E.Graphics;
 

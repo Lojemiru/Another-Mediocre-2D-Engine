@@ -190,6 +190,8 @@ public sealed class Layer
             drawable.Draw(spriteBatch);
         }
         
+        Renderer.DebugRender(spriteBatch);
+
         TileManager?.Draw(spriteBatch);
         
         spriteBatch.End();

@@ -16,9 +16,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\PlayerPool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Alarm.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\Hitboxes\CircleHitbox.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Collision\Hitboxes\PolygonHitbox.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\Hitboxes\PreciseHitbox.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\Hitboxes\RectangleHitbox.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\Hitboxes\RectangleHitboxBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Collision\Hitboxes\TriangleHitbox.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\MaskCache.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Camera.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\Collider.cs" />

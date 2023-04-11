@@ -22,7 +22,14 @@ public static class Renderer
     // TODO: Figure out accessor proper
     public static RenderTarget2D ApplicationSurface;
 
-    public static void Initialize(GraphicsDeviceManager graphicsDeviceManager)
+    public static event Action<SpriteBatch> OnDebugRender = (SpriteBatch spriteBatch) => { };
+
+    public static void DebugRender(SpriteBatch spriteBatch)
+    {
+        OnDebugRender(spriteBatch);
+    }
+
+    internal static void Initialize(GraphicsDeviceManager graphicsDeviceManager)
     {
         GraphicsDeviceManager = graphicsDeviceManager;
         // TODO: Pull size values from config :)
@@ -79,7 +86,7 @@ public static class Renderer
         // TODO: Order these when drawing lol
         // TODO: Depth is insanely scuffed here, somehow. I don't understand sprite batches YAAAAAAAY
         World.RenderLevels();
-            
+
         // Reset render target, clear backbuffer.
         GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(null);
         GraphicsDeviceManager.GraphicsDevice.Clear(Color.Black);

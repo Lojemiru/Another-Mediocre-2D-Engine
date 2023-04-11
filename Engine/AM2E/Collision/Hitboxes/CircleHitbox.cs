@@ -30,6 +30,11 @@ public sealed class CircleHitbox : Hitbox
         return hitbox.Intersects(this);
     }
 
+    public override bool Intersects(PolygonHitbox hitbox)
+    {
+        return hitbox.Intersects(this);
+    }
+
     public override bool ContainsPoint(int x, int y)
     {
         return MathHelper.PointDistance(X, Y, x, y) <= Radius;

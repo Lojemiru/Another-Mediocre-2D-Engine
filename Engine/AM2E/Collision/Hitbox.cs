@@ -81,6 +81,7 @@ public abstract class Hitbox
     public abstract bool Intersects(RectangleHitbox hitbox);
     public abstract bool Intersects(CircleHitbox hitbox);
     public abstract bool Intersects(PreciseHitbox hitbox);
+    public abstract bool Intersects(PolygonHitbox hitbox);
     public abstract bool ContainsPoint(int x, int y);
     public bool Intersects(Hitbox hitbox)
     {
@@ -90,6 +91,7 @@ public abstract class Hitbox
             PreciseHitbox preciseHitbox => Intersects(preciseHitbox),
             RectangleHitbox rectangleHitbox => Intersects(rectangleHitbox),
             CircleHitbox circleHitbox => Intersects(circleHitbox),
+            PolygonHitbox polyHitbox => Intersects(polyHitbox),
             _ => throw new ArgumentException("Hitbox type " + hitbox.GetType() + " is not a valid intersection target!")
         };
     }

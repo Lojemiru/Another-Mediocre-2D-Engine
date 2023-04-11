@@ -50,6 +50,7 @@ public sealed class PreciseHitbox : RectangleHitboxBase
         {
             for (var j = startY; j < endY; ++j)
             {
+                // TODO: This contains point check is EXTREMELY WRONG.
                 if (CheckPointInMask(i, j) && hitbox.ContainsPoint(i, j)) 
                     return true;
             }
@@ -64,6 +65,29 @@ public sealed class PreciseHitbox : RectangleHitboxBase
                // Early exit - return false if bounds don't even overlap
                // TODO: Based on rectangle -> precise check testing, this might be slightly scuffed. Give it a proper test.
                MaskIntersects(hitbox, hitbox.BoundLeft - BoundLeft, hitbox.BoundTop - BoundTop);
+    }
+
+    // TODO: Check that this works!
+    public override bool Intersects(PolygonHitbox hitbox)
+    {
+        if (!IntersectsBounds(hitbox))
+            return false;
+        
+        var startX = Math.Clamp(hitbox.BoundLeft - BoundLeft, 0, Width - 1);
+        var startY = Math.Clamp(hitbox.BoundTop - BoundTop, 0, Height - 1);
+        var endX = Math.Clamp(hitbox.BoundRight - BoundLeft + 1, 0, Width);
+        var endY = Math.Clamp(hitbox.BoundBottom - BoundTop + 1, 0, Height);
+        
+        for (var i = startX; i < endX; ++i)
+        {
+            for (var j = startY; j < endY; ++j)
+            {
+                if (CheckPointInMask(i, j) && hitbox.ContainsPoint(X - OffsetX + i, Y - OffsetY + j))
+                    return true;
+            }
+        }
+        
+        return false;
     }
 
     public override bool ContainsPoint(int x, int y)
