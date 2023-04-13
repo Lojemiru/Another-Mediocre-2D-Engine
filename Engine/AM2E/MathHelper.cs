@@ -1,4 +1,5 @@
 using System;
+using System.Security.Cryptography.X509Certificates;
 
 namespace AM2E;
 
@@ -62,24 +63,17 @@ public static class MathHelper
     }
     
     /// <summary>
-    /// Returns the integer distance between two points.
+    /// Returns the distance between two points.
     /// </summary>
     /// <param name="x1">X position of the first point.</param>
     /// <param name="y1">Y position of the first point.</param>
     /// <param name="x2">X position of the second point.</param>
     /// <param name="y2">Y position of the second point.</param>
-    /// <returns>The integer distance between the two supplied points.</returns>
-    public static int PointDistance(int x1, int y1, int x2, int y2)
-    {
-        var x = x1 - x2;
-        var y = y1 - y2;
-        return (int)Math.Sqrt((x * x) + (y * y));
-    }
-
+    /// <returns>The distance between the two supplied points.</returns>
     public static float PointDistance(float x1, float y1, float x2, float y2)
     {
-        var x = x1 - x2;
-        var y = y1 - y2;
+        var x = x2 - x1;
+        var y = y2 - y1;
         return (float)Math.Sqrt((x * x) + (y * y));
     }
 

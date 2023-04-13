@@ -1,5 +1,4 @@
 
-
 namespace AM2E.Collision;
 
 public sealed class TriangleHitbox : PolygonHitbox

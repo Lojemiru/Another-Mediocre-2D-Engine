@@ -8,10 +8,8 @@ namespace AM2E.Collision;
 
 public abstract class PolygonHitbox : Hitbox
 {
-    // TODO: Offsets math is probably scuffed
-    
-    private Point[] untranslatedPoints;
-    private Point[] points;
+    private readonly Point[] untranslatedPoints;
+    private readonly Point[] points;
 
     private int furthestLeft;
     private int furthestRight;
@@ -21,13 +19,17 @@ public abstract class PolygonHitbox : Hitbox
 
     public Color Color = Color.White;
 
-    public sealed override int BoundLeft => X - OffsetX + furthestLeft;
+    public sealed override int BoundLeft => X + furthestLeft;
 
-    public sealed override int BoundRight => X - OffsetX + furthestRight;
+    public sealed override int BoundRight => X + furthestRight;
 
-    public sealed override int BoundTop => Y - OffsetY + furthestTop;
+    public sealed override int BoundTop => Y + furthestTop;
 
-    public sealed override int BoundBottom => Y - OffsetY + furthestBottom;
+    public sealed override int BoundBottom => Y + furthestBottom;
+    
+    private static readonly Texture2D Pixel = new(EngineCore._graphics.GraphicsDevice, 1, 1);
+
+    static PolygonHitbox() => Pixel.SetData(new[] { Color.White });
 
     protected PolygonHitbox(int size, int x, int y, int offsetX = 0, int offsetY = 0)
     {
@@ -37,20 +39,12 @@ public abstract class PolygonHitbox : Hitbox
         untranslatedPoints = new Point[size];
         OffsetX = offsetX;
         OffsetY = offsetY;
-        
-        pixel = new Texture2D(EngineCore._graphics.GraphicsDevice, 1, 1);
-        pixel.SetData(new[] { Color.White });
     }
-    
-    #region DEBUG
-
-    private Texture2D pixel;
-    
-    #endregion
     
     private protected void SetPoint(int index, int x, int y)
     {
-        // TODO: This will break things if we're rotated and set this, but this should only be called during construction anyway. Better design pattern somewhere?
+        x -= OffsetX;
+        y -= OffsetY;
         points[index] = new Point(x, y);
         untranslatedPoints[index] = new Point(x, y);
     }
@@ -58,31 +52,24 @@ public abstract class PolygonHitbox : Hitbox
     public void ApplyRotation(float angle)
     {
         Angle = angle % 360;
-        Console.WriteLine("Degrees: " + Angle + ", Radians: " + (Angle * Math.PI / 180));
 
-        var centerX = X - OffsetX;
-        var centerY = Y - OffsetY;
-        
         var radAngle = Angle * Math.PI / 180;
 
-        
-        
         for (var i = 0; i < points.Length; i++)
         {
             var x = untranslatedPoints[i].X;
             var y = untranslatedPoints[i].Y;
 
-            var distance = MathHelper.PointDistance(0, 0, x, y);
+            var distance = Math.Round(MathHelper.PointDistance(0f, 0, x, y));
         
             var originalAngle = MathHelper.PointAngle(0, 0, x, y);
-        
-            Console.WriteLine(i + " " + originalAngle);
-        
+
             var cos = (float)Math.Cos(originalAngle + radAngle);
             var sin = (float)Math.Sin(originalAngle + radAngle);
 
             points[i] = new Point((int)(cos * distance), (int)(sin * distance));
         }
+        
         RecalculateBounds();
     }
 
@@ -107,13 +94,10 @@ public abstract class PolygonHitbox : Hitbox
         }
     }
 
-    private static bool IsLeft(Point lineStart, Point lineEnd, int targetX, int targetY) => 
-        IsLeft(lineStart.X, lineStart.Y, lineEnd.X, lineEnd.Y, targetX, targetY);
-
-    private static bool IsLeft(int x1, int y1, int x2, int y2, int x3, int y3)
+    private static bool IsLeft(Point lineStart, Point lineEnd, int targetX, int targetY)
     {
         // hail stackoverflow: https://gamedev.stackexchange.com/questions/110229/how-do-i-efficiently-check-if-a-point-is-inside-a-rotated-rectangle
-        return ((x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1)) >= 0;
+        return ((lineEnd.X - lineStart.X) * (targetY - lineStart.Y) - (targetX - lineStart.X) * (lineEnd.Y - lineStart.Y)) >= 0;
     }
     
     public override bool Intersects(RectangleHitbox hitbox)
@@ -122,24 +106,16 @@ public abstract class PolygonHitbox : Hitbox
         if (!IntersectsBounds(hitbox))
             return false;
 
-        // If we contain the center point, the rectangle MUST be intersecting.
-        // This also accounts for situations where the rectangle is completely enclosed, not touching any edges.
-        if (ContainsPoint((hitbox.BoundRight + hitbox.BoundLeft) / 2, (hitbox.BoundBottom + hitbox.BoundTop) / 2))
-            return true;
-        
-        // Get universal point offsets.
-        var additiveX = X - OffsetX;
-        var additiveY = Y - OffsetY;
-        
-        for (var i = 0; i < points.Length; i++)
+        // Check if any of our vertices are contained in the rectangle.
+        foreach (var point in points)
         {
-            // Create line for this point and see if the rectangle intersects it.
-            var next = points[i < (points.Length - 1) ? i + 1 : 0];
-            if (hitbox.IntersectsLine(points[i].X + additiveX, points[i].Y + additiveY, next.X + additiveX, next.Y + additiveY))
+            if (hitbox.ContainsPoint(point.X, point.Y))
                 return true;
         }
-
-        return false;
+        
+        // Check if either of the rectangle's diagonals intersects us.
+        return IntersectsLine(hitbox.BoundLeft, hitbox.BoundTop, hitbox.BoundRight, hitbox.BoundBottom) ||
+               IntersectsLine(hitbox.BoundRight, hitbox.BoundTop, hitbox.BoundLeft, hitbox.BoundBottom);
     }
 
     public override bool Intersects(CircleHitbox hitbox)
@@ -149,53 +125,68 @@ public abstract class PolygonHitbox : Hitbox
 
     public override bool Intersects(PreciseHitbox hitbox)
     {
-        // TODO: Implement this!
+        // TODO: Implement this... on the other end.
         return false;
     }
 
     public override bool Intersects(PolygonHitbox hitbox)
     {
-        // TODO: Can we just check endpoints and diagonals? If we are intersecting but do not contain an endpoint, one of our diagonals MUST be intersecting - this would cut local line checks in half, maybe all?
-        
-        // Check general bounds collision!
+        /*
+         * THE SEPARATING AXIS THEOREM IS EXCEEDINGLY OVERKILL.
+         * Unless I'm completely misunderstanding the speed at which you can perform polygon transformations.
+         *
+         * Instead, we can follow these three simple steps:
+         * 1.) Check if we contain any vertex from the other polygon.
+         * 2.) Check if the other polygon contains any of our vertices.
+         * 3.) Check if any of our INNER line segments intersect with any of the other polygon's INNER line segments.
+         *
+         * This should guarantee that we are quickly able to determine collisions.
+         * If a vertex is in one of the two polygons, you're obviously colliding.
+         * Otherwise, a line must be going through the polygon or no collisions are occurring.
+         * If we check against inner line segments equal to half the number of sides in each polygon,
+         * we can guarantee that such lines must intersect if the polygons are colliding but do not contain any vertices.
+         *
+         * I'm calling this Snowflake Theorem. It probably already has a name, but I can't find it so... cope.
+         */
+
+        // If we're not intersecting on bounds, exit early.
         if (!IntersectsBounds(hitbox))
             return false;
-        
-        // TODO: Test this!
-        var additiveX = X - OffsetX;
-        var additiveY = Y - OffsetY;
-        var additive2X = hitbox.X - hitbox.OffsetX;
-        var additive2Y = hitbox.Y - hitbox.OffsetY;
 
-        // First, check for whether or not we contain an endpoint from the other polygon.
+        // Check if any of our diagonals intersect the other polygon.
+        var len = points.Length / 2;
+        for (var i = 0; i < len; i++)
+        {
+            var point = points[i];
+            var opposite = points[MathHelper.Wrap(i + len, 0, points.Length)];
+            if (hitbox.IntersectsLine(X + point.X, Y + point.Y, X + opposite.X, Y +opposite.Y))
+                return true;
+        }
+        
+        // Check all of the target's vertices against our vertices.
+        // If we've got here, we only need to check endpoints and not the whole line, so this is the fastest option...
         foreach (var point in hitbox.points)
         {
-            if (ContainsPoint(point.X, point.Y))
+            if (ContainsPoint(hitbox.X + point.X, hitbox.Y + point.Y))
                 return true;
         }
 
-        for (var i = 0; i < points.Length; i++)
+        return false;
+    }
+
+    public bool IntersectsLine(int x1, int y1, int x2, int y2)
+    {
+        if (ContainsPoint(x1, y1) || ContainsPoint(x2, y2))
+            return true;
+
+        var len = points.Length / 2;
+
+        for (var i = 0; i < len; i++)
         {
-            var x = points[i].X + additiveX;
-            var y = points[i].Y + additiveY;
-            
-            // Then, see if the other polygon contains one of our endpoints.
-            if (hitbox.ContainsPoint(x, y))
+            var point = points[i];
+            var opposite = points[MathHelper.Wrap(i + len, 0, points.Length)];
+            if (MathHelper.DoLinesIntersect(x1 - X, y1 - Y, x2 - X, y2 - Y, point.X, point.Y, opposite.X, opposite.Y))
                 return true;
-            
-            var iNext = points[i < (points.Length - 1) ? i + 1 : 0];
-            
-            // If that didn't work, we enter the worst-case scenario and check each of our lines against each of the polygon's lines.
-            for (var j = 0; j < hitbox.points.Length; j++)
-            {
-                var jNext = hitbox.points[j < (hitbox.points.Length - 1) ? j + 1 : 0];
-                var x2 = hitbox.points[j].X + additive2X;
-                var y2 = hitbox.points[j].Y + additive2Y;
-                
-                if (MathHelper.DoLinesIntersect(x, y, iNext.X + additiveX, iNext.Y + additiveY, 
-                        x2, y2, jNext.X + additive2X, jNext.Y + additive2Y))
-                    return true;
-            }
         }
 
         return false;
@@ -206,8 +197,8 @@ public abstract class PolygonHitbox : Hitbox
         if (!ContainsPointInBounds(x, y))
             return false;
 
-        x -= X - OffsetX;
-        y -= Y - OffsetY;
+        x -= X;
+        y -= Y;
         
         for (var i = 0; i < points.Length; i++)
         {
@@ -218,31 +209,32 @@ public abstract class PolygonHitbox : Hitbox
 
         return true;
     }
-
+    
+    private static Vector2 position = new();
+    private static Vector2 origin = new();
+    private static Vector2 scale = new(0, 1);
+    
     public void Draw(SpriteBatch spriteBatch)
     {
-        // TODO: Remove debug? This could actually be pretty nice to keep around...
-        var vec = new Vector2();
-        var origin = new Vector2();
-        
-        vec.X = X - OffsetX;
-        vec.Y = Y - OffsetY;
-        
-        spriteBatch.Draw(pixel, vec, Color.Lime);
+        position.X = X;
+        position.Y = Y;
+        spriteBatch.Draw(Pixel, position, Color.Lime);
         
         for (var i = 0; i < points.Length; i++)
         {
             var next = points[i < (points.Length - 1) ? i + 1 : 0];
-            vec.X = points[i].X + (X - OffsetX);
-            vec.Y = points[i].Y + (Y - OffsetY);
+            position.X = points[i].X + X;
+            position.Y = points[i].Y + Y;
+            scale.X = (float)Math.Round(MathHelper.PointDistance(points[i].X, points[i].Y, next.X, next.Y));
             var rotation = (float)(Math.Atan2(next.Y - points[i].Y, next.X - points[i].X));
-            spriteBatch.Draw(pixel, vec, null, Color, rotation, origin, new Vector2(MathHelper.PointDistance(points[i].X, points[i].Y, next.X, next.Y), 1), SpriteEffects.None, 0);
+            spriteBatch.Draw(Pixel, position, null, Color, rotation, origin, scale, SpriteEffects.None, 0);
             
-            var next2 = untranslatedPoints[i < (points.Length - 1) ? i + 1 : 0];
-            vec.X = untranslatedPoints[i].X + (X - OffsetX);
-            vec.Y = untranslatedPoints[i].Y + (Y - OffsetY);
-            rotation = (float)(Math.Atan2(next2.Y - untranslatedPoints[i].Y, next2.X - untranslatedPoints[i].X));
-            spriteBatch.Draw(pixel, vec, null, Color * 0.2f, rotation, origin, new Vector2(MathHelper.PointDistance(untranslatedPoints[i].X, untranslatedPoints[i].Y, next2.X, next2.Y), 1), SpriteEffects.None, 0);
+            next = untranslatedPoints[i < (points.Length - 1) ? i + 1 : 0];
+            position.X = untranslatedPoints[i].X + X;
+            position.Y = untranslatedPoints[i].Y + Y;
+            scale.X = (float)Math.Round(MathHelper.PointDistance(untranslatedPoints[i].X, untranslatedPoints[i].Y, next.X, next.Y));
+            rotation = (float)(Math.Atan2(next.Y - untranslatedPoints[i].Y, next.X - untranslatedPoints[i].X));
+            spriteBatch.Draw(Pixel, position, null, Color * 0.2f, rotation, origin, scale, SpriteEffects.None, 0);
         }
     }
 }
