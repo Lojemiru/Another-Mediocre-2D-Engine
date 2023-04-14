@@ -8,7 +8,7 @@ namespace AM2E.Graphics;
 public static class Renderer
 {
     public static GraphicsDeviceManager GraphicsDeviceManager { get; private set; }
-    private static Rectangle applicationSpace = new Rectangle(0, 0, 426, 240);
+    public static Rectangle ApplicationSpace = new Rectangle(0, 0, 426, 240);
     private static SpriteBatch applicationBatch;
     public static int GameWidth;
     public static int GameHeight;
@@ -65,14 +65,14 @@ public static class Renderer
             // output is taller than it is wider, bars on top/bottom
             var presentHeight = (int)((window.ClientBounds.Width / TargetRatio) + 0.5f);
             var barHeight = (window.ClientBounds.Height - presentHeight) / 2;
-            applicationSpace = new Rectangle(0, barHeight, window.ClientBounds.Width, presentHeight);
+            ApplicationSpace = new Rectangle(0, barHeight, window.ClientBounds.Width, presentHeight);
         }
         else
         {
             // output is wider than it is tall, bars left/right
             var presentWidth = (int)((window.ClientBounds.Height * TargetRatio) + 0.5f);
             var barWidth = (window.ClientBounds.Width - presentWidth) / 2;
-            applicationSpace = new Rectangle(barWidth, 0, presentWidth, window.ClientBounds.Height);
+            ApplicationSpace = new Rectangle(barWidth, 0, presentWidth, window.ClientBounds.Height);
         }
     }
         
@@ -93,7 +93,7 @@ public static class Renderer
             
         // Render application surface into drawable application space.
         applicationBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.PointClamp);
-        applicationBatch.Draw(ApplicationSurface, applicationSpace, Color.White);
+        applicationBatch.Draw(ApplicationSurface, ApplicationSpace, Color.White);
         applicationBatch.End();
     }
 

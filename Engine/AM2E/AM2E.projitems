@@ -39,10 +39,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\TileChunk.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\TileManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Tileset.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Input\InputBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\InputManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\KeyboardInput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\IDrawable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Renderer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Input\MouseButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Input\MouseInput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\ColliderBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\GenericLevelElement.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\Layer.cs" />
