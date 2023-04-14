@@ -8,6 +8,8 @@ namespace AM2E.Collision;
 
 public abstract class PolygonHitbox : Hitbox
 {
+    // TODO: Scaling?
+    
     private readonly Point[] untranslatedPoints;
     private readonly Point[] points;
 
@@ -15,6 +17,7 @@ public abstract class PolygonHitbox : Hitbox
     private int furthestRight;
     private int furthestTop;
     private int furthestBottom;
+    private const double TO_RADIANS = Math.PI / 180;
     public float Angle { get; private set; } = 0;
 
     public sealed override int BoundLeft => X + furthestLeft;
@@ -46,34 +49,41 @@ public abstract class PolygonHitbox : Hitbox
     public void ApplyRotation(float angle)
     {
         Angle = angle % 360;
+        ApplyTransform();
+    }
 
-        var radAngle = Angle * Math.PI / 180;
+    private void ApplyTransform()
+    {
+        var radAngle = Angle * TO_RADIANS;
+        var multX = FlippedX ? -1 : 1;
+        var multY = FlippedY ? -1 : 1;
 
         for (var i = 0; i < points.Length; i++)
         {
-            var x = untranslatedPoints[i].X;
-            var y = untranslatedPoints[i].Y;
+            var x = untranslatedPoints[i].X * multX;
+            var y = untranslatedPoints[i].Y * multY;
 
             var distance = Math.Round(MathHelper.PointDistance(0f, 0, x, y));
-        
             var originalAngle = MathHelper.PointAngle(0, 0, x, y);
 
-            var cos = (float)Math.Cos(originalAngle + radAngle);
-            var sin = (float)Math.Sin(originalAngle + radAngle);
-
-            points[i] = new Point((int)(cos * distance), (int)(sin * distance));
+            points[i].X = (int)(Math.Cos(originalAngle + radAngle) * distance);
+            points[i].Y = (int)(Math.Sin(originalAngle + radAngle) * distance);
         }
         
         RecalculateBounds();
     }
 
+    public override void ApplyFlips(bool xFlip, bool yFlip)
+    {
+        base.ApplyFlips(xFlip, yFlip);
+        ApplyTransform();
+    }
+
     private protected void RecalculateBounds()
     {
-        furthestTop = points[0].Y;
-        furthestBottom = furthestTop;
-        furthestLeft = points[0].X;
-        furthestRight = furthestLeft;
-        
+        furthestTop = furthestBottom = points[0].Y;
+        furthestLeft = furthestRight = points[0].X;
+
         for (var i = 1; i < points.Length; i++)
         {
             if (points[i].X < furthestLeft)
@@ -88,10 +98,11 @@ public abstract class PolygonHitbox : Hitbox
         }
     }
 
-    private static bool IsLeft(Point lineStart, Point lineEnd, int targetX, int targetY)
+    private bool IsLeft(Point lineStart, Point lineEnd, float targetX, float targetY)
     {
         // hail stackoverflow: https://gamedev.stackexchange.com/questions/110229/how-do-i-efficiently-check-if-a-point-is-inside-a-rotated-rectangle
-        return ((lineEnd.X - lineStart.X) * (targetY - lineStart.Y) - (targetX - lineStart.X) * (lineEnd.Y - lineStart.Y)) >= 0;
+        // ...and also use some XORing magic to make this function work regardless of our flips combination.
+        return (lineEnd.X - lineStart.X) * (targetY - lineStart.Y) - (targetX - lineStart.X) * (lineEnd.Y - lineStart.Y) > 0 ^ FlippedX ^ FlippedY;
     }
     
     public override bool Intersects(RectangleHitbox hitbox)
@@ -137,7 +148,7 @@ public abstract class PolygonHitbox : Hitbox
          * If we check against inner line segments equal to half the number of sides in each polygon,
          * we can guarantee that such lines must intersect if the polygons are colliding but do not contain any vertices.
          *
-         * I'm calling this Snowflake Theorem. It probably already has a name, but I can't find it so... cope.
+         * I'm calling this Polygon Spoke Theorem. It probably already has a name, but I can't find it so... cope.
          */
 
         // If we're not intersecting on bounds, exit early.
@@ -208,10 +219,12 @@ public abstract class PolygonHitbox : Hitbox
     
     public void Draw(SpriteBatch spriteBatch)
     {
+        // Draw origin.
         position.X = X;
         position.Y = Y;
         spriteBatch.Draw(Pixel, position, Color.Lime);
         
+        // Draw lines.
         for (var i = 0; i < points.Length; i++)
         {
             var next = points[i < (points.Length - 1) ? i + 1 : 0];
@@ -228,7 +241,8 @@ public abstract class PolygonHitbox : Hitbox
             rotation = (float)(Math.Atan2(next.Y - untranslatedPoints[i].Y, next.X - untranslatedPoints[i].X));
             spriteBatch.Draw(Pixel, position, null, Color * 0.2f, rotation, origin, scale, SpriteEffects.None, 0);
         }
-
+        
+        // Draw bounding box corners.
         position.X = BoundLeft;
         position.Y = BoundTop;
         spriteBatch.Draw(Pixel, position, Color.Orange);
