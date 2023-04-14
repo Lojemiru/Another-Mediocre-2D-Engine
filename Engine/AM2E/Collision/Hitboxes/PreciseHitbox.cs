@@ -35,30 +35,10 @@ public sealed class PreciseHitbox : RectangleHitboxBase
         return false;
     }
 
-    public override bool Intersects(CircleHitbox hitbox)
-    {
-        // Early exit - return false if bounds don't even overlap
-        if (!IntersectsBounds(hitbox))
-            return false;
-        
-        var startX = Math.Clamp(hitbox.BoundLeft, 0, Width - 1);
-        var startY = Math.Clamp(hitbox.BoundTop, 0, Height - 1);
-        var endX = Math.Clamp(hitbox.BoundRight, 0, Width);
-        var endY = Math.Clamp(hitbox.BoundBottom, 0, Height);
-        
-        for (var i = startX; i < endX; ++i)
-        {
-            for (var j = startY; j < endY; ++j)
-            {
-                // TODO: This contains point check is EXTREMELY WRONG.
-                if (CheckPointInMask(i, j) && hitbox.ContainsPoint(i, j)) 
-                    return true;
-            }
-        }
-        
-        return false;
-    }
-
+    // Defer to generic check.
+    public override bool Intersects(CircleHitbox hitbox) => IntersectsGeneric(hitbox);
+    
+    // TODO: Can't this be the generic intersection instead?
     public override bool Intersects(PreciseHitbox hitbox)
     {
         return !IntersectsBounds(hitbox) &&
@@ -67,8 +47,10 @@ public sealed class PreciseHitbox : RectangleHitboxBase
                MaskIntersects(hitbox, hitbox.BoundLeft - BoundLeft, hitbox.BoundTop - BoundTop);
     }
 
-    // TODO: Check that this works!
-    public override bool Intersects(PolygonHitbox hitbox)
+    // Defer to generic check.
+    public override bool Intersects(PolygonHitbox hitbox) => IntersectsGeneric(hitbox);
+
+    private bool IntersectsGeneric(Hitbox hitbox)
     {
         if (!IntersectsBounds(hitbox))
             return false;

@@ -5,9 +5,7 @@ namespace AM2E.Collision;
 public sealed class RectangleHitbox : RectangleHitboxBase
 {
     public RectangleHitbox(int x, int y, int w, int h, int offsetX = 0, int offsetY = 0) : 
-        base(x, y, w, h, offsetX, offsetY)
-    {
-    }
+        base(x, y, w, h, offsetX, offsetY) { }
     
     public void Resize(int width, int height)
     {
@@ -21,12 +19,11 @@ public sealed class RectangleHitbox : RectangleHitboxBase
         OffsetX = offsetX;
         OffsetY = offsetY;
     }
-    
-    public override bool Intersects(RectangleHitbox hitbox)
-    {
-        return IntersectsBounds(hitbox);
-    }
 
+    // Defer to general bounds intersection.
+    public override bool Intersects(RectangleHitbox hitbox) => IntersectsBounds(hitbox);
+
+    // TODO: Defer to circle instead?
     public override bool Intersects(CircleHitbox hitbox)
     {
         // Only two conditions: circle center is in rectangle, or endpoint of radius is in rectangle
@@ -47,20 +44,14 @@ public sealed class RectangleHitbox : RectangleHitboxBase
         return ContainsPoint((int)(hitbox.X - pos.X), (int)(hitbox.Y - pos.Y));
     }
 
-    public override bool Intersects(PreciseHitbox hitbox)
-    {
-        return hitbox.Intersects(this);
-    }
+    // Defer to PreciseHitbox.
+    public override bool Intersects(PreciseHitbox hitbox) => hitbox.Intersects(this);
 
-    public override bool Intersects(PolygonHitbox hitbox)
-    {
-        return hitbox.Intersects(this);
-    }
+    // Defer to PolygonHitbox.
+    public override bool Intersects(PolygonHitbox hitbox) => hitbox.Intersects(this);
 
-    public override bool ContainsPoint(int x, int y)
-    {
-        return ContainsPointInBounds(x, y);
-    }
+    // Defer to whether or not the point is in bounds.
+    public override bool ContainsPoint(int x, int y) => ContainsPointInBounds(x, y);
 
     public bool IntersectsLine(int x1, int y1, int x2, int y2)
     {

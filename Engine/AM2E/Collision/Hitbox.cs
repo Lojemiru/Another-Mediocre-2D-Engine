@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 // ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
 
@@ -9,8 +11,10 @@ namespace AM2E.Collision;
 
 public abstract class Hitbox
 {
-    private class TypeContainer<T> where T : ICollider
-    {}
+    private protected static readonly Texture2D Pixel = new(EngineCore._graphics.GraphicsDevice, 1, 1);
+    static Hitbox() => Pixel.SetData(new[] { Color.White });
+    public Color Color = Color.White;
+    private class TypeContainer<T> where T : ICollider { }
     public int OffsetX { get; protected set; } = 0;
     public int OffsetY { get; protected set; } = 0;
     protected int InitialOffsetX = 0;

@@ -17,8 +17,6 @@ public abstract class PolygonHitbox : Hitbox
     private int furthestBottom;
     public float Angle { get; private set; } = 0;
 
-    public Color Color = Color.White;
-
     public sealed override int BoundLeft => X + furthestLeft;
 
     public sealed override int BoundRight => X + furthestRight;
@@ -26,10 +24,6 @@ public abstract class PolygonHitbox : Hitbox
     public sealed override int BoundTop => Y + furthestTop;
 
     public sealed override int BoundBottom => Y + furthestBottom;
-    
-    private static readonly Texture2D Pixel = new(EngineCore._graphics.GraphicsDevice, 1, 1);
-
-    static PolygonHitbox() => Pixel.SetData(new[] { Color.White });
 
     protected PolygonHitbox(int size, int x, int y, int offsetX = 0, int offsetY = 0)
     {
@@ -123,11 +117,8 @@ public abstract class PolygonHitbox : Hitbox
         throw new NotImplementedException();
     }
 
-    public override bool Intersects(PreciseHitbox hitbox)
-    {
-        // TODO: Implement this... on the other end.
-        return false;
-    }
+    // Defer to PreciseHitbox.
+    public override bool Intersects(PreciseHitbox hitbox) => hitbox.Intersects(this);
 
     public override bool Intersects(PolygonHitbox hitbox)
     {
@@ -210,6 +201,7 @@ public abstract class PolygonHitbox : Hitbox
         return true;
     }
     
+    // TODO: Finish moving all the debug render shenanigans to the parent class
     private static Vector2 position = new();
     private static Vector2 origin = new();
     private static Vector2 scale = new(0, 1);
@@ -236,5 +228,18 @@ public abstract class PolygonHitbox : Hitbox
             rotation = (float)(Math.Atan2(next.Y - untranslatedPoints[i].Y, next.X - untranslatedPoints[i].X));
             spriteBatch.Draw(Pixel, position, null, Color * 0.2f, rotation, origin, scale, SpriteEffects.None, 0);
         }
+
+        position.X = BoundLeft;
+        position.Y = BoundTop;
+        spriteBatch.Draw(Pixel, position, Color.Orange);
+
+        position.X = BoundRight;
+        spriteBatch.Draw(Pixel, position, Color.Orange);
+        
+        position.Y = BoundBottom;
+        spriteBatch.Draw(Pixel, position, Color.Orange);
+        
+        position.X = BoundLeft;
+        spriteBatch.Draw(Pixel, position, Color.Orange);
     }
 }

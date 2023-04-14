@@ -14,10 +14,9 @@ public sealed class CircleHitbox : Hitbox
 
     public override int BoundBottom => Y + Radius;
 
-    public override bool Intersects(RectangleHitbox hitbox)
-    {
-        return hitbox.Intersects(this);
-    }
+    // TODO: Handle this here instead?
+    // Defer to RectangleHitbox.
+    public override bool Intersects(RectangleHitbox hitbox) => hitbox.Intersects(this);
 
     public override bool Intersects(CircleHitbox hitbox)
     {
@@ -25,15 +24,11 @@ public sealed class CircleHitbox : Hitbox
         return (Radius + hitbox.Radius) >= MathHelper.PointDistance(X, Y, hitbox.X, hitbox.Y);
     }
 
-    public override bool Intersects(PreciseHitbox hitbox)
-    {
-        return hitbox.Intersects(this);
-    }
+    // Defer to PreciseHitbox.
+    public override bool Intersects(PreciseHitbox hitbox) => hitbox.Intersects(this);
 
-    public override bool Intersects(PolygonHitbox hitbox)
-    {
-        return hitbox.Intersects(this);
-    }
+    // Defer to PolygonHitbox.
+    public override bool Intersects(PolygonHitbox hitbox) => hitbox.Intersects(this);
 
     public override bool ContainsPoint(int x, int y)
     {
