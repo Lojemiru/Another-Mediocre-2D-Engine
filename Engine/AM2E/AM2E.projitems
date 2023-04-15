@@ -39,6 +39,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\TileChunk.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\TileManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Tileset.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Input\GamePadInput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\InputBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\InputManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\KeyboardInput.cs" />

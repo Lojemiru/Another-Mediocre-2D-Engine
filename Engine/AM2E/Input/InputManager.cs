@@ -13,6 +13,15 @@ public static class InputManager
 {
     private static readonly Dictionary<Input, KeyboardInput> KeyboardListeners = new();
     private static readonly Dictionary<Input, MouseInput> MouseListeners = new();
+    private static readonly Dictionary<Input, GamePadInput> GamePadListeners = new();
+
+    public static float RightCenterDeadzone = 0.1f;
+    public static float LeftCenterDeadzone = 0.1f;
+    public static GamePadDeadZone CenterDeadZoneType = GamePadDeadZone.Circular;
+    public static float DiagonalDeadZone = 30f;
+
+    // TODO: Make this auto-swap?
+    public static readonly int GamePadIndex = 0;
 
     internal static GameWindow Window;
     
@@ -25,6 +34,7 @@ public static class InputManager
         {
             KeyboardListeners.Add(input, new KeyboardInput(Keys.None));
             MouseListeners.Add(input, new MouseInput(MouseButton.None));
+            GamePadListeners.Add(input, new GamePadInput(Buttons.None));
         }
     }
 
@@ -38,24 +48,28 @@ public static class InputManager
         
         var mouseState = Mouse.GetState();
 
-        MouseX = Math.Clamp(Camera.BoundLeft + (int)((mouseState.X - Renderer.ApplicationSpace.X) / ((float)Renderer.ApplicationSpace.Width / Renderer.GameWidth)), Camera.BoundLeft, Camera.BoundRight);
-        MouseY = Math.Clamp(Camera.BoundTop + (int)((mouseState.Y - Renderer.ApplicationSpace.Y) / ((float)Renderer.ApplicationSpace.Height / Renderer.GameHeight)), Camera.BoundTop, Camera.BoundBottom);
+        MouseX = Math.Clamp(Camera.BoundLeft + (int)((mouseState.X - Renderer.ApplicationSpace.X) * ((float)Renderer.GameWidth / Renderer.ApplicationSpace.Width)), Camera.BoundLeft, Camera.BoundRight);
+        MouseY = Math.Clamp(Camera.BoundTop + (int)((mouseState.Y - Renderer.ApplicationSpace.Y) * ((float)Renderer.GameHeight / Renderer.ApplicationSpace.Height)), Camera.BoundTop, Camera.BoundBottom);
 
         foreach (var listener in MouseListeners.Values)
         {
             listener.Poll(mouseState);
         }
+        
+        // TODO: Axis polling
+        // TODO: Analog trigger polling
+        var gamePadState = GamePad.GetState(GamePadIndex);
+        foreach (var listener in GamePadListeners.Values)
+        {
+            listener.Poll(gamePadState);
+        }
     }
 
     // TODO: Rebinding. Needs to handle smart swapping via groups.
 
-    // TODO: Alternate bindings. Should probably be implemented via KeyboardInput but will need support here.
-
-    // TODO: Controller input.
+    // TODO: Alternate bindings. Should probably be implemented via InputBase but will need support here.
 
     // TODO: Cancelling input checkers.
-    
-    // TODO: Mouse input
 
     public static void BindKey(Input input, Keys key)
     {
@@ -67,32 +81,38 @@ public static class InputManager
         MouseListeners[input].Rebind(mouseButton);
     }
 
+    public static void BindGamePadButton(Input input, Buttons button)
+    {
+        GamePadListeners[input].Rebind(button);
+    }
+
     public static void Remove(Input input)
     {
         KeyboardListeners.Remove(input);
         MouseListeners.Remove(input);
+        GamePadListeners.Remove(input);
     }
 
     #region Getters
 
     public static bool GetPressed(Input input)
     {
-        return KeyboardListeners[input].InputPressed | MouseListeners[input].InputPressed;
+        return KeyboardListeners[input].InputPressed | MouseListeners[input].InputPressed | GamePadListeners[input].InputPressed;
     }
 
     public static bool GetReleased(Input input)
     {
-        return KeyboardListeners[input].InputReleased | MouseListeners[input].InputReleased;
+        return KeyboardListeners[input].InputReleased | MouseListeners[input].InputReleased | GamePadListeners[input].InputReleased;
     }
 
     public static bool GetHeld(Input input)
     {
-        return KeyboardListeners[input].InputHeld | MouseListeners[input].InputHeld;
+        return KeyboardListeners[input].InputHeld | MouseListeners[input].InputHeld | GamePadListeners[input].InputHeld;
     }
 
     public static int GetHeldSteps(Input input)
     {
-        return KeyboardListeners[input].InputHeldSteps | MouseListeners[input].InputHeldSteps;
+        return KeyboardListeners[input].InputHeldSteps | MouseListeners[input].InputHeldSteps | GamePadListeners[input].InputHeldSteps;
     }
 
     #endregion

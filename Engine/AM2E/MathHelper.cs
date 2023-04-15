@@ -97,4 +97,14 @@ public static class MathHelper
 
         return (u is >= 0 and <= 1 && t is >= 0 and <= 1);
     }
+    
+    public static bool IsApproximatelyZero(double val, double precision = 0.1)
+    {
+        return (Math.Abs(val) < precision);
+    }
+
+    public static float RoundToZero(float val, float precision = 0.0001f)
+    {
+        return (Math.Abs(val) < precision) ? 0 : val;
+    }
 }
