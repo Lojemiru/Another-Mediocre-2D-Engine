@@ -1,29 +1,26 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using MonoGame.Extended;
 
 namespace AM2E.Control;
 
 public sealed class GamePadInput : InputBase<Buttons, GamePadState>
 {
-    public GamePadInput(Buttons input) : base(input)
-    {
-    }
+    public GamePadInput(Buttons input) : base(input) { }
 
     public override void Poll(GamePadState state)
     {
         switch (Input)
         {
             // TODO: Process analog triggers?
-            // Override thumbstick values so that we can apply our own deadzone properly.
+            // Override thumbstick values so that we can apply our own deadzones properly.
             case Buttons.LeftThumbstickUp or Buttons.LeftThumbstickDown or Buttons.LeftThumbstickLeft
                 or Buttons.LeftThumbstickRight:
-                ProcessInput(ProcessLeftThumbstick(state));
+                ProcessInput(GetThumbstickInput(state, state.ThumbSticks.Left, InputManager.LeftCenterDeadzone));
                 break;
             case Buttons.RightThumbstickUp or Buttons.RightThumbstickDown or Buttons.RightThumbstickLeft
                 or Buttons.RightThumbstickRight:
-                ProcessRightThumbstick(state);
+                ProcessInput(GetThumbstickInput(state, state.ThumbSticks.Right, InputManager.RightCenterDeadzone));
                 break;
             // Default: process button
             default:
@@ -32,58 +29,22 @@ public sealed class GamePadInput : InputBase<Buttons, GamePadState>
         }
     }
 
-    private void ProcessRightThumbstick(GamePadState state)
+    private bool GetThumbstickInput(GamePadState state, Vector2 thumbStick, float deadZone)
     {
-        var axis = ApplyDeadZone(state.ThumbSticks.Right, InputManager.RightCenterDeadzone);
-        
-        switch (Input)
+        var axis = ApplyDeadZone(thumbStick, deadZone);
+
+        return Input switch
         {
-            case Buttons.RightThumbstickUp:
-                if (axis.Y > 0)
-                    ProcessInput(true);
-                break;
-            case Buttons.RightThumbstickDown:
-                if (axis.Y < 0)
-                    ProcessInput(true);
-                break;
-            case Buttons.RightThumbstickLeft:
-                if (axis.X < 0)
-                    ProcessInput(true);
-                break;
-            case Buttons.RightThumbstickRight:
-                if (axis.X > 0)
-                    ProcessInput(true);
-                break;
-        }
-    }
-
-    private bool ProcessLeftThumbstick(GamePadState state)
-    {
-        var axis = ApplyDeadZone(state.ThumbSticks.Left, InputManager.LeftCenterDeadzone);
-
-        Console.WriteLine(axis.X + ", " + axis.Y + " = " + state.ThumbSticks.Left.X + ", " + state.ThumbSticks.Left.Y);
-        
-        switch (Input)
-        {
-            case Buttons.LeftThumbstickUp:
-                if (axis.Y > 0)
-                    return true;
-                break;
-            case Buttons.LeftThumbstickDown:
-                if (axis.Y < 0)
-                    return true;
-                break;
-            case Buttons.LeftThumbstickLeft:
-                if (axis.X < 0)
-                    return true;
-                break;
-            case Buttons.LeftThumbstickRight:
-                if (axis.X > 0)
-                    return true;
-                break;
-        }
-
-        return false;
+            Buttons.LeftThumbstickUp => (axis.Y > 0),
+            Buttons.RightThumbstickUp => (axis.Y > 0),
+            Buttons.LeftThumbstickDown => (axis.Y < 0),
+            Buttons.RightThumbstickDown => (axis.Y < 0),
+            Buttons.LeftThumbstickLeft => (axis.X < 0),
+            Buttons.RightThumbstickLeft => (axis.X < 0),
+            Buttons.LeftThumbstickRight => (axis.X > 0),
+            Buttons.RightThumbstickRight => (axis.X > 0),
+            _ => false
+        };
     }
 
     private static Vector2 ApplyDeadZone(Vector2 value, float deadZone)
@@ -91,108 +52,61 @@ public sealed class GamePadInput : InputBase<Buttons, GamePadState>
         return InputManager.CenterDeadZoneType switch
         {
             GamePadDeadZone.None => value,
-            GamePadDeadZone.IndependentAxes => ExcludeIndependentAxesDeadZone(value, deadZone),
+            GamePadDeadZone.IndependentAxes => ExcludeAngularDeadZone(ExcludeIndependentAxesDeadZone(value, deadZone), InputManager.DiagonalDeadZone),
             GamePadDeadZone.Circular => ExcludeAngularDeadZone(ExcludeCircularDeadZone(value, deadZone), InputManager.DiagonalDeadZone),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
 
-    private static double left = Math.Atan2(0, -1);
-    private static double right = Math.Atan2(0, 1);
-    private static double up = Math.Atan2(1, 0);
-    private static double down = Math.Atan2(-1, 0);
+    private static readonly double Left = Math.Atan2(0, -1);
+    private static readonly double Right = Math.Atan2(0, 1);
+    private static readonly double Up = Math.Atan2(1, 0);
+    private static readonly double Down = Math.Atan2(-1, 0);
 
     private static Vector2 ExcludeAngularDeadZone(Vector2 value, float deadZone)
     {
+        if (MathHelper.IsApproximatelyZero(InputManager.DiagonalDeadZone))
+            return value;
+
         var radians = Microsoft.Xna.Framework.MathHelper.ToRadians(deadZone);
-        var strength = value.Length();
         var angle = Math.Atan2(value.Y, value.X);
 
-        if (angle < right + radians && angle > right - radians)
-            angle = right;
-        else if (angle < up + radians && angle > up - radians)
-            angle = up;
-        else if (angle < down + radians && angle > down - radians)
-            angle = down;
+        if (angle < Right + radians && angle > Right - radians)
+            angle = Right;
+        else if (angle < Up + radians && angle > Up - radians)
+            angle = Up;
+        else if (angle < Down + radians && angle > Down - radians)
+            angle = Down;
         else if (angle > Math.PI - radians || angle < radians - Math.PI)
-            angle = left;
+            angle = Left;
         else
         {
-            Console.WriteLine("angle: " + angle);
+            const double PI_HALVES = Math.PI / 2;
 
-            var piHalves = Math.PI / 2;
+            var signY = Math.Sign(value.Y);
+            var offsetX = value.X > 0 ? 0 : (PI_HALVES * signY);
             
-            /*
-             * angle = angle * piHalves / piHalves
-             * angle = (angle * ((piHalves - radians * 2) / piHalves)); 
-             */
-
-            if (value.Y > 0)
-            {
-                angle -= radians;
-                if (value.X > 0)
-                {
-                    angle = angle * piHalves / (piHalves - (radians * 2));
-                }
-                else if (value.X < 0)
-                {
-                    angle -= piHalves;
-                    angle = angle * piHalves / (piHalves - (radians * 2));
-                    angle += piHalves;
-                }
-            }
-            else if (value.Y < 0)
-            {
-                angle += radians;
-                if (value.X > 0)
-                {
-                    angle = angle * piHalves / (piHalves - (radians * 2));
-                }
-                else if (value.X < 0)
-                {
-                    angle += piHalves;
-                    angle = angle * piHalves / (piHalves - (radians * 2));
-                    angle -= piHalves;
-                }
-            }
+            // Don't touch this.
+            // It's the secret sauce for making the diagonal deadzones not painful by mapping the smaller diagonal space into the full diagonal range.
             
-            
-            
-            Console.WriteLine("new angle: " + angle);
+            // Remove radians offset, remove pi halves offset
+            angle = ((angle - radians * signY) - offsetX)
+                    // Multiply to make the angle "expand" into the pi halves space
+                    * PI_HALVES / (PI_HALVES - (radians * 2)) 
+                    // Re-add pi halves offset
+                    + offsetX;
         }
-        
-        
-        return new Vector2(MathHelper.RoundToZero((float)Math.Cos(angle)), MathHelper.RoundToZero((float)Math.Sin(angle))) * strength;
 
-        /*
-        var angle = value.ToAngle();
-        var radians = Microsoft.Xna.Framework.MathHelper.ToRadians(deadZone);
+        var strength = value.Length();
+        value.X = MathHelper.RoundToZero((float)Math.Cos(angle));
+        value.Y = MathHelper.RoundToZero((float)Math.Sin(angle));
 
-        if (value.X > 0 && angle < right + radians && angle > right - radians)
-            angle = right;
-        
-        else if (value.X < 0 && angle < left + radians && angle > left - radians)
-            angle = left;
-        else if (value.Y > 0 && (angle < radians - Math.PI || angle > Math.PI - radians))
-            angle = up;
-        else if (value.Y < 0 && angle < radians && angle > -radians)
-            angle = down;
-
-
-        Console.WriteLine(angle);
-        
-        Console.WriteLine(Math.Sin(angle));
-
-        var output = new Vector2((float)-Math.Sin(angle), (float)Math.Cos(angle));
-        
-        //Console.WriteLine(output.X + ", " + output.Y);
-        
-        return output;
-        */
+        return value * strength;
     }
     
     // Yes, this is just some existing MonoGame code from GamePadThumbSticks.cs.
     // Unfortunately, they haven't yet seen fit to expose methods for setting deadzone strengths, so I have to handle it all manually.
+    // Might as well work with what they put in the framework instead of reinventing the wheel...
    
     private static Vector2 ExcludeCircularDeadZone(Vector2 value, float deadZone)
     {
