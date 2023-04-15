@@ -30,7 +30,6 @@ public sealed class EngineCore : Game
 
         _graphics = new GraphicsDeviceManager(this);
         Window.ClientSizeChanged += Renderer.OnResize;
-        InputManager.Window = Window;
 
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
