@@ -18,13 +18,11 @@ public static class InputManager
     public static float RightCenterDeadzone = 0.1f;
     public static float LeftCenterDeadzone = 0.1f;
     public static GamePadDeadZone CenterDeadZoneType = GamePadDeadZone.Circular;
-    public static float DiagonalDeadZone = 30f;
+    public static float DiagonalDeadZone = 15f;
 
     // TODO: Make this auto-swap?
     public static readonly int GamePadIndex = 0;
 
-    internal static GameWindow Window;
-    
     public static int MouseX { get; private set; }
     public static int MouseY { get; private set; }
 
@@ -47,17 +45,14 @@ public static class InputManager
         }
         
         var mouseState = Mouse.GetState();
-
-        MouseX = Math.Clamp(Camera.BoundLeft + (int)((mouseState.X - Renderer.ApplicationSpace.X) * ((float)Renderer.GameWidth / Renderer.ApplicationSpace.Width)), Camera.BoundLeft, Camera.BoundRight);
-        MouseY = Math.Clamp(Camera.BoundTop + (int)((mouseState.Y - Renderer.ApplicationSpace.Y) * ((float)Renderer.GameHeight / Renderer.ApplicationSpace.Height)), Camera.BoundTop, Camera.BoundBottom);
-
         foreach (var listener in MouseListeners.Values)
         {
             listener.Poll(mouseState);
         }
+
+        MouseX = Math.Clamp(Camera.BoundLeft + (int)((mouseState.X - Renderer.ApplicationSpace.X) * ((float)Renderer.GameWidth / Renderer.ApplicationSpace.Width)), Camera.BoundLeft, Camera.BoundRight);
+        MouseY = Math.Clamp(Camera.BoundTop + (int)((mouseState.Y - Renderer.ApplicationSpace.Y) * ((float)Renderer.GameHeight / Renderer.ApplicationSpace.Height)), Camera.BoundTop, Camera.BoundBottom);
         
-        // TODO: Axis polling
-        // TODO: Analog trigger polling
         var gamePadState = GamePad.GetState(GamePadIndex);
         foreach (var listener in GamePadListeners.Values)
         {
