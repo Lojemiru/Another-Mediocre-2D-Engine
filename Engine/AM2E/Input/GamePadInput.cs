@@ -57,52 +57,51 @@ internal sealed class GamePadInput : InputBase<Buttons, GamePadState>
             _ => throw new ArgumentOutOfRangeException()
         };
     }
-
-    private static readonly double Left = Math.Atan2(0, -1);
-    private static readonly double Right = Math.Atan2(0, 1);
-    private static readonly double Up = Math.Atan2(1, 0);
-    private static readonly double Down = Math.Atan2(-1, 0);
+    
+    private const double PI_HALVES = Math.PI / 2;
+    private const double PI_FOURTHS = Math.PI / 4;
 
     private static Vector2 ExcludeAngularAxisDeadZone(Vector2 value, float deadZone)
     {
+        // Exit immediately if the angular axis dead zone is of no concern.
         if (MathHelper.IsApproximatelyZero(InputManager.AngularAxisDeadZone))
             return value;
-
-        var radians = Microsoft.Xna.Framework.MathHelper.ToRadians(deadZone);
+        
         var angle = Math.Atan2(value.Y, value.X);
+        var angleAbs = Math.Abs(angle);
+        // Do NOT use Math.Sign(x) here; we want to ensure this is never 0.
+        var angleSign = angle < 0 ? -1 : 1;
+        
+        var deadZoneRadians = Microsoft.Xna.Framework.MathHelper.ToRadians(deadZone);
+        
+        // Get radial offset - how much we need to subtract to bring the angle relative to 0.
+        var radialOffset = (PI_HALVES * (int)((angleAbs + PI_FOURTHS) / PI_HALVES));
 
-        if (angle < Right + radians && angle > Right - radians)
-            angle = Right;
-        else if (angle < Up + radians && angle > Up - radians)
-            angle = Up;
-        else if (angle < Down + radians && angle > Down - radians)
-            angle = Down;
-        else if (angle > Math.PI - radians || angle < radians - Math.PI)
-            angle = Left;
+        // If the angle minus its radial offset is within our dead zone, snap it to the radial offset!
+        if (Math.Abs(angleAbs - radialOffset) < deadZoneRadians)
+            angle = radialOffset * angleSign;
+        // Otherwise, we need to scale the input value into the full input range so that we do not lose possible angle values.
         else
         {
-            const double PI_HALVES = Math.PI / 2;
-
-            var signY = Math.Sign(value.Y);
-            var offsetX = value.X > 0 ? 0 : (PI_HALVES * signY);
+            radialOffset = value.X > 0 ? 0 : PI_HALVES;
             
-            // Don't touch this.
-            // It's the secret sauce for making the diagonal deadzones not painful by mapping the smaller diagonal space into the full diagonal range.
+            // I suggest that you do not touch this equation. I'm quite proud of it.
             
-            // Remove radians offset, remove pi halves offset
-            angle = ((angle - radians * signY) - offsetX)
-                    // Multiply to make the angle "expand" into the pi halves space
-                    * PI_HALVES / (PI_HALVES - (radians * 2)) 
-                    // Re-add pi halves offset
-                    + offsetX;
+            // Remove radians offset, remove pi halves offset.
+            angle = ((angleAbs - deadZoneRadians - radialOffset)
+                    // Multiply to make the angle "expand" into the pi halves space.
+                    * PI_HALVES / (PI_HALVES - (deadZoneRadians * 2))
+                    // Re-add pi halves offset.
+                    + radialOffset)
+                    // Reapply sign.
+                    * angleSign;
         }
         
-        Console.WriteLine(angle);
-
+        // Maintain input strength, but give the value our new X and Y components.
         var strength = value.Length();
         value.X = MathHelper.RoundToZero((float)Math.Cos(angle));
         value.Y = MathHelper.RoundToZero((float)Math.Sin(angle));
-
+        
         return value * strength;
     }
     
