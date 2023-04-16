@@ -4,36 +4,36 @@ using Microsoft.Xna.Framework.Input;
 
 namespace AM2E.Control;
 
-public sealed class GamePadInput : InputBase<Buttons, GamePadState>
+internal sealed class GamePadInput : InputBase<Buttons, GamePadState>
 {
-    public GamePadInput(Buttons input) : base(input) { }
+    internal GamePadInput(Buttons input) : base(input) { }
 
-    public override void Poll(GamePadState state)
+    protected override void Poll(GamePadState state, Buttons input)
     {
-        switch (Input)
+        switch (input)
         {
             // TODO: Process analog triggers?
             // Override thumbstick values so that we can apply our own deadzones properly.
             case Buttons.LeftThumbstickUp or Buttons.LeftThumbstickDown or Buttons.LeftThumbstickLeft
                 or Buttons.LeftThumbstickRight:
-                ProcessInput(GetThumbstickInput(state, state.ThumbSticks.Left, InputManager.LeftCenterDeadzone));
+                ProcessInput(GetThumbstickInput(input, state.ThumbSticks.Left, InputManager.LeftCenterDeadZone));
                 break;
             case Buttons.RightThumbstickUp or Buttons.RightThumbstickDown or Buttons.RightThumbstickLeft
                 or Buttons.RightThumbstickRight:
-                ProcessInput(GetThumbstickInput(state, state.ThumbSticks.Right, InputManager.RightCenterDeadzone));
+                ProcessInput(GetThumbstickInput(input, state.ThumbSticks.Right, InputManager.RightCenterDeadZone));
                 break;
             // Default: process button
             default:
-                ProcessInput(state.IsButtonDown(Input));
+                ProcessInput(state.IsButtonDown(input));
                 break;
         }
     }
 
-    private bool GetThumbstickInput(GamePadState state, Vector2 thumbStick, float deadZone)
+    private bool GetThumbstickInput(Buttons button, Vector2 thumbStick, float deadZone)
     {
         var axis = ApplyDeadZone(thumbStick, deadZone);
-
-        return Input switch
+        
+        return button switch
         {
             Buttons.LeftThumbstickUp => (axis.Y > 0),
             Buttons.RightThumbstickUp => (axis.Y > 0),
@@ -52,8 +52,8 @@ public sealed class GamePadInput : InputBase<Buttons, GamePadState>
         return InputManager.CenterDeadZoneType switch
         {
             GamePadDeadZone.None => value,
-            GamePadDeadZone.IndependentAxes => ExcludeAngularDeadZone(ExcludeIndependentAxesDeadZone(value, deadZone), InputManager.DiagonalDeadZone),
-            GamePadDeadZone.Circular => ExcludeAngularDeadZone(ExcludeCircularDeadZone(value, deadZone), InputManager.DiagonalDeadZone),
+            GamePadDeadZone.IndependentAxes => ExcludeAngularAxisDeadZone(ExcludeIndependentAxesDeadZone(value, deadZone), InputManager.AngularAxisDeadZone),
+            GamePadDeadZone.Circular => ExcludeAngularAxisDeadZone(ExcludeCircularDeadZone(value, deadZone), InputManager.AngularAxisDeadZone),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -63,9 +63,9 @@ public sealed class GamePadInput : InputBase<Buttons, GamePadState>
     private static readonly double Up = Math.Atan2(1, 0);
     private static readonly double Down = Math.Atan2(-1, 0);
 
-    private static Vector2 ExcludeAngularDeadZone(Vector2 value, float deadZone)
+    private static Vector2 ExcludeAngularAxisDeadZone(Vector2 value, float deadZone)
     {
-        if (MathHelper.IsApproximatelyZero(InputManager.DiagonalDeadZone))
+        if (MathHelper.IsApproximatelyZero(InputManager.AngularAxisDeadZone))
             return value;
 
         var radians = Microsoft.Xna.Framework.MathHelper.ToRadians(deadZone);
@@ -96,6 +96,8 @@ public sealed class GamePadInput : InputBase<Buttons, GamePadState>
                     // Re-add pi halves offset
                     + offsetX;
         }
+        
+        Console.WriteLine(angle);
 
         var strength = value.Length();
         value.X = MathHelper.RoundToZero((float)Math.Cos(angle));

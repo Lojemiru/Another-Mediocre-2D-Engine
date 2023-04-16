@@ -2,9 +2,8 @@
 
 namespace AM2E.Control;
 
-public sealed class KeyboardInput : InputBase<Keys, KeyboardState>
+internal sealed class KeyboardInput : InputBase<Keys, KeyboardState>
 {
-    public KeyboardInput(Keys input) : base(input) { }
-    
-    public override void Poll(KeyboardState state) => ProcessInput(state.IsKeyDown(Input));
+    internal KeyboardInput(Keys input) : base(input) { }
+    protected override void Poll(KeyboardState state, Keys input) => ProcessInput(state.IsKeyDown(input));
 }

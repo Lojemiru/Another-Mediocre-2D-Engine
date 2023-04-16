@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using AM2E.Graphics;
-using Microsoft.Xna.Framework;
 
 namespace AM2E.Control;
 
@@ -15,10 +14,10 @@ public static class InputManager
     private static readonly Dictionary<Input, MouseInput> MouseListeners = new();
     private static readonly Dictionary<Input, GamePadInput> GamePadListeners = new();
 
-    public static float RightCenterDeadzone = 0.1f;
-    public static float LeftCenterDeadzone = 0.1f;
+    public static float RightCenterDeadZone = 0.1f;
+    public static float LeftCenterDeadZone = 0.1f;
     public static GamePadDeadZone CenterDeadZoneType = GamePadDeadZone.Circular;
-    public static float DiagonalDeadZone = 15f;
+    public static float AngularAxisDeadZone = 15f;
 
     // TODO: Make this auto-swap?
     public static readonly int GamePadIndex = 0;
@@ -41,13 +40,13 @@ public static class InputManager
         var keyboardState = Keyboard.GetState();
         foreach (var listener in KeyboardListeners.Values)
         {
-            listener.Poll(keyboardState);
+            listener.Update(keyboardState);
         }
         
         var mouseState = Mouse.GetState();
         foreach (var listener in MouseListeners.Values)
         {
-            listener.Poll(mouseState);
+            listener.Update(mouseState);
         }
 
         MouseX = Math.Clamp(Camera.BoundLeft + (int)((mouseState.X - Renderer.ApplicationSpace.X) * ((float)Renderer.GameWidth / Renderer.ApplicationSpace.Width)), Camera.BoundLeft, Camera.BoundRight);
@@ -56,36 +55,40 @@ public static class InputManager
         var gamePadState = GamePad.GetState(GamePadIndex);
         foreach (var listener in GamePadListeners.Values)
         {
-            listener.Poll(gamePadState);
+            listener.Update(gamePadState);
         }
     }
 
     // TODO: Rebinding. Needs to handle smart swapping via groups.
 
-    // TODO: Alternate bindings. Should probably be implemented via InputBase but will need support here.
-
-    // TODO: Cancelling input checkers.
-
-    public static void BindKey(Input input, Keys key)
+    public static void BindKey(Input input, Keys key, int index = 0)
     {
-        KeyboardListeners[input].Rebind(key);
+        KeyboardListeners[input].Rebind(key, index);
     }
 
-    public static void BindMouseButton(Input input, MouseButton mouseButton)
+    public static void BindMouseButton(Input input, MouseButton mouseButton, int index = 0)
     {
-        MouseListeners[input].Rebind(mouseButton);
+        MouseListeners[input].Rebind(mouseButton, index);
     }
 
-    public static void BindGamePadButton(Input input, Buttons button)
+    public static void BindGamePadButton(Input input, Buttons button, int index = 0)
     {
-        GamePadListeners[input].Rebind(button);
+        GamePadListeners[input].Rebind(button, index);
+    }
+    
+    public static int BindAlternateKey(Input input, Keys key)
+    {
+        return KeyboardListeners[input].AddAlternateBinding(key);
     }
 
-    public static void Remove(Input input)
+    public static int BindAlternateMouseButton(Input input, MouseButton mouseButton)
     {
-        KeyboardListeners.Remove(input);
-        MouseListeners.Remove(input);
-        GamePadListeners.Remove(input);
+        return MouseListeners[input].AddAlternateBinding(mouseButton);
+    }
+
+    public static int BindAlternateGamePadButton(Input input, Buttons button)
+    {
+        return GamePadListeners[input].AddAlternateBinding(button);
     }
 
     #region Getters
@@ -95,14 +98,29 @@ public static class InputManager
         return KeyboardListeners[input].InputPressed | MouseListeners[input].InputPressed | GamePadListeners[input].InputPressed;
     }
 
+    public static bool GetPressedCancelling(Input input, Input cancellingInput)
+    {
+        return GetPressed(input) && !GetHeld(cancellingInput);
+    }
+
     public static bool GetReleased(Input input)
     {
         return KeyboardListeners[input].InputReleased | MouseListeners[input].InputReleased | GamePadListeners[input].InputReleased;
     }
 
+    public static bool GetReleasedCancelling(Input input, Input cancellingInput)
+    {
+        return GetReleased(input) && !GetHeld(cancellingInput);
+    }
+
     public static bool GetHeld(Input input)
     {
         return KeyboardListeners[input].InputHeld | MouseListeners[input].InputHeld | GamePadListeners[input].InputHeld;
+    }
+
+    public static bool GetHeldCancelling(Input input, Input cancellingInput)
+    {
+        return GetHeld(input) && !GetHeld(cancellingInput);
     }
 
     public static int GetHeldSteps(Input input)

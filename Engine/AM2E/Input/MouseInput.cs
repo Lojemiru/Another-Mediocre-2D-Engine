@@ -3,20 +3,19 @@ using Microsoft.Xna.Framework.Input;
 
 namespace AM2E.Control;
 
-public sealed class MouseInput : InputBase<MouseButton, MouseState>
+internal sealed class MouseInput : InputBase<MouseButton, MouseState>
 {
-    public MouseInput(MouseButton input) : base(input) { }
+    internal MouseInput(MouseButton input) : base(input) { }
     private int wheelLast;
 
-    public override void Poll(MouseState state)
+    protected override void Poll(MouseState state, MouseButton input)
     {
         if (!EngineCore._graphics.GraphicsDevice.Viewport.Bounds.Contains(state.X, state.Y))
-        {
-            ProcessInput(false);
             return;
-        }
+
+        wheelLast = state.ScrollWheelValue;
         
-        var buttonBool = Input switch
+        var buttonBool = input switch
         {
             MouseButton.Left => state.LeftButton == ButtonState.Pressed,
             MouseButton.Middle => state.MiddleButton == ButtonState.Pressed,
@@ -29,8 +28,6 @@ public sealed class MouseInput : InputBase<MouseButton, MouseState>
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        wheelLast = state.ScrollWheelValue;
-        
         ProcessInput(buttonBool);
     }
 }

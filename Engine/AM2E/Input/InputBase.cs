@@ -1,38 +1,59 @@
+using System.Collections.Generic;
+
 namespace AM2E.Control;
 
-public abstract class InputBase<TInput, TState>
+internal abstract class InputBase<TInput, TState>
 {
-    protected TInput Input;
+    protected List<TInput> Inputs = new();
     
     protected InputBase(TInput input)
     {
-        Input = input;
+        Inputs.Add(input);
     }
 
-    public bool InputReleased { get; protected set; } = false;
-    public bool InputPressed { get; protected set; } = false;
-    protected bool InputPressedLast = false;
-    public bool InputHeld { get; protected set; } = false;
-    public int InputHeldSteps { get; protected set; } = 0;
+    internal bool InputReleased { get; private set; } = false;
+    internal bool InputPressed { get; private set; } = false;
+    private bool inputPressedLast = false;
+    internal bool InputHeld { get; private set; } = false;
+    internal int InputHeldSteps { get; private set; } = 0;
+
+    internal void Update(TState state)
+    {
+        InputHeld = false;
+
+        foreach (var input in Inputs)
+        {
+            Poll(state, input);
+        }
+        
+        if (InputHeld) 
+            InputHeldSteps++;
+        else 
+            InputHeldSteps = 0;
+
+        InputPressed = InputHeld && !inputPressedLast;
+
+        InputReleased = !InputHeld && inputPressedLast;
+
+        inputPressedLast = InputHeld;
+    }
     
     protected void ProcessInput(bool input)
     {
-        InputHeld = input;
-
-        if (InputHeld) InputHeldSteps++;
-        else InputHeldSteps = 0;
-
-        InputPressed = InputHeld && !InputPressedLast;
-
-        InputReleased = !InputHeld && InputPressedLast;
-
-        InputPressedLast = InputHeld;
+        if (input)
+            InputHeld = true;
     }
 
-    public abstract void Poll(TState state);
-    
-    public void Rebind(TInput input)
+    protected abstract void Poll(TState state, TInput input);
+
+    internal int AddAlternateBinding(TInput input)
     {
-        Input = input;
+        Inputs.Add(input);
+        return Inputs.Count;
+    }
+    
+    internal void Rebind(TInput input, int index = 0)
+    {
+        Inputs[index] = input;
     }
 }
