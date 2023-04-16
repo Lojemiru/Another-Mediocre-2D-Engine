@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using AM2E.Graphics;
+using LanguageExt.UnitsOfMeasure;
 using Microsoft.Xna.Framework;
 
 namespace AM2E.Control;
@@ -26,6 +27,10 @@ namespace AM2E.Control;
  *      It determines how many degrees away from any of the four cardinal directions should still be counted as being
  *      that direction alone; this is a way to prevent over-sensitive controllers from drifting off the intended
  *      direction too easily.
+ *
+ * MonoGame does not allow you to set a duration for controller rumble. Instead, it picks a default value based on the
+ *      platform (or something similar, I didn't dig too deep). Anyway, point is: the slightly odd rumble setup here is
+ *      necessary to let us set custom durations.
  */
 
 #endregion
@@ -44,8 +49,11 @@ public static class InputManager
     public static GamePadDeadZone CenterDeadZoneType = GamePadDeadZone.Circular;
     public static float AngularAxisDeadZone = 15f;
 
-    // TODO: Make this auto-swap?
+    // TODO: Make this swap dynamically?
     public static readonly int GamePadIndex = 0;
+    private static int vibrationTicks = 0;
+    private static float leftMotorVibration = 0;
+    private static float rightMotorVibration = 0;
 
     public static int MouseX { get; private set; }
     public static int MouseY { get; private set; }
@@ -83,7 +91,7 @@ public static class InputManager
         {
             listener.Update(mouseState);
         }
-
+        
         // GamePad
         var gamePadState = GamePad.GetState(GamePadIndex);
         
@@ -97,10 +105,20 @@ public static class InputManager
         {
             listener.Update(gamePadState);
         }
+        
+        StopVibration();
+        
+        if (vibrationTicks > 0)
+        {
+            GamePad.SetVibration(GamePadIndex, leftMotorVibration, rightMotorVibration);
+            vibrationTicks--;
+        }
     }
 
     // TODO: Rebinding. Needs to handle smart swapping via groups.
 
+    #region Binding
+    
     public static void BindKey(Input input, Keys key, int index = 0)
     {
         KeyboardListeners[input].Rebind(key, index);
@@ -130,6 +148,8 @@ public static class InputManager
     {
         return GamePadListeners[input].AddAlternateBinding(button);
     }
+    
+    #endregion
 
     #region Getters
 
@@ -167,6 +187,21 @@ public static class InputManager
     {
         return KeyboardListeners[input].InputHeldSteps | MouseListeners[input].InputHeldSteps | GamePadListeners[input].InputHeldSteps;
     }
+
+    #endregion
+    
+    #region Vibration
+
+    public static void SetVibration(int ticks, float strength) => SetVibration(ticks, strength, strength);
+
+    public static void SetVibration(int ticks, float leftMotor, float rightMotor)
+    {
+        vibrationTicks = ticks;
+        leftMotorVibration = leftMotor;
+        rightMotorVibration = rightMotor;
+    }
+
+    public static void StopVibration() => GamePad.SetVibration(GamePadIndex, 0, 0);
 
     #endregion
     
