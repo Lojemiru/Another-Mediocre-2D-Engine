@@ -17,7 +17,7 @@ internal abstract class InputBase<TInput, TState>
     internal bool InputHeld { get; private set; } = false;
     internal int InputHeldSteps { get; private set; } = 0;
 
-    internal void Update(TState state)
+    internal virtual void Update(TState state)
     {
         InputHeld = false;
 

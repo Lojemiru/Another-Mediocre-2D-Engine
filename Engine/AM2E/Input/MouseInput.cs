@@ -8,13 +8,19 @@ internal sealed class MouseInput : InputBase<MouseButton, MouseState>
     internal MouseInput(MouseButton input) : base(input) { }
     private int wheelLast;
 
+    internal override void Update(MouseState state)
+    {
+        base.Update(state);
+        wheelLast = state.ScrollWheelValue;
+    }
+
     protected override void Poll(MouseState state, MouseButton input)
     {
+        // Don't process mouse data if it's not in focus... because MonoGame does that, apparently.
         if (!EngineCore._graphics.GraphicsDevice.Viewport.Bounds.Contains(state.X, state.Y))
             return;
 
-        wheelLast = state.ScrollWheelValue;
-        
+        // Figure out our input's state.
         var buttonBool = input switch
         {
             MouseButton.Left => state.LeftButton == ButtonState.Pressed,
