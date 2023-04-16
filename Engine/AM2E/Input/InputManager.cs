@@ -177,8 +177,8 @@ public static class InputManager
         return InputManager.CenterDeadZoneType switch
         {
             GamePadDeadZone.None => value,
-            GamePadDeadZone.IndependentAxes => ExcludeAngularAxisDeadZone(ExcludeIndependentAxesDeadZone(value, deadZone), InputManager.AngularAxisDeadZone),
-            GamePadDeadZone.Circular => ExcludeAngularAxisDeadZone(ExcludeCircularDeadZone(value, deadZone), InputManager.AngularAxisDeadZone),
+            GamePadDeadZone.IndependentAxes => ExcludeAngularAxisDeadZone(ExcludeIndependentAxesDeadZone(value, deadZone), AngularAxisDeadZone),
+            GamePadDeadZone.Circular => ExcludeAngularAxisDeadZone(ExcludeCircularDeadZone(value, deadZone), AngularAxisDeadZone),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -186,7 +186,7 @@ public static class InputManager
     private static Vector2 ExcludeAngularAxisDeadZone(Vector2 value, float deadZone)
     {
         // Exit immediately if the angular axis dead zone is of no concern.
-        if (MathHelper.IsApproximatelyZero(InputManager.AngularAxisDeadZone))
+        if (MathHelper.IsApproximatelyZero(AngularAxisDeadZone))
             return value;
         
         var angle = Math.Atan2(value.Y, value.X);
