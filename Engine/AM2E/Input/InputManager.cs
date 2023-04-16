@@ -30,8 +30,6 @@ namespace AM2E.Control;
 
 #endregion
 
-// TODO: Review EngineConfig setup. Is this a good design paradigm?
-
 public static class InputManager
 {
     private static readonly Dictionary<Input, KeyboardInput> KeyboardListeners = new();
