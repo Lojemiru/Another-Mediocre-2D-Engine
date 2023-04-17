@@ -1,5 +1,4 @@
 using AM2E.Collision;
-using AM2E.Graphics;
 
 namespace AM2E.Levels;
 

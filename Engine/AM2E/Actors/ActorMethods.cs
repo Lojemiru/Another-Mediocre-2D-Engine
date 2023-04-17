@@ -1,8 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using AM2E.Collision;
 using System;
-using System.Collections.Generic;
-using AM2E.Graphics;
 using AM2E.Levels;
 
 namespace AM2E.Actors;
@@ -15,10 +13,6 @@ namespace AM2E.Actors;
  *      in each child of a user-defined Actor is an incredibly useful OOP workflow and I don't want to force bad
  *      design patterns to get back to that for the sake of using events. If some fool calls their own OnStep method
  *      manually in their child class, that's on them.
- *
- * Currently, the internal/internal protected modifiers don't do much.
- *      When the engine is eventually split into a library instead of sharing an assembly with GameContent, this will
- *      prevent bad design patterns where end users call the top-level step events etc. from their own code.
  */
 
 #endregion

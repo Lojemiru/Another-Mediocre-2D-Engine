@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using AM2E.Actors;
 using AM2E.Control;
 using System;
-using System.Threading;
 using AM2E.Graphics;
 
 namespace AM2E;

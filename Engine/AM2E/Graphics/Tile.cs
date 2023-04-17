@@ -1,4 +1,3 @@
-using System;
 using AM2E.Levels;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

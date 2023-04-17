@@ -10,7 +10,6 @@ namespace AM2E.Actors;
 
 #endregion
 
-// TODO: Need to implement IDisposable?
 public abstract partial class Actor
 {
     /// <summary>
