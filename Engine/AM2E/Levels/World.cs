@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using AM2E.Actors;
@@ -202,21 +201,7 @@ public static class World
         }
 
         ActiveLevels.Add(iid, LoadedLevels[iid]);
-        LoadedLevels[iid].Active = true;
-        
-        foreach (var actor in ActorManager.PersistentActors.Values)
-        {
-            if (actor.Layer == null)
-                actor.OnLevelActivate();
-        }
-        
-        foreach (var layer in LoadedLevels[iid].Layers.Values)
-        {
-            foreach (var actor in layer.Actors)
-            {
-                actor.OnLevelActivate();
-            }
-        }
+        LoadedLevels[iid].Activate();
     }
     
     public static void ActivateLevel(Level level)
@@ -247,9 +232,9 @@ public static class World
             QueueLevelForDeactivation(LoadedLevels[iid]);
             return;
         }
-
+        
         ActiveLevels.Remove(iid);
-        LoadedLevels[iid].Active = false;
+        LoadedLevels[iid].Deactivate();
     }
 
     public static void DeactivateLevel(Level level)

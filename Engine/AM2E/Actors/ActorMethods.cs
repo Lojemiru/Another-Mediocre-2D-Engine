@@ -135,51 +135,35 @@ public abstract partial class Actor : ColliderBase, IDrawable
     /// <summary>
     /// Overridable method that gets called when this <see cref="Actor"/> is deconstructed.
     /// </summary>
-    protected virtual void OnCleanup()
-    {
-        // Nothing - we want an empty cleanup event so actors don't /have/ to define it.
-    }
+    protected virtual void OnCleanup() { }
 
     /// <summary>
     /// Overridable method that gets called every render frame.
     /// </summary>
     /// <param name="spriteBatch"></param>
-    protected virtual void OnDraw(SpriteBatch spriteBatch)
-    {
-        // Nothing - we want an empty draw so actors don't /have/ to define it.
-    }
+    protected virtual void OnDraw(SpriteBatch spriteBatch) { }
     
     /// <summary>
-    /// Overridable method that gets called when this <see cref="Actor"/>'s <see cref="Level"/> is reset or unloaded.
+    /// Overridable method that gets called when this <see cref="Actor"/>'s <see cref="Level"/> is deactivated.
+    /// This will NOT get called for persistent <see cref="Actor"/>s that do not currently have an assigned <see cref="Level"/>!
     /// </summary>
-    protected internal virtual void OnLevelEnd()
-    {
-        // Nothing - we want an empty room end so actors don't /have/ to define it.
-    }
+    protected internal virtual void OnLevelDeactivate() { }
     
     /// <summary>
-    /// Overridable method that gets called when this <see cref="Actor"/>'s <see cref="Level"/> is first made active after loading.
+    /// Overridable method that gets called when this <see cref="Actor"/>'s <see cref="Level"/> is activated.
+    /// This will NOT get called for persistent <see cref="Actor"/>s that do not currently have an assigned <see cref="Level"/>!
     /// </summary>
-    protected internal virtual void OnLevelActivate()
-    {
-        // Nothing - we want an empty event so actors don't /have/ to define it.
-    }
+    protected internal virtual void OnLevelActivate() { }
     
     /// <summary>
     /// Overridable method that gets called every logical tick.
     /// </summary>
-    protected virtual void OnStep()
-    {
-        // Nothing - we want an empty event so actors don't /have/ to define it.
-    }
+    protected virtual void OnStep() { }
     
     /// <summary>
     /// Overridable method that gets called after this <see cref="Actor"/>'s constructor is run.
     /// </summary>
-    protected internal virtual void PostConstructor()
-    {
-        // Nothing - we want an empty event so actors don't /have/ to define it.
-    }
+    protected internal virtual void PostConstructor() { }
     
     #endregion
     

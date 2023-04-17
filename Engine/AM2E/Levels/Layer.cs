@@ -226,4 +226,20 @@ public sealed class Layer
         
         TileManager?.Step();
     }
+
+    internal void Activate()
+    {
+        foreach (var actor in Actors)
+        {
+            actor.OnLevelActivate();
+        }
+    }
+
+    internal void Deactivate()
+    {
+        foreach (var actor in Actors)
+        {
+            actor.OnLevelDeactivate();
+        }
+    }
 }

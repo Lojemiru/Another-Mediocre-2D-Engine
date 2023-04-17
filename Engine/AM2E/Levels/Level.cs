@@ -90,7 +90,7 @@ public sealed class Level
         Layers[layerName].Add(genericLevelElement);
     }
 
-    public void Draw()
+    internal void Draw()
     {
         foreach (var layer in Layers.Values)
         {
@@ -98,11 +98,31 @@ public sealed class Level
         }
     }
 
-    public void Tick()
+    internal void Tick()
     {
         foreach (var layer in Layers.Values)
         {
             layer.Tick();
+        }
+    }
+
+    internal void Activate()
+    {
+        Active = true;
+
+        foreach (var layer in Layers.Values)
+        {
+            layer.Activate();
+        }
+    }
+
+    internal void Deactivate()
+    {
+        Active = false;
+        
+        foreach (var layer in Layers.Values)
+        {
+            layer.Deactivate();
         }
     }
 }

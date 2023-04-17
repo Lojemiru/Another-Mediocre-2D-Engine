@@ -94,30 +94,7 @@ public static class ActorManager
     
     
     #region Internal Methods
-    
-    /// <summary>
-    /// Deregisters all non-persistent <see cref="Actor"/>s and runs their OnRoomEnd events.
-    /// </summary>
-    // TODO: Shouldn't this be in Level instead?
-    internal static void LevelEnd(Level level)
-    {
-        foreach (var actor in PersistentActors.Values)
-            actor.OnLevelEnd();
-        
-        foreach (var layer in level.Layers.Values)
-        {
-            foreach (var actor in layer.Actors)
-            {
-                if (actor.Persistent)
-                    continue;
-                
-                actor.OnLevelEnd();
-                // TODO: Do we actually need to deregister?
-                actor.Destroy(false);
-            }
-        }
-    }
-    
+
     internal static void UpdateActors()
     {
         // Step persistent actors with no layer first, then everything else by layer.

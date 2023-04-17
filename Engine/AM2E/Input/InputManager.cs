@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using AM2E.Graphics;
-using LanguageExt.UnitsOfMeasure;
 using Microsoft.Xna.Framework;
 
 namespace AM2E.Control;
