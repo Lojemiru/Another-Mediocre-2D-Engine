@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using AM2E.Collision;
 using System;
+using System.Collections.Generic;
 using AM2E.Graphics;
 using AM2E.Levels;
 
@@ -42,6 +43,7 @@ public abstract partial class Actor : ColliderBase, IDrawable
         hitbox ??= GetDefaultHitbox();
         Collider.AddHitbox(hitbox);
         ApplyFlips(flipX, flipY);
+        AllActors.Add(ID, this);
     }
 
     /// <summary>
@@ -52,12 +54,12 @@ public abstract partial class Actor : ColliderBase, IDrawable
     /// <param name="y"></param>
     /// <param name="layer"></param>
     /// <param name="hitbox"></param>
-    protected Actor(LDtkEntityInstance entity, int x, int y, Layer layer, Hitbox hitbox = null) : this(x, y, layer, hitbox, (entity.F & 1) != 0, (entity.F & 2) != 0, entity.Iid)
-    {
-    }
+    protected Actor(LDtkEntityInstance entity, int x, int y, Layer layer, Hitbox hitbox = null)
+        : this(x, y, layer, hitbox, (entity.F & 1) != 0, (entity.F & 2) != 0, entity.Iid) { }
     
     ~Actor()
     {
+        AllActors.Remove(ID);
         OnCleanup();
     }
     
@@ -73,6 +75,11 @@ public abstract partial class Actor : ColliderBase, IDrawable
     public void Draw(SpriteBatch spriteBatch)
     {
         OnDraw(spriteBatch);
+    }
+    
+    public static Actor GetActor(string id)
+    {
+        return AllActors.ContainsKey(id) ? AllActors[id] : null;
     }
     
     /// <summary>
