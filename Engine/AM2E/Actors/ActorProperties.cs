@@ -16,7 +16,6 @@ public abstract partial class Actor
     public bool FlippedY { get; private set; } = false;
     
     public readonly string ID;
-
-    // TODO: Setting this manually will break things with the ActorManager... make setting it a method!
-    public bool Persistent { get; set; } = false;
+    
+    public bool Persistent { get; private set; } = false;
 }

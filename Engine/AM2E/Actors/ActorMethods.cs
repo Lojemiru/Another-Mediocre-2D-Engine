@@ -83,6 +83,19 @@ public abstract partial class Actor : ColliderBase, IDrawable
     {
         return (FlippedX ? SpriteEffects.FlipHorizontally : 0) | (FlippedY ? SpriteEffects.FlipVertically : 0);
     }
+
+    public void SetPersistent(bool persistent)
+    {
+        if (Persistent == persistent)
+            return;
+        
+        Persistent = persistent;
+        
+        if (Persistent)
+            ActorManager.PersistentActors.Add(ID, this);
+        else
+            ActorManager.PersistentActors.Remove(ID);
+    }
     
     #endregion
     
@@ -159,12 +172,7 @@ public abstract partial class Actor : ColliderBase, IDrawable
     /// Overridable method that gets called every logical tick.
     /// </summary>
     protected virtual void OnStep() { }
-    
-    /// <summary>
-    /// Overridable method that gets called after this <see cref="Actor"/>'s constructor is run.
-    /// </summary>
-    protected internal virtual void PostConstructor() { }
-    
+
     #endregion
     
     

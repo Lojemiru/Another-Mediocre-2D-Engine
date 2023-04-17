@@ -57,39 +57,7 @@ public static class ActorManager
 
         return null;
     }
-    
-    // TODO: Move instantiation/removal into Actor itself.
-    // TODO: Fix this awful pattern - doesn't the base class add itself to the specified layer!?
-    public static Actor Instantiate(Actor actor, string layer, Level level)
-    {
-        level.Add(layer, actor);
-        actor.PostConstructor();
-        return actor;
-    }
 
-    public static Actor Instantiate(Actor actor, Layer layer, Level level)
-    {
-        return Instantiate(actor, layer.Name, level);
-    }
-
-    public static Actor InstantiatePersistent(Actor actor)
-    {
-        actor.Persistent = true;
-        PersistentActors.Add(actor.ID, actor);
-        actor.PostConstructor();
-        return actor;
-    }
-    
-    public static void RemovePersistent(string id)
-    {
-        PersistentActors.Remove(id);
-    }
-    
-    public static void RemovePersistent(Actor actor)
-    {
-        RemovePersistent(actor.ID);
-    }
-    
     #endregion
     
     

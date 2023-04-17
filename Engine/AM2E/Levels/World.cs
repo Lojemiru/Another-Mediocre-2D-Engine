@@ -98,19 +98,7 @@ public static class World
                     {
                         var entityType = Type.GetType("GameContent." + entity.Identifier);
                         // TODO: CreateInstance may be a major bottleneck when given args here :(
-                        var ent = Activator.CreateInstance(entityType, entity, level.WorldX + entity.Px[0], level.WorldY + entity.Px[1], layer);
-                        switch (ent)
-                        {
-                            case Actor actor:
-                                ActorManager.Instantiate(actor, layer, LoadedLevels[level.Iid]);
-                                break;
-                            case ICollider collider:
-                                layer.Add(collider);
-                                break;
-                            case GenericLevelElement genericLevelElement:
-                                layer.Add(genericLevelElement);
-                                break;
-                        }
+                        Activator.CreateInstance(entityType, entity, level.WorldX + entity.Px[0], level.WorldY + entity.Px[1], layer);
                     }
                     break;
                 case LDtkLayerType.Tiles:
