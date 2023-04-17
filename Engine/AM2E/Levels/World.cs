@@ -117,7 +117,6 @@ public static class World
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            // TODO: Handle entities, tiles, etc. etc.
         }
     }
 

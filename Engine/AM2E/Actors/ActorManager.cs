@@ -21,17 +21,7 @@ public static class ActorManager
     
     
     #region Public Methods
-    
-    /// <summary>
-    /// Check whether or not the given <see cref="Actor"/> exists.
-    /// </summary>
-    /// <param name="actor"></param>
-    /// <returns>Whether or not the <paramref name="actor"/> exists.</returns>
-    public static bool Exists(Actor actor)
-    {
-        return actor?.Exists ?? false;
-    }
-    
+
     public static Actor GetActor(string id)
     {
         // TODO: Rework this to do Dictionary lookups by ID instead of this crap.
