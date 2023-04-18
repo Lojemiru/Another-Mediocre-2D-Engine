@@ -14,7 +14,7 @@ public sealed class Layer
     private readonly SpriteBatch spriteBatch = new(EngineCore._graphics.GraphicsDevice);
     public readonly List<IDrawable> Drawables = new();
     public readonly List<Actor> Actors = new();
-    public readonly List<ICollider> Colliders = new();
+    public readonly List<ColliderBase> Colliders = new();
     public readonly List<GenericLevelElement> GenericLevelElements = new();
     private readonly List<GenericLevelElement> genericLevelElementsForRemoval = new();
     private readonly List<GenericLevelElement> genericLevelElementsForAddition = new();
@@ -69,17 +69,17 @@ public sealed class Layer
             return;
         }
         
-        actor.Layer?.Remove(actor);
-        actor.Layer = this;
-        // TODO: Level doesn't get adjusted for other types yet...
-        actor.Level = Level;
+        SwapLayer(actor);
+        
         Actors.Add(actor);
         Drawables.Add(actor);
         Colliders.Add(actor);
     }
 
-    public void Add(ICollider collider)
+    public void Add(ColliderBase collider)
     {
+        SwapLayer(collider);
+        
         Colliders.Add(collider);
     }
 
@@ -91,7 +91,16 @@ public sealed class Layer
             return;
         }
         
+        SwapLayer(genericLevelElement);
+        
         GenericLevelElements.Add(genericLevelElement);
+    }
+
+    private void SwapLayer(GenericLevelElement genericLevelElement)
+    {
+        genericLevelElement.Layer?.Remove(genericLevelElement);
+        genericLevelElement.Layer = this;
+        genericLevelElement.Level = Level;
     }
 
     internal void AddGeneric(GenericLevelElement obj)
@@ -107,7 +116,7 @@ public sealed class Layer
             case Actor actor:
                 Add(actor);
                 break;
-            case ICollider collider:
+            case ColliderBase collider:
                 Add(collider);
                 break;
             case { }:
@@ -129,8 +138,9 @@ public sealed class Layer
             case Actor actor:
                 Remove(actor);
                 break;
-            case ICollider collider:
-                throw new NotImplementedException();
+            case ColliderBase collider:
+                Remove(collider);
+                return;
             case {}:
                 Remove(gle);
                 break;
@@ -162,9 +172,18 @@ public sealed class Layer
             return;
         }
         
+        DisconnectLayer(actor);
+        
         Actors.Remove(actor);
         Drawables.Remove(actor);
         Colliders.Remove(actor);
+    }
+
+    internal void Remove(ColliderBase collider)
+    {
+        DisconnectLayer(collider);
+        
+        Colliders.Remove(collider);
     }
 
     internal void Remove(GenericLevelElement genericLevelElement)
@@ -174,8 +193,16 @@ public sealed class Layer
             QueueForRemoval(genericLevelElement);
             return;
         }
+        
+        DisconnectLayer(genericLevelElement);
 
         GenericLevelElements.Remove(genericLevelElement);
+    }
+
+    private void DisconnectLayer(GenericLevelElement genericLevelElement)
+    {
+        genericLevelElement.Layer = null;
+        genericLevelElement.Level = null;
     }
 
     internal void Draw()

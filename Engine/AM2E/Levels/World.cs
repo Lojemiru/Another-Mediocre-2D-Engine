@@ -8,6 +8,8 @@ using Newtonsoft.Json;
 
 namespace AM2E.Levels;
 
+// TODO: Multithreaded loading
+
 public static class World
 {
     private static LDtkWorldInstance world;
@@ -106,7 +108,7 @@ public static class World
                     
                     // Instantiate each tile.
                     foreach (var tile in ldtkLayer.GridTiles)
-                        LoadedLevels[level.Iid].AddTile(ldtkLayer.Identifier, level.WorldX + tile.Px[0], level.WorldY + tile.Px[1], new Tile(tile, set));
+                        LoadedLevels[level.Iid].Add(ldtkLayer.Identifier, new Tile(tile, set), level.WorldX + tile.Px[0], level.WorldY + tile.Px[1]);
                     
 
                     break;

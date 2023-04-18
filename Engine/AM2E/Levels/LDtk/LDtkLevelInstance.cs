@@ -95,8 +95,6 @@ public struct LDtkLevelInstance
     [JsonProperty("worldDepth")]
     public long WorldDepth { get; set; }
 
-    // TODO: Restore UID member?
-    
     /// <summary>
     /// World X coordinate in pixels.<br/>  Only relevant for world layouts where level spatial
     /// positioning is manual (ie. GridVania, Free). For Horizontal and Vertical layouts, the

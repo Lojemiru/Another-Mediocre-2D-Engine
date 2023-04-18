@@ -55,18 +55,8 @@ public sealed class Level
             return null;
         }
     }
-    
-    // TODO: Name is deprecated, refactor into method "Add" below
-    public void AddDrawable(string layerName, IDrawable drawable)
-    {
-        if (!Layers.ContainsKey(layerName))
-            throw new ArgumentException("No layer with the specified name \"" + layerName + "\" exists in level \"" + Name + "\"");
-        
-        Layers[layerName].Add(drawable);
-    }
 
-    
-    public void AddTile(string layerName, int x, int y, Tile tile)
+    public void Add(string layerName, Tile tile, int x, int y)
     {
         if (!Layers.ContainsKey(layerName))
             throw new ArgumentException("No layer with the specified name \"" + layerName + "\" exists in level \"" + Name + "\"");
@@ -77,6 +67,9 @@ public sealed class Level
 
     public void Add(string layerName, IDrawable drawable)
     {
+        if (!Layers.ContainsKey(layerName))
+            throw new ArgumentException("No layer with the specified name \"" + layerName + "\" exists in level \"" + Name + "\"");
+        
         Layers[layerName].Add(drawable);
     }
     
