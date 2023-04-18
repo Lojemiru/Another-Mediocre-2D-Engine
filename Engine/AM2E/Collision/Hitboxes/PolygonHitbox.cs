@@ -63,13 +63,11 @@ public abstract class PolygonHitbox : Hitbox
             var x = untranslatedPoints[i].X * multX;
             var y = untranslatedPoints[i].Y * multY;
 
-            // TODO: This seems inaccurate again ugh
-            
             var distance = Math.Round(MathHelper.PointDistance(0f, 0, x, y));
             var originalAngle = MathHelper.PointAngle(0, 0, x, y);
 
-            points[i].X = (int)(Math.Cos(originalAngle + radAngle) * distance);
-            points[i].Y = (int)(Math.Sin(originalAngle + radAngle) * distance);
+            points[i].X = (int)Math.Round(Math.Cos(originalAngle + radAngle) * distance);
+            points[i].Y = (int)Math.Round(Math.Sin(originalAngle + radAngle) * distance);
         }
         
         RecalculateBounds();
