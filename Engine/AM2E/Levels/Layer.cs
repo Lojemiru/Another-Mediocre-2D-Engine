@@ -233,8 +233,13 @@ public sealed class Layer
         }
         
         inTick = false;
+
+        foreach (var gle in genericLevelElementsForRemoval)
+        {
+            RemoveGeneric(gle);
+        }
         
-        // TODO: Review addition/removal order.
+        genericLevelElementsForRemoval.Clear();
 
         foreach (var gle in genericLevelElementsForAddition)
         {
@@ -243,13 +248,6 @@ public sealed class Layer
         
         genericLevelElementsForAddition.Clear();
 
-        foreach (var gle in genericLevelElementsForRemoval)
-        {
-            RemoveGeneric(gle);
-        }
-        
-        genericLevelElementsForRemoval.Clear();
-        
         TileManager?.Step();
     }
 
