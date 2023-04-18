@@ -2,9 +2,11 @@ using AM2E.Collision;
 
 namespace AM2E.Levels;
 
+// TODO: Actors currently do a lot of hitbox flip management that we proooobably would like to here instead...
+
 public abstract class ColliderBase : GenericLevelElement, ICollider
 {
-    public Collider Collider { get; protected init; }
+    public Collider Collider { get; }
     
     public new int X
     {

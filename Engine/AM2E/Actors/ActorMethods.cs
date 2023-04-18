@@ -33,11 +33,9 @@ public abstract partial class Actor : ColliderBase, IDrawable
     /// <param name="id"></param>
     protected Actor(int x, int y, Layer layer, Hitbox hitbox = null, bool flipX = false, bool flipY = false, string id = null) : base(x, y, layer)
     {
-        ID = id ?? Guid.NewGuid().ToString();
         hitbox ??= GetDefaultHitbox();
         Collider.AddHitbox(hitbox);
         ApplyFlips(flipX, flipY);
-        AllActors.Add(ID, this);
     }
 
     /// <summary>
@@ -53,7 +51,6 @@ public abstract partial class Actor : ColliderBase, IDrawable
     
     ~Actor()
     {
-        AllActors.Remove(ID);
         OnCleanup();
     }
     
@@ -73,7 +70,8 @@ public abstract partial class Actor : ColliderBase, IDrawable
     
     public static Actor GetActor(string id)
     {
-        return AllActors.ContainsKey(id) ? AllActors[id] : null;
+        var element = GenericLevelElement.GetElement(id);
+        return element is Actor actor ? actor : null;
     }
     
     /// <summary>
