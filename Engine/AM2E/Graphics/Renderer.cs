@@ -83,8 +83,6 @@ public static class Renderer
         GraphicsDeviceManager.GraphicsDevice.Clear(Color.Black);
             
         // Draw each layer.
-        // TODO: Order these when drawing lol
-        // TODO: Depth is insanely scuffed here, somehow. I don't understand sprite batches YAAAAAAAY
         World.RenderLevels();
 
         // Reset render target, clear backbuffer.

@@ -29,7 +29,10 @@ public sealed class StateMachine <TKey, TState> where TState : State
     /// How many times <see cref="Step()"/> has been executed since last calling <see cref="Change(TKey, int)"/>.
     /// </summary>
     public int StateTime { get; set; } = 0;
-    // TODO:
+    
+    /// <summary>
+    /// Prevents incrementing <see cref="StateTime"/> during state swaps.
+    /// </summary>
     private bool changed = false;
 
     /// <summary>
