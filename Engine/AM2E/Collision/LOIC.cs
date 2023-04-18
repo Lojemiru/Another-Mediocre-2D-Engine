@@ -10,24 +10,6 @@ namespace AM2E.Collision;
 
 public static class LOIC
 {
-    public static bool Check<T>(Collider self) where T : ICollider
-    {
-        return CheckCollider<T>(self) != null;
-    }
-        
-    // TODO: This feels redundant with Collider.Check<T>()... Replace? Would be nice for it not to touch the LOIC on the user end.
-    public static bool Check<T>(Collider self, int x, int y) where T : ICollider
-    {
-        var prevX = self.X;
-        var prevY = self.Y;
-        self.X = x;
-        self.Y = y;
-        var output = Check<T>(self);
-        self.X = prevX;
-        self.Y = prevY;
-        return output;
-    }
-
     public static bool CheckPoint<T>(int x, int y) where T : ICollider
     {
         foreach (var collider in ActorManager.PersistentActors.Values)

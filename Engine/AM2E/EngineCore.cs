@@ -64,17 +64,15 @@ public sealed class EngineCore : Game
     protected override void Update(GameTime gameTime)
     {
         var printDeltaTime = gameTime.ElapsedGameTime.TotalSeconds;
-        var fps = 1 / (float)printDeltaTime;
-        //Debug.WriteLine(fps);
 
         const int GAME_SPEED = 60;
-
-        // TODO: Change these to ints instead of doubles. Could involve a messy conversion on TotalSeconds...
+        const double oneOneTwentieth = 1.0 / GAME_SPEED * 2;
+        const double oneSixtieth = 1.0 / GAME_SPEED;
+        const double oneThirtieth = 1.0 / GAME_SPEED / 2;
+        
         // https://medium.com/@tglaiel/how-to-make-your-game-run-at-60fps-24c61210fe75
         var deltaTime = gameTime.ElapsedGameTime.TotalSeconds;
-        var oneOneTwentieth = 1.0 / GAME_SPEED * 2;
-        var oneSixtieth = 1.0 / GAME_SPEED;
-        var oneThirtieth = 1.0 / GAME_SPEED / 2;
+       
 
         if (resetDeltaTime)
         {

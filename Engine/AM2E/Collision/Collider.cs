@@ -280,7 +280,7 @@ public sealed class Collider
 
     public void CheckAndRun<T>() where T : ICollider
     {
-        var col = Check<T>(checkX, checkY);
+        var col = IntersectsAt<T>(checkX, checkY);
 
         if (col == null) return;
         foreach (var ob in events)
@@ -291,7 +291,7 @@ public sealed class Collider
         }
     }
         
-    public ICollider Check<T>(int x, int y) where T : ICollider
+    public ICollider IntersectsAt<T>(int x, int y) where T : ICollider
     {
         var prevX = X;
         var prevY = Y;
@@ -304,6 +304,11 @@ public sealed class Collider
         Y = prevY;
 
         return output;
+    }
+
+    public bool IntersectingAt<T>(int x, int y) where T : ICollider
+    {
+        return IntersectsAt<T>(x, y) != null;
     }
 
     public bool Intersects<T>(Collider col) where T : ICollider

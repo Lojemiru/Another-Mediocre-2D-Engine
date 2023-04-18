@@ -80,6 +80,12 @@ public struct LDtkLevelInstance
     /// </summary>
     [JsonProperty("pxWid")]
     public int PxWid { get; set; }
+    
+    /// <summary>
+    /// Unique Int identifier
+    /// </summary>
+    [JsonProperty("uid")]
+    public long Uid { get; set; }
 
     /// <summary>
     /// Index that represents the "depth" of the level in the world. Default is 0, greater means

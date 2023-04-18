@@ -264,7 +264,6 @@ public static class InputManager
     // Yes, the following methods are just some existing MonoGame code from GamePadThumbSticks.cs.
     // Unfortunately, they haven't yet seen fit to expose methods for setting deadzone strengths (probably an XNA holdover), so I have to handle it all in this class.
     // Might as well work with what they put in the framework instead of reinventing the wheel...
-    // TODO: fix up the issues in this old PR and resubmit it to the origin? https://github.com/MonoGame/MonoGame/pull/7278
 
     // Anyway, here's the license:
     #region MonoGame License
