@@ -24,7 +24,6 @@ public static class CommandConsole
             // No argument - list all commands
             if (args.Length < 1)
             {
-                Console.WriteLine("[AM2E " + EngineCore.Version + " Command Console]\n");
                 foreach (var command in commands.Keys)
                     Console.WriteLine(command);
             }
@@ -57,8 +56,6 @@ public static class CommandConsole
 
     private static void MainLoop()
     {
-        // TODO: Add arrow key history navigation. And history, I guess.
-        
         while (!stopThread)
         {
             if (commandQueued)
@@ -66,6 +63,7 @@ public static class CommandConsole
             
             WriteCursor();
             wroteCursor = false;
+
             ParseCommand(Console.ReadLine());
         }
 

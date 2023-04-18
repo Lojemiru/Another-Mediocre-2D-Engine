@@ -7,8 +7,6 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Collision;
 
-// TODO: Implement rotating rectangles :)
-
 public abstract class Hitbox
 {
     private protected static readonly Texture2D Pixel = new(EngineCore._graphics.GraphicsDevice, 1, 1);
