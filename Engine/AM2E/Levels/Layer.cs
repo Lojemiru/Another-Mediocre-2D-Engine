@@ -97,7 +97,7 @@ public sealed class Layer
 
     private void SwapLayer(GenericLevelElement genericLevelElement)
     {
-        genericLevelElement.Layer?.Remove(genericLevelElement);
+        genericLevelElement.Layer?.RemoveGeneric(genericLevelElement);
         genericLevelElement.Layer = this;
         genericLevelElement.Level = Level;
     }
@@ -200,6 +200,9 @@ public sealed class Layer
 
     private void DisconnectLayer(GenericLevelElement genericLevelElement)
     {
+        if (genericLevelElement.Layer != this)
+            return;
+        
         genericLevelElement.Layer = null;
         genericLevelElement.Level = null;
     }
