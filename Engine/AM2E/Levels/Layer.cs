@@ -9,7 +9,6 @@ namespace AM2E.Levels;
 
 public sealed class Layer
 {
-    // TODO: tiles should be handled under a specific collection or class for easier access in-code.
     public readonly string Name;
     private readonly SpriteBatch spriteBatch = new(EngineCore._graphics.GraphicsDevice);
     public readonly List<IDrawable> Drawables = new();
