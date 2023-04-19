@@ -85,6 +85,7 @@ public sealed class Collider
         hitboxes.Add(hitbox);
         hitbox.X = X;
         hitbox.Y = Y;
+        hitbox.ApplyFlips(FlippedX, FlippedY);
         return hitboxes.Count - 1;
     }
 

@@ -9,9 +9,8 @@
     <Import_RootNamespace>AM2E</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\ActorProperties.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\ActorManager.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Actors\ActorMethods.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Actors\Actor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\IPlayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\PlayerPool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Alarm.cs" />

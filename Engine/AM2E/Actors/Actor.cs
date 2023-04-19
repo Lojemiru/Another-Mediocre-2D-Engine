@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using AM2E.Collision;
-using System;
 using AM2E.Levels;
 
 namespace AM2E.Actors;
@@ -8,7 +7,13 @@ namespace AM2E.Actors;
 #region Design Notes
 
 /*
- * Regarding the decision not to use C# events for post-constructor, step event, draw, etc.:
+ * There are three "layers" of level elements in AM2E. This is the most derived, and thus the most complex. In addition
+ *      to everything provided by ColliderBase and GenericLevelElement, the Actor has functionality for drawing, various
+ *      active events (step, level load/unload, etc.), and rendering. While it does not appear that much more complex on
+ *      its own, the overhead to trigger these events makes them much more costly at runtime than a ColliderBase; if you
+ *      don't need these events, consider using that class instead.
+ * 
+ * Regarding the decision not to use C# events for step event, draw, etc.:
  *      Simply doesn't make sense for the flexibility I desire. The power to completely override when base is called
  *      in each child of a user-defined Actor is an incredibly useful OOP workflow and I don't want to force bad
  *      design patterns to get back to that for the sake of using events. If some fool calls their own OnStep method
@@ -17,8 +22,10 @@ namespace AM2E.Actors;
 
 #endregion
 
-public abstract partial class Actor : ColliderBase, IDrawable
+public abstract class Actor : ColliderBase, IDrawable
 {
+    public bool Persistent { get; private set; } = false;
+    
     #region Constructors/deconstructor
 
     /// <summary>
@@ -31,12 +38,9 @@ public abstract partial class Actor : ColliderBase, IDrawable
     /// <param name="flipX"></param>
     /// <param name="flipY"></param>
     /// <param name="id"></param>
-    protected Actor(int x, int y, Layer layer, Hitbox hitbox = null, bool flipX = false, bool flipY = false, string id = null) : base(x, y, layer)
-    {
-        hitbox ??= GetDefaultHitbox();
-        Collider.AddHitbox(hitbox);
-        ApplyFlips(flipX, flipY);
-    }
+    protected Actor(int x, int y, Layer layer, Hitbox hitbox = null, bool flipX = false, bool flipY = false,
+        string id = null)
+        : base(x, y, layer, hitbox, flipX, flipY, id) { }
 
     /// <summary>
     /// Constructor from LDtk Entity.
@@ -110,38 +114,8 @@ public abstract partial class Actor : ColliderBase, IDrawable
     }
 
     #endregion
-    
-    
-    #region Protected Methods
-    
-    /// <summary>
-    /// Applies the specified axis flips to this <see cref="Actor"/> and its <see cref="Hitbox"/>.
-    /// </summary>
-    /// <param name="xFlip">Whether this <see cref="Actor"/> is flipped on the X axis.</param>
-    /// <param name="yFlip">Whether this <see cref="Actor"/> is flipped on the Y axis.</param>
-    protected void ApplyFlips(bool xFlip, bool yFlip)
-    {
-        FlippedX = xFlip;
-        FlippedY = yFlip;
-        Collider.ApplyFlips(FlippedX, FlippedY);
-    }
-    
-    /// <summary>
-    /// Applies the specified axis flips to this <see cref="Actor"/> and its <see cref="Hitbox"/>.
-    /// </summary>
-    /// <param name="bits">The flips to be applied in binary format - only the two least significant bits are valid.</param>
-    /// <exception cref="ArgumentOutOfRangeException">If the value of <paramref name="bits"/> is greater than decimal 3.</exception>
-    protected void ApplyFlipsFromBits(byte bits)
-    {
-        if (bits > 3)
-            throw new ArgumentOutOfRangeException(nameof(bits), "Bits must be equal to or less than decimal 3!");
-        
-        ApplyFlips((bits & 1) != 0, (bits & 2) != 0);
-    }
 
-    #endregion
-    
-    
+
     #region Virtual Methods
     
     /// <summary>
@@ -171,17 +145,6 @@ public abstract partial class Actor : ColliderBase, IDrawable
     /// Overridable method that gets called every logical tick.
     /// </summary>
     protected virtual void OnStep() { }
-
-    #endregion
-    
-    
-    #region Private Methods
-    
-    /// <summary>
-    /// Generates a new 16x16 <see cref="RectangleHitbox"/>. 
-    /// </summary>
-    /// <returns></returns>
-    private static Hitbox GetDefaultHitbox() => new RectangleHitbox(0, 0, 16, 16);
 
     #endregion
 }
