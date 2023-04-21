@@ -26,7 +26,7 @@ public abstract class Actor : ColliderBase, IDrawable
 {
     public bool Persistent { get; private set; } = false;
     
-    #region Constructors/deconstructor
+    #region Constructors
 
     /// <summary>
     /// Standard constructor.
@@ -53,15 +53,20 @@ public abstract class Actor : ColliderBase, IDrawable
     protected Actor(LDtkEntityInstance entity, int x, int y, Layer layer, Hitbox hitbox = null)
         : this(x, y, layer, hitbox, (entity.F & 1) != 0, (entity.F & 2) != 0, entity.Iid) { }
     
-    ~Actor()
-    {
-        OnCleanup();
-    }
     
     #endregion
     
     
     #region Public Methods
+
+    /// <summary>
+    /// Destroys this <see cref="Actor"/>, running its <see cref="OnDestroy"/> and <see cref="GenericLevelElement.Dispose"/> methods.
+    /// </summary>
+    public void Destroy()
+    {
+        OnDestroy();
+        Dispose();
+    }
     
     /// <summary>
     /// Draws this <see cref="Actor"/> to the supplied <see cref="SpriteBatch"/>.
@@ -117,11 +122,11 @@ public abstract class Actor : ColliderBase, IDrawable
 
 
     #region Virtual Methods
-    
+
     /// <summary>
-    /// Overridable method that gets called when this <see cref="Actor"/> is deconstructed.
+    /// Overridable method that gets called when this <see cref="Actor"/> is <see cref="Destroy"/>ed.
     /// </summary>
-    protected virtual void OnCleanup() { }
+    protected virtual void OnDestroy() { }
 
     /// <summary>
     /// Overridable method that gets called every render frame.

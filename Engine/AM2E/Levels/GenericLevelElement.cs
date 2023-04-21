@@ -53,15 +53,18 @@ public abstract class GenericLevelElement
     protected GenericLevelElement(LDtkEntityInstance entity, int x, int y, Layer layer) 
         : this(x, y, layer, entity.Iid) { }
 
-    public void Destroy(bool runCustomDestroyEvent = true)
+    public void Dispose() => Dispose(false);
+    
+    internal void Dispose(bool fromLayer)
     {
-        if (runCustomDestroyEvent)
-            OnDestroy();
-        // TODO: More robust destruction pattern for memory management etc.
+        OnDispose();
         exists = false;
-        Layer.RemoveGeneric(this);
+        if (!fromLayer)
+            Layer?.RemoveGeneric(this);
         AllElements.Remove(ID);
     }
+    
+    protected virtual void OnDispose() { }
 
     /// <summary>
     /// Returns whether or not the given <see cref="GenericLevelElement"/> exists.
@@ -77,6 +80,4 @@ public abstract class GenericLevelElement
     {
         return AllElements.ContainsKey(id) ? AllElements[id] : null;
     }
-    
-    public virtual void OnDestroy() { }
 }

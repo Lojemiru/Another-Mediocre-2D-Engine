@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using AM2E.Actors;
-using AM2E.Collision;
 using AM2E.Graphics;
 
 namespace AM2E.Levels;
@@ -70,15 +69,17 @@ public sealed class Layer
         
         SwapLayer(actor);
         
+        GenericLevelElements.Add(actor);
+        Colliders.Add(actor);
         Actors.Add(actor);
         Drawables.Add(actor);
-        Colliders.Add(actor);
     }
 
     public void Add(ColliderBase collider)
     {
         SwapLayer(collider);
         
+        GenericLevelElements.Add(collider);
         Colliders.Add(collider);
     }
 
@@ -172,16 +173,18 @@ public sealed class Layer
         }
         
         DisconnectLayer(actor);
-        
+
+        GenericLevelElements.Remove(actor);
+        Colliders.Remove(actor);
         Actors.Remove(actor);
         Drawables.Remove(actor);
-        Colliders.Remove(actor);
     }
 
     internal void Remove(ColliderBase collider)
     {
         DisconnectLayer(collider);
         
+        GenericLevelElements.Remove(collider);
         Colliders.Remove(collider);
     }
 
@@ -267,6 +270,14 @@ public sealed class Layer
         foreach (var actor in Actors)
         {
             actor.OnLevelDeactivate();
+        }
+    }
+
+    internal void Dispose()
+    {
+        foreach (var genericLevelElement in GenericLevelElements)
+        {
+            genericLevelElement.Dispose(true);
         }
     }
 }

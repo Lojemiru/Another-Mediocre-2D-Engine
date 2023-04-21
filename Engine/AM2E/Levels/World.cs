@@ -135,7 +135,9 @@ public static class World
             InstantiateLevel(level.Iid);
     }
 
-    public static void UninstantiateLevel(string iid)
+    public static void UninstantiateLevel(string iid) => UninstantiateLevel(iid, true);
+    
+    private static void UninstantiateLevel(string iid, bool collect)
     {
         if (inTick)
         {
@@ -145,10 +147,15 @@ public static class World
         
         if (ActiveLevels.ContainsKey(iid))
             ActiveLevels.Remove(iid);
+
+        LoadedLevels[iid].Dispose();
         
         LoadedLevels.Remove(iid);
-    }
 
+        if (collect)
+            GC.Collect();
+    }
+    
     public static void UninstantiateLevelByName(string name)
     {
         foreach (var level in LoadedLevels.Values)
@@ -156,7 +163,7 @@ public static class World
             if (level.Name != name) 
                 continue;
             
-            LoadedLevels.Remove(level.Iid);
+            UninstantiateLevel(level.Iid);
             return;
         }
     }
@@ -164,7 +171,9 @@ public static class World
     public static void UninstantiateAll()
     {
         foreach (var level in LoadedLevels.Values)
-            UninstantiateLevel(level.Iid);
+            UninstantiateLevel(level.Iid, false);
+        
+        GC.Collect();
     }
 
     public static void UninstantiateAllExcept(Level targetLevel)
@@ -172,8 +181,10 @@ public static class World
         foreach (var level in LoadedLevels.Values)
         {
             if (level != targetLevel)
-                UninstantiateLevel(level.Iid);
+                UninstantiateLevel(level.Iid, false);
         }
+        
+        GC.Collect();
     }
 
     public static void ActivateLevel(string iid)

@@ -118,4 +118,12 @@ public sealed class Level
             layer.Deactivate();
         }
     }
+
+    internal void Dispose()
+    {
+        foreach (var layer in Layers.Values)
+        {
+            layer.Dispose();
+        }
+    }
 }
