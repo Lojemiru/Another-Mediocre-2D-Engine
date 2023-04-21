@@ -96,4 +96,17 @@ public sealed class StateMachine <TKey, TState> where TState : State
             
         CurrentState.Enter();
     }
+    
+    /// <summary>
+    /// Runs the given method for each <see cref="TState"/> in the <see cref="StateMachine{TKey,TState}"/>.
+    /// Particularly useful for enforcing "default states."
+    /// </summary>
+    /// <param name="action">The method to be run.</param>
+    public void ForEach(Action<TState> action)
+    {
+        foreach (var state in states.Values)
+        {
+            action(state);
+        }
+    }
 }
