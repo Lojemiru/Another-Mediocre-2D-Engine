@@ -214,7 +214,7 @@ public sealed class Layer
     {
         if (!Visible) return;
         
-        spriteBatch.Begin(SpriteSortMode.Immediate, samplerState:SamplerState.PointClamp, transformMatrix:Camera.Transform);
+        spriteBatch.Begin(SpriteSortMode.Deferred, samplerState:SamplerState.PointClamp, transformMatrix:Camera.Transform);
         foreach(var drawable in Drawables)
         {
             drawable.Draw(spriteBatch);

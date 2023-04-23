@@ -155,14 +155,14 @@ public sealed class Collider
         subVel[x] -= vel[x];
         subVel[y] -= vel[y];
             
+        inMovement = true;
+        
         // If we're not moving, do a static check and return.
         if (vel[x] == 0 && vel[y] == 0)
         {
             CheckAndRunAll(0, 0);
             return;
         }
-            
-        inMovement = true;
 
         // Determine dominant and subordinate axis
         int domAxis = x,

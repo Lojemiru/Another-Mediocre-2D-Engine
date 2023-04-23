@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using System;
+using Microsoft.Xna.Framework.Graphics;
 using AM2E.Collision;
 using AM2E.Levels;
 
@@ -25,6 +26,17 @@ namespace AM2E.Actors;
 public abstract class Actor : ColliderBase, IDrawable
 {
     public bool Persistent { get; private set; } = false;
+    
+    // TODO: Is this radians or degrees? Does anything need to be done to make user setting of this simpler?
+    public float Angle = 0;
+
+
+    private float alpha = 1;
+    public float Alpha
+    {
+        get => alpha;
+        set => alpha = Math.Clamp(value, 0, 1);
+    }
     
     #region Constructors
 
