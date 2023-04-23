@@ -27,7 +27,9 @@ public abstract class Actor : ColliderBase, IDrawable
 {
     public bool Persistent { get; private set; } = false;
     
-    // TODO: Is this radians or degrees? Does anything need to be done to make user setting of this simpler?
+    /// <summary>
+    /// The angle of this <see cref="Actor"/>, in degrees clockwise from East.
+    /// </summary>
     public float Angle = 0;
 
 

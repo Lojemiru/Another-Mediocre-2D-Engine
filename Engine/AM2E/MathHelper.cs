@@ -80,7 +80,22 @@ public static class MathHelper
     {
         return (float)(Math.Atan2(y2, x2) - Math.Atan2(y1, x1));
     }
+
+    public static float ToRadians(float degrees)
+    {
+        return (float)(degrees * Math.PI / 180);
+    }
     
+    public static float LineComponentX(float radians, float length)
+    {
+        return length * (float)Math.Cos(radians);
+    }
+
+    public static float LineComponentY(float radians, float length)
+    {
+        return length * (float)Math.Sin(radians);
+    }
+
     public static bool DoLinesIntersect(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
     {
         // https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
