@@ -78,12 +78,18 @@ public static class MathHelper
 
     public static float PointAngle(int x1, int y1, int x2, int y2)
     {
+        // TODO: Something's odd about this... doesn't work unless first two coords are 0???
         return (float)(Math.Atan2(y2, x2) - Math.Atan2(y1, x1));
     }
 
     public static float ToRadians(float degrees)
     {
         return (float)(degrees * Math.PI / 180);
+    }
+
+    public static float ToDegrees(float radians)
+    {
+        return (float)(radians * 180 / Math.PI);
     }
     
     public static float LineComponentX(float radians, float length)
