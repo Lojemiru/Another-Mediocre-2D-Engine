@@ -32,6 +32,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Animation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EngineCore.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Sprite.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Graphics\SpriteBatchExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\TextureManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\TexturePage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Tile.cs" />
