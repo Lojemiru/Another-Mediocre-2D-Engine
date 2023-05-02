@@ -12,27 +12,32 @@ public static class LOIC
 {
     public static bool CheckPoint<T>(int x, int y) where T : ICollider
     {
-        foreach (var collider in ActorManager.PersistentActors.Values)
+        return ColliderAtPoint<T>(x, y) is not null;
+    }
+
+    public static T ColliderAtPoint<T>(int x, int y) where T : ICollider
+    {
+        foreach (ICollider collider in ActorManager.PersistentActors.Values)
         {
             // Return whether any collider is found that matches interface and contains the input point.
             if (InternalCheckPoint<T>(collider, x, y))
-                return true;
+                return (T)collider;
         }
         
         foreach (var level in World.ActiveLevels.Values)
         {
             foreach (var layer in level.Layers.Values)
             {
-                foreach (var collider in layer.Colliders)
+                foreach (ICollider collider in layer.Colliders)
                 {
                     // Return whether any collider is found that matches interface and contains the input point.
                     if (InternalCheckPoint<T>(collider, x, y))
-                        return true;
+                        return (T)collider;
                 }
             }
         }
 
-        return false;
+        return default;
     }
 
     private static bool InternalCheckPoint<T>(ICollider collider, int x, int y) where T : ICollider
