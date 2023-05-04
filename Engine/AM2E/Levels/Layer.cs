@@ -227,13 +227,29 @@ public sealed class Layer
         spriteBatch.End();
     }
 
-    internal void Tick()
+    internal void PreTick()
     {
         inTick = true;
         
         foreach (var actor in Actors)
         {
+            actor.PreStep();
+        }
+    }
+
+    internal void Tick()
+    {
+        foreach (var actor in Actors)
+        {
             actor.Step();
+        }
+    }
+
+    internal void PostTick()
+    {
+        foreach (var actor in Actors)
+        {
+            actor.PostStep();
         }
         
         inTick = false;

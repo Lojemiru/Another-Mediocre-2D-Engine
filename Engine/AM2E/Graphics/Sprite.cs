@@ -106,7 +106,7 @@ public sealed class Sprite
     /// <param name="rotation">The rotation to draw with, in degrees.</param>
     /// <param name="effects">The <see cref="SpriteEffects"/> that should be applied during drawing.</param>
     /// <param name="alpha">The alpha value that should be applied during drawing; ranges from 0 to 1 inclusive.</param>
-    public void Draw(SpriteBatch batch, int x, int y, int frame, float rotation = 0,
+    public void Draw(SpriteBatch batch, float x, float y, int frame, float rotation = 0,
         SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1)
     {
         drawPos.X = x;
@@ -130,7 +130,7 @@ public sealed class Sprite
     /// <param name="rotation">The rotation to draw with, in degrees.</param>
     /// <param name="effects">The <see cref="SpriteEffects"/> that should be applied during drawing.</param>
     /// <param name="alpha">The alpha value that should be applied during drawing; ranges from 0 to 1 inclusive.</param>
-    public void Draw(SpriteBatch batch, int x, int y, int frame, Rectangle subRectangle, float rotation = 0,
+    public void Draw(SpriteBatch batch, float x, float y, int frame, Rectangle subRectangle, float rotation = 0,
         SpriteEffects effects = SpriteEffects.None, float alpha = 1)
     {
         // Constrain frame to safe indices.

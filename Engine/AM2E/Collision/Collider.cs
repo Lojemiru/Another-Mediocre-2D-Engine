@@ -287,7 +287,7 @@ public sealed class Collider
         foreach (var ob in events)
         {
             if (ob is not Action<T> ev) continue;
-            ev((T)col);
+            ev(col);
             return;
         }
     }
@@ -314,6 +314,9 @@ public sealed class Collider
 
     public bool Intersects<T>(Collider col) where T : ICollider
     {
+        if (col == this)
+            return false;
+        
         // Return whether one of our hitboxes that is targeting the given interface
         // can find a hitbox bound to that interface AND is intersecting.
         foreach (var myHitbox in hitboxes)

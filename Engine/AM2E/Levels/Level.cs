@@ -91,11 +91,27 @@ public sealed class Level
         }
     }
 
+    internal void PreTick()
+    {
+        foreach (var layer in Layers.Values)
+        {
+            layer.PreTick();
+        }
+    }
+    
     internal void Tick()
     {
         foreach (var layer in Layers.Values)
         {
             layer.Tick();
+        }
+    }
+
+    internal void PostTick()
+    {
+        foreach (var layer in Layers.Values)
+        {
+            layer.PostTick();
         }
     }
 

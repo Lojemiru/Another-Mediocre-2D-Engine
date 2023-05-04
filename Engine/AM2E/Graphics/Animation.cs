@@ -73,7 +73,7 @@ public sealed class Animation
         WrapIndex(false);
     }
 
-    public void Draw(SpriteBatch spriteBatch, int x, int y, float rotation = 0, SpriteEffects effects = SpriteEffects.None, float alpha = 1)
+    public void Draw(SpriteBatch spriteBatch, float x, float y, float rotation = 0, SpriteEffects effects = SpriteEffects.None, float alpha = 1)
     {
         Sprite.Draw(spriteBatch, x, y, Index, rotation, effects, alpha);
     }

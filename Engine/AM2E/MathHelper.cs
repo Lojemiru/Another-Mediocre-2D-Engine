@@ -76,10 +76,10 @@ public static class MathHelper
         return (float)Math.Sqrt((x * x) + (y * y));
     }
 
+    private static double pointAngleSubtractor = Math.Atan2(0, 0);
     public static float PointAngle(int x1, int y1, int x2, int y2)
     {
-        // TODO: Something's odd about this... doesn't work unless first two coords are 0???
-        return (float)(Math.Atan2(y2, x2) - Math.Atan2(y1, x1));
+        return (float)(Math.Atan2(y2 - y1, x2 - x1) - pointAngleSubtractor);
     }
 
     public static float ToRadians(float degrees)

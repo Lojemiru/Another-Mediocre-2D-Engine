@@ -294,7 +294,13 @@ public static class World
         inTick = true;
         
         foreach (var level in ActiveLevels.Values)
+            level.PreTick();
+        
+        foreach (var level in ActiveLevels.Values)
             level.Tick();
+        
+        foreach (var level in ActiveLevels.Values)
+            level.PostTick();
         
         inTick = false;
 

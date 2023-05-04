@@ -47,26 +47,31 @@ public static class LOIC
     
     public static bool CheckRectangle<T>(int x1, int y1, int x2, int y2) where T : ICollider
     {
+        return ColliderAtRectangle<T>(x1, y1, x2, y2) is not null;
+    }
+
+    public static T ColliderAtRectangle<T>(int x1, int y1, int x2, int y2) where T : ICollider
+    {
         // Return whether any collider is found that matches interface and is intersected by the input hitbox.
-        foreach (var collider in ActorManager.PersistentActors.Values)
+        foreach (ICollider collider in ActorManager.PersistentActors.Values)
         {
             if (InternalCheckRectangle<T>(collider, x1, y1, x2, y2))
-                return true;
+                return (T)collider;
         }
         
         foreach (var level in World.LoadedLevels.Values)
         {
             foreach (var layer in level.Layers.Values)
             {
-                foreach (var collider in layer.Colliders)
+                foreach (ICollider collider in layer.Colliders)
                 {
                     if (InternalCheckRectangle<T>(collider, x1, y1, x2, y2))
-                        return true;
+                        return (T)collider;
                 }
             }
         }
-
-        return false;
+        
+        return default;
     }
 
     // Static hitbox to save on instantiation/garbage collector spam.
@@ -110,7 +115,7 @@ public static class LOIC
 
     private static bool InternalCheckCollider<T>(ICollider collider, Collider self) where T : ICollider
     {
-        if (collider is not T)
+        if (collider is not T || collider.Collider == self)
             return false;
 
         return self.Intersects<T>(collider.Collider);

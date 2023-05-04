@@ -132,6 +132,19 @@ public abstract class Actor : ColliderBase, IDrawable
         OnStep();
     }
 
+    /// <summary>
+    /// Calls this <see cref="Actor"/>'s <see cref="OnPreStep"/> event.
+    /// </summary>
+    internal void PreStep()
+    {
+        OnPreStep();
+    }
+
+    internal void PostStep()
+    {
+        OnPostStep();
+    }
+
     #endregion
 
 
@@ -163,7 +176,14 @@ public abstract class Actor : ColliderBase, IDrawable
     /// <summary>
     /// Overridable method that gets called every logical tick.
     /// </summary>
+    protected virtual void OnPreStep() { }
+    
+    /// <summary>
+    /// Overridable method that gets called every logical tick.
+    /// </summary>
     protected virtual void OnStep() { }
+    
+    protected virtual void OnPostStep() { }
 
     #endregion
 }
