@@ -343,7 +343,24 @@ public sealed class Collider
 
         return false;
     }
+
+    private static RectangleHitbox testRectangle = new(0, 0, 1, 1);
+    
+    public bool IntersectsRectangle<T>(int x1, int y1, int x2, int y2) where T : ICollider
+    {
+        testRectangle.X = x1;
+        testRectangle.Y = y1;
+        testRectangle.Resize(1 + x2 - x1, 1 + y2 - y1);
+
+        foreach (var hitbox in hitboxes)
+        {
+            if (hitbox.IsBoundToInterface<T>() && hitbox.Intersects(testRectangle))
+                return true;
+        }
         
+        return false;
+    }
+
     public bool IsIntersectedBy<T>(Hitbox hitbox) where T : ICollider
     {
         // First, check if incoming Hitbox is actually targeting this interface.
