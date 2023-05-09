@@ -77,7 +77,7 @@ public static class MathHelper
     }
 
     private static double pointAngleSubtractor = Math.Atan2(0, 0);
-    public static float PointAngle(int x1, int y1, int x2, int y2)
+    public static float PointAngle(float x1, float y1, float x2, float y2)
     {
         return (float)(Math.Atan2(y2 - y1, x2 - x1) - pointAngleSubtractor);
     }
