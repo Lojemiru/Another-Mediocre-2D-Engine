@@ -2,7 +2,9 @@
 
 echo "Cleaning up old texturepages and metadata..."
 
-rm -rf "../GameContent/Graphics/output"
+if [ -d "../GameContent/Graphics/output" ]; then
+	rm -rf "../GameContent/Graphics/output"
+fi
 
 mkdir "../GameContent/Graphics/output"
 
@@ -10,19 +12,7 @@ mkdir "../GameContent/Graphics/output/enums"
 
 mkdir "../GameContent/Graphics/output/enums/sprites"
 
-# Remove old enum data
-#for f in "../GameContent/Graphics/output/enums/"*
-#do
-#	rm $f
-#done
-
-# Clean up output directory
-#for f in "../GameContent/Graphics/output/"*
-#do
-#	rm $f
-#done
-
-echo "Building texturepages and metadata..."
+echo "Building new texturepages..."
 
 # Rebuild pages
 for d in "../GameContent/Graphics/pages/"*
@@ -39,7 +29,9 @@ do
 	fi
 done
 
-mkdir "../GameContent/GameContent/AM2EAutomated"
+if [ ! -d "../GameContent/GameContent/AM2EAutomated" ]; then
+	mkdir "../GameContent/GameContent/AM2EAutomated"
+fi
 
 # Rebuild enums
 TexturePacker/TexturePacker enum --input "../GameContent/Graphics/output/enums/sprites" --output ../GameContent/GameContent/AM2EAutomated/SpriteIndex.cs --name SpriteIndex --namespace GameContent
