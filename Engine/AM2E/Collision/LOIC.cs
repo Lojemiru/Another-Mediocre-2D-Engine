@@ -1,4 +1,6 @@
-﻿using AM2E.Actors;
+﻿using System;
+using System.Collections.Generic;
+using AM2E.Actors;
 using AM2E.Levels;
 
 // We do NOT want to use LINQ in the collision engine. This class is a bottleneck and we need it to run efficiently.
@@ -72,6 +74,35 @@ public static class LOIC
         }
         
         return default;
+    }
+
+    public static IEnumerable<T> AllCollidersAtRectangle<T>(int x1, int y1, int x2, int y2) where T : ICollider
+    {
+        var output = new List<T>();
+    
+        foreach (ICollider collider in ActorManager.PersistentActors.Values)
+        {
+            if (InternalCheckRectangle<T>(collider, x1, y1, x2, y2))
+                output.Add((T)collider);
+        }
+        
+        foreach (var level in World.LoadedLevels.Values)
+        {
+            foreach (var layer in level.Layers.Values)
+            {
+                foreach (ICollider collider in layer.Colliders)
+                {
+                    if (InternalCheckRectangle<T>(collider, x1, y1, x2, y2))
+                    {
+                        var col = (T)collider;
+                        if (!output.Contains(col))
+                            output.Add(col);
+                    }
+                }
+            }
+        }
+
+        return output;
     }
 
     // Static hitbox to save on instantiation/garbage collector spam.
