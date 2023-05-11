@@ -22,7 +22,8 @@ do
 		if [[ ! -z "$(ls -A "$d")" ]];
 		then
 			echo "Building texturepage:" $d
-			TexturePacker/TexturePacker pack --input $d --name ${d##*/} --output "../GameContent/Graphics/output"
+			TexturePacker/TexturePacker pack --input $d/texturePackerTemp --name ${d##*/} --output "../GameContent/Graphics/output"
+			rm -r "$d/texturePackerTemp"
 		else
 			echo "Skipping empty texturepage:" $d
 		fi

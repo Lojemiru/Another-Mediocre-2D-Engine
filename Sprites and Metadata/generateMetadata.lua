@@ -127,7 +127,7 @@ for iterator,spr in ipairs(app.sprites) do
 	---- Export the file
 	local filename = name..".png"
 	local directory = getPath(trueFilename)
-	local path = directory.."/"..name.."/"
+	local path = directory.."/texturePackerTemp/"..name.."/"
 	path = string.gsub(path, "/","/")
 	-- Make the path to store the file
 
