@@ -52,7 +52,7 @@ public sealed class Collider
     private static readonly CollisionDirection[] DirsH = { CollisionDirection.Left, CollisionDirection.None, CollisionDirection.Right };
     private static readonly CollisionDirection[] DirsV = { CollisionDirection.Up, CollisionDirection.None, CollisionDirection.Down };
 
-    private bool[] continueMovement = { false, false };
+    private bool[] continueMovement = { true, true };
     public double SubVelX
     {
         get => subVel[0];
