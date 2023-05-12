@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using GameContent;
 
 namespace AM2E.Graphics;
 
@@ -44,16 +45,21 @@ public sealed class Sprite
     /// The attach points defined for this <see cref="Sprite"/>.
     /// </summary>
     private readonly Dictionary<string, int[][]> attachPoints;
+
+    /// <summary>
+    /// The offsets required to draw each cropped frame correctly.
+    /// </summary>
+    private readonly int[][] cropOffsets;
     
     /// <summary>
     /// Static <see cref="Vector2"/> used to translate int/int positions for <see cref="SpriteBatch"/> draw calls.
     /// </summary>
     private static Vector2 drawPos;
-
+    
     /// <summary>
-    /// A collection of origin transforms for each variant of the <see cref="SpriteEffects"/> passed into draw calls.
+    /// Static <see cref="Vector2"/> used to set the transform-respecting origin for each draw call.
     /// </summary>
-    private readonly Vector2[] flippedOrigins;
+    private static Vector2 origin;
     
     /// <summary>
     /// A collection of locations on this <see cref="Sprite"/>'s <see cref="TexturePage"/>, one entry for each frame.
@@ -77,7 +83,7 @@ public sealed class Sprite
     public Sprite([JsonProperty("length")] int length, [JsonProperty("originX")] int originX,
         [JsonProperty("originY")] int originY, [JsonProperty("attachPoints")] Dictionary<string, int[][]> attachPoints,
         [JsonProperty("positions")] Rectangle[] positions, [JsonProperty("width")] int width,
-        [JsonProperty("height")] int height)
+        [JsonProperty("height")] int height, [JsonProperty("cropOffsets")] int[][] cropOffsets)
     {
         Length = length;
         Origin = new Vector2(originX, originY);
@@ -85,11 +91,7 @@ public sealed class Sprite
         this.positions = positions;
         Width = width;
         Height = height;
-        
-        // Set up array of origins to match sprite flips at render.
-        var flippedOriginX = Width - 1 - Origin.X;
-        var flippedOriginY = Height - 1 - Origin.Y;
-        flippedOrigins = new[] { Origin, new(flippedOriginX, Origin.Y), new(Origin.X, flippedOriginY), new(flippedOriginX, flippedOriginY) };
+        this.cropOffsets = cropOffsets;
     }
     
     
@@ -109,14 +111,29 @@ public sealed class Sprite
     public void Draw(SpriteBatch batch, float x, float y, int frame, float rotation = 0,
         SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1)
     {
-        drawPos.X = x;
-        drawPos.Y = y;
-        scale.X = scaleX;
-        scale.Y = scaleY;
-        batch.Draw(TexturePage.Texture, drawPos, positions[MathHelper.Wrap(frame, 0, Length)], Color.White * alpha,
-            Microsoft.Xna.Framework.MathHelper.ToRadians(rotation), flippedOrigins[(int)effects], scale, effects, 0);
+        // Constrain frame to safe indices.
+        frame = MathHelper.Wrap(frame, 0, Length);
+        
+        PrepareDraw(x, y, scaleX, scaleY);
+        
+        var currentFrame = positions[frame];
+        
+        // Calculate the unflipped origin...
+        var originX = Origin.X - cropOffsets[frame][0];
+        var originY = Origin.Y - cropOffsets[frame][1];
+
+        // ...and then apply the origin flips. 
+        origin.X = ((effects & SpriteEffects.FlipHorizontally) == SpriteEffects.FlipHorizontally) 
+            ? (currentFrame.Width - 1 - originX) : originX;
+        
+        origin.Y = ((effects & SpriteEffects.FlipVertically) == SpriteEffects.FlipVertically)
+            ? (currentFrame.Height - 1 - originY) : originY;
+
+        // Finally, draw!
+        batch.Draw(TexturePage.Texture, drawPos, currentFrame, Color.White * alpha,
+            Microsoft.Xna.Framework.MathHelper.ToRadians(rotation), origin, scale, effects, 0);
     }
-    
+
     /// <summary>
     /// Draws the given sub-rectangle of this <see cref="Sprite"/> at the specified position
     /// and with the specified parameters.
@@ -131,18 +148,22 @@ public sealed class Sprite
     /// <param name="effects">The <see cref="SpriteEffects"/> that should be applied during drawing.</param>
     /// <param name="alpha">The alpha value that should be applied during drawing; ranges from 0 to 1 inclusive.</param>
     public void Draw(SpriteBatch batch, float x, float y, int frame, Rectangle subRectangle, float rotation = 0,
-        SpriteEffects effects = SpriteEffects.None, float alpha = 1)
+        SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1)
     {
         // Constrain frame to safe indices.
         frame = MathHelper.Wrap(frame, 0, Length);
-        drawPos.X = x;
-        drawPos.Y = y;
+        
+        PrepareDraw(x, y, scaleX, scaleY);
+
+        // Figure out the bounds of our sub-rectangle.
         subPos.X = positions[frame].X + subRectangle.X;
         subPos.Y = positions[frame].Y + subRectangle.Y;
         subPos.Width = subRectangle.Width;
         subPos.Height = subRectangle.Height;
+
+        // Draw!
         batch.Draw(TexturePage.Texture, drawPos, subPos, Color.White * alpha,
-            Microsoft.Xna.Framework.MathHelper.ToRadians(rotation), Origin, 1, effects, 0);
+            Microsoft.Xna.Framework.MathHelper.ToRadians(rotation), Vector2.Zero, scale, effects, 0);
     }
     
     /// <summary>
@@ -198,4 +219,13 @@ public sealed class Sprite
     }
     
     #endregion
+    
+    private static void PrepareDraw(float x, float y, float scaleX, float scaleY)
+    {
+        drawPos.X = x;
+        drawPos.Y = y;
+        
+        scale.X = scaleX;
+        scale.Y = scaleY;
+    }
 }
