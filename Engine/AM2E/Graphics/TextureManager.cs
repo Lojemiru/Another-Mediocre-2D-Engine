@@ -49,9 +49,9 @@ public static class TextureManager
     {
         if (!PageExists(index))
             throw new ArgumentException("Page does not exist: " + index);
-        
-        // TODO: Should we manually dispose() here?
-        
+
         pages[index] = null;
+        
+        GC.Collect();
     }
 }
