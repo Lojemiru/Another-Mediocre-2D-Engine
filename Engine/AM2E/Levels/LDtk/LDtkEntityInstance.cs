@@ -58,7 +58,13 @@ public struct LDtkEntityInstance
         {
             if (field.Identifier != identifier)
                 continue;
-
+            
+            // LDtk will pass us floats as doubles... even though they're called floats in the editor.
+            // This could also just be a JSON issue. Either way, I'd rather catch it here than on the other end every time...
+            if (field.Value is double)
+                // ReSharper disable once PossibleInvalidCastException
+                return (float)field.Value;
+            
             return field.Value;
         }
 
