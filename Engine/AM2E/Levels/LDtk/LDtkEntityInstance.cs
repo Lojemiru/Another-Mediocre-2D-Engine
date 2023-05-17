@@ -1,4 +1,6 @@
+using System;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace AM2E.Levels;
 
@@ -66,6 +68,22 @@ public struct LDtkEntityInstance
                 return (float)field.Value;
             
             return field.Value;
+        }
+
+        return null;
+    }
+
+    public dynamic GetFieldInstanceArray<T>(string identifier)
+    {
+        // LDtk hands us a JArray instead of an actual array. This should resolve that before any other code sees that.
+        
+        // ReSharper disable once LoopCanBeConvertedToQuery
+        foreach (var field in FieldInstances)
+        {
+            if (field.Value is not JArray array || field.Identifier != identifier)
+                continue;
+
+            return array.ToObject<T[]>();
         }
 
         return null;
