@@ -324,4 +324,15 @@ public static class World
 
         levelsToBeActivated.Clear();
     }
+
+    public static LDtkReferenceToAnEntityInstance GetFirstFromToC(string objectName)
+    {
+        foreach (var entry in world.TableOfContent)
+        {
+            if (entry.Identifier == objectName)
+                return entry.Instances[0];
+        }
+        
+        return default;
+    }
 }

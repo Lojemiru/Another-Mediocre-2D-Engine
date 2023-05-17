@@ -2,8 +2,6 @@ using Newtonsoft.Json;
 
 namespace AM2E.Levels;
 
-// TODO: This. Is. USELESS. Rework the LDtk fork to make this include some actual identifying information about entities copied to the ToC...
-
 public struct LDtkReferenceToAnEntityInstance
 {
     /// <summary>
