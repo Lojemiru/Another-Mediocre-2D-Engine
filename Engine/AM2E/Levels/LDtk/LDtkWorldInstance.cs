@@ -16,6 +16,13 @@ public struct LDtkWorldInstance
     public LDtkDefinition Defs { get; set; }
     
     /// <summary>
+    /// All instances of entities that have their `exportToToc` flag enabled are listed in this
+    /// array.
+    /// </summary>
+    [JsonProperty("toc")]
+    public LDtkTableOfContentEntry[] TableOfContent { get; set; }
+    
+    /// <summary>
     /// Height of the world grid in pixels.
     /// </summary>
     [JsonProperty("worldGridHeight")]

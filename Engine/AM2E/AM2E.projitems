@@ -61,6 +61,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkLevelInstance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkLightweightLevelInstance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkNeighbourLevel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkReferenceToAnEntityInstance.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkTableOfContentEntry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkTileInstance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkTilesetDefinition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkWorldInstance.cs" />
