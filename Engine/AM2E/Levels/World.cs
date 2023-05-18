@@ -144,12 +144,15 @@ public static class World
         stagedCallbacks.TryRemove(id, out _);
     }
 
-    public static void InstantiateLevelByName(string name, Action callback)
+    public static void InstantiateLevelByName(string name, Action callback = null)
     {
         foreach (var level in ldtkLevels.Values)
         {
-            if (level.Identifier == name)
-                InstantiateLevel(level.Iid, callback);
+            if (level.Identifier != name) 
+                continue;
+            
+            InstantiateLevel(level.Iid, callback);
+            return;
         }
     }
 
