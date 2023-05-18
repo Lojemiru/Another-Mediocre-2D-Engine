@@ -12,6 +12,8 @@ namespace AM2E.Collision;
 
 public static class LOIC
 {
+    // TODO: These check all *active* colliders and don't filter per-room. That's likely bad... provide a way to do that instead.
+
     public static bool CheckPoint<T>(int x, int y) where T : ICollider
     {
         return ColliderAtPoint<T>(x, y) is not null;
@@ -61,7 +63,7 @@ public static class LOIC
                 return (T)collider;
         }
         
-        foreach (var level in World.LoadedLevels.Values)
+        foreach (var level in World.ActiveLevels.Values)
         {
             foreach (var layer in level.Layers.Values)
             {
@@ -86,7 +88,7 @@ public static class LOIC
                 output.Add((T)collider);
         }
         
-        foreach (var level in World.LoadedLevels.Values)
+        foreach (var level in World.ActiveLevels.Values)
         {
             foreach (var layer in level.Layers.Values)
             {

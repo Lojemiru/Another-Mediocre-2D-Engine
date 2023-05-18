@@ -150,6 +150,8 @@ public sealed class Sprite
     public void Draw(SpriteBatch batch, float x, float y, int frame, Rectangle subRectangle, float rotation = 0,
         SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1)
     {
+        // TODO: Cropping is borked :(
+        
         // Constrain frame to safe indices.
         frame = MathHelper.Wrap(frame, 0, Length);
         
