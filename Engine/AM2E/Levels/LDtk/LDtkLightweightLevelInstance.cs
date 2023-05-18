@@ -15,4 +15,10 @@ public struct LDtkLightweightLevelInstance
     /// </summary>
     [JsonProperty("externalRelPath")]
     public string ExternalRelPath { get; set; }
+    
+    /// <summary>
+    /// Unique instance identifier
+    /// </summary>
+    [JsonProperty("iid")]
+    public string Iid { get; set; }
 }

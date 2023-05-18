@@ -1,19 +1,20 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using AM2E.Graphics;
 using GameContent;
 using Newtonsoft.Json;
 
 namespace AM2E.Levels;
 
-// TODO: Multithreaded loading
-
 public static class World
 {
     private static LDtkWorldInstance world;
-    private static readonly Dictionary<string, LDtkLevelInstance> ldtkLevels = new();
+    private static readonly Dictionary<string, LDtkLightweightLevelInstance> ldtkLevels = new();
+    private static readonly ConcurrentDictionary<string, LDtkLevelInstance> stagedLevels = new();
     private static readonly Dictionary<int, Tileset> Tilesets = new();
     public static Dictionary<string, Level> LoadedLevels = new();
     public static Dictionary<string, Level> ActiveLevels = new();
@@ -21,7 +22,12 @@ public static class World
     private static List<Level> levelsToBeActivated = new();
     private static List<Level> levelsToBeDeactivated = new();
     private static readonly List<LDtkLevelInstance> levelsToBeInstantiated = new();
+    private static readonly List<LDtkLevelInstance> deferredLevelsToBeInstantiated = new();
+    private static bool inInstantiation = false;
     private static readonly List<Level> levelsToBeUninstantiated = new();
+    private static readonly ConcurrentDictionary<string, Action> stagedCallbacks = new();
+
+    private static string currentPath;
 
     public static int LevelUnitHeight => world.WorldGridHeight;
     public static int LevelUnitWidth => world.WorldGridWidth;
@@ -34,6 +40,8 @@ public static class World
         levelsToBeActivated.Clear();
         levelsToBeDeactivated.Clear();
         ldtkLevels.Clear();
+        stagedLevels.Clear();
+        deferredLevelsToBeInstantiated.Clear();
         
         JsonSerializer serializer = new();
         using (var reader = File.OpenText(path))
@@ -52,34 +60,46 @@ public static class World
             
             Tilesets.Add(tileset.Uid, new Tileset(sprite, tileset));
         }
+        
+        currentPath = new FileInfo(path).Directory.FullName + "/";
 
-        var folder = new FileInfo(path).Directory.FullName;
-
-        // Load level data.
-        // TODO: Load these from files dynamically? Holding everything in memory all at once is probably kind of bad...
+        // Cache the IID of each lightweight level for faster grabbing later.
         foreach (var level in world.Levels)
         {
-            using var reader = File.OpenText(folder + "/" + level.ExternalRelPath);
-            var instance = (LDtkLevelInstance)serializer.Deserialize(reader, typeof(LDtkLevelInstance));
-            ldtkLevels.Add(instance.Iid, instance);
+            ldtkLevels.Add(level.Iid, level);
         }
     }
 
-    public static void InstantiateLevel(string id)
+    private static void LoadLevelFromFile(LDtkLightweightLevelInstance level)
+    {
+        JsonSerializer serializer = new();
+        using var reader = File.OpenText(currentPath + level.ExternalRelPath);
+        var levelInstance = (LDtkLevelInstance)serializer.Deserialize(reader, typeof(LDtkLevelInstance));
+        stagedLevels[level.Iid] = levelInstance;
+        QueueLevelForInstantiation(levelInstance);
+    }
+
+    public static void InstantiateLevel(string id, Action callback = null)
     {
         // TODO: Review instantiation here for security
-        
-        var level = ldtkLevels[id];
 
-        if (LoadedLevels.ContainsKey(level.Iid))
+        if (LoadedLevels.ContainsKey(id))
             return;
-        
-        
-        if (inTick)
+
+        if (inTick || !stagedLevels.ContainsKey(id))
         {
-            QueueLevelForInstantiation(level);
+            stagedCallbacks.TryAdd(id, callback);
+            
+            var t = new Thread(() => LoadLevelFromFile(ldtkLevels[id]))
+            {
+                IsBackground = true
+            };
+            t.Start();
+
             return;
         }
+
+        var level = stagedLevels[id];
         
         LoadedLevels.Add(level.Iid, new Level(level));
         
@@ -109,7 +129,6 @@ public static class World
                     // Instantiate each tile.
                     foreach (var tile in ldtkLayer.GridTiles)
                         LoadedLevels[level.Iid].Add(ldtkLayer.Identifier, new Tile(tile, set), level.WorldX + tile.Px[0], level.WorldY + tile.Px[1]);
-                    
 
                     break;
                 case LDtkLayerType.AutoLayer:
@@ -118,14 +137,19 @@ public static class World
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        stagedLevels.TryRemove(id, out _);
+        stagedCallbacks[id]?.Invoke();
+
+        stagedCallbacks.TryRemove(id, out _);
     }
 
-    public static void InstantiateLevelByName(string name)
+    public static void InstantiateLevelByName(string name, Action callback)
     {
         foreach (var level in ldtkLevels.Values)
         {
             if (level.Identifier == name)
-                InstantiateLevel(level.Iid);
+                InstantiateLevel(level.Iid, callback);
         }
     }
 
@@ -280,7 +304,12 @@ public static class World
     private static void QueueLevelForInstantiation(LDtkLevelInstance level)
     {
         if (!levelsToBeInstantiated.Contains(level))
-            levelsToBeInstantiated.Add(level);
+        {
+            if (!inInstantiation)
+                levelsToBeInstantiated.Add(level);
+            else
+                deferredLevelsToBeInstantiated.Add(level);
+        }
     }
     
     private static void QueueLevelForUninstantiation(Level level)
@@ -314,10 +343,20 @@ public static class World
 
         levelsToBeUninstantiated.Clear();
 
+        inInstantiation = true;
+        
         foreach (var level in levelsToBeInstantiated)
             InstantiateLevel(level.Iid);
 
         levelsToBeInstantiated.Clear();
+
+        inInstantiation = false;
+
+        // ...yes, this is kind of crappy. But it fixed my multithreaded loading problems, so... cope? Or show me a better solution lol
+        foreach (var level in deferredLevelsToBeInstantiated)
+            InstantiateLevel(level.Iid);
+
+        deferredLevelsToBeInstantiated.Clear();
 
         foreach (var level in levelsToBeActivated)
             ActivateLevel(level);
