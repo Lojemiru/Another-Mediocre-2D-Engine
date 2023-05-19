@@ -37,17 +37,6 @@ public sealed class TexturePage
     /// </summary>
     public Texture2D Texture { get; private set; }
 
-    /// <summary>
-    /// ONLY TO BE USED BY THE TEXTURE MANAGER
-    /// </summary>
-    /// <param name="texture"></param>
-    /// <param name="???"></param>
-    internal TexturePage(Texture2D texture)
-    {
-        Texture = texture;
-        Sprites = new Dictionary<SpriteIndex, Sprite>();
-    }
-
     #region Templated JSON nonsense
 
     private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
@@ -77,7 +66,7 @@ public sealed class TexturePage
         FileStream fileStream = new(AssetManager.GetTexturePath(index), FileMode.Open);
         output.Texture = Texture2D.FromStream(EngineCore._graphics.GraphicsDevice, fileStream);
         fileStream.Dispose();
-
+        
         // Assign sprites their TexturePage. Not the fastest thing ever, but I don't think I have any better options due to the direction JSON serializes in.
         // Baking the name earlier in the process results in nullrefs so I believe this is the best option.
         // Probably not that slow in the grand scheme of things.

@@ -13,28 +13,17 @@ namespace AM2E.Graphics;
 public static class TextureManager
 {
     private static ConcurrentDictionary<PageIndex, TexturePage> pages = new();
-    public static Sprite InvalidSprite;
-    private static readonly Texture2D invalidTexture;
-    private static readonly TexturePage invalidPage;
-    private static Sprite invalidSprite;
+    private static ConcurrentDictionary<PageIndex, bool> isLoadingPage = new();
+    private static ConcurrentDictionary<PageIndex, Action<TexturePage>> loadCallbacks = new();
 
     static TextureManager()
     {   
         foreach (var page in Enum.GetValues<PageIndex>())
         {
-            pages.TryAdd(page, null);
+            pages.TryAdd(page, TexturePage.Load(page));
+            isLoadingPage.TryAdd(page, false);
+            loadCallbacks.TryAdd(page, _ => { });
         }
-        
-        FileStream fileStream = new("invalidTexture.png", FileMode.Open);
-        invalidTexture = Texture2D.FromStream(EngineCore._graphics.GraphicsDevice, fileStream);
-        invalidPage = new TexturePage(invalidTexture);
-
-        invalidSprite = new Sprite(1, 0, 0, new Dictionary<string, int[][]>(),
-            new[] { new Rectangle(0, 0, invalidTexture.Width, invalidTexture.Height) }, invalidTexture.Width,
-            invalidTexture.Height, new[] { new[] { 0, 0 } })
-        {
-            TexturePage = invalidPage
-        };
     }
 
     public static bool PageExists(PageIndex index)
@@ -55,7 +44,11 @@ public static class TextureManager
         if (IsPageLoaded(index))
             return;
 
+        isLoadingPage[index] = true;
         pages[index] = TexturePage.Load(index);
+        loadCallbacks[index](pages[index]);
+        loadCallbacks[index] = _ => { };
+        isLoadingPage[index] = false;
     }
 
     public static void LoadPage(PageIndex index, Action<TexturePage> callback = null)
@@ -69,12 +62,23 @@ public static class TextureManager
             return;
         }
 
-        // TODO: This will cause issues if it gets called again before the thread stops :(
+        if (callback is not null)
+            loadCallbacks[index] += callback;
+
+        if (isLoadingPage[index])
+            return;
         
+        isLoadingPage[index] = true;
+
         var t = new Thread(() =>
         {
+            if (!isLoadingPage[index])
+                return;
+            
             pages[index] = TexturePage.Load(index);
-            callback?.Invoke(pages[index]);
+            loadCallbacks[index](pages[index]);
+            loadCallbacks[index] = _ => { };
+            isLoadingPage[index] = false;
         })
         {
             IsBackground = true
@@ -83,12 +87,11 @@ public static class TextureManager
         t.Start();
     }
 
-    public static TexturePage GetPage(PageIndex index)
+    public static Sprite GetSprite(PageIndex page, SpriteIndex sprite)
     {
-        // Ensure page exists/is loaded.
-        LoadPage(index);
-
-        return pages[index];
+        LoadPageBlocking(page);
+        
+        return pages[page].Sprites[sprite];
     }
 
     public static void UnloadPage(PageIndex index)

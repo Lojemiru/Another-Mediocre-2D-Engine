@@ -94,8 +94,7 @@ public static class World
         Enum.TryParse(tileset.Identifier, out SpriteIndex spriteIndex);
         TextureManager.LoadPage(pageIndex, _ =>
         {
-            var sprite = TextureManager.GetPage(pageIndex).Sprites[spriteIndex];
-            Tilesets.Add(tileset.Uid, new Tileset(sprite, tileset));
+            Tilesets.Add(tileset.Uid, new Tileset(TextureManager.GetSprite(pageIndex, spriteIndex), tileset));
             PlaceTiles(level, ldtkLayer);
         });
     }

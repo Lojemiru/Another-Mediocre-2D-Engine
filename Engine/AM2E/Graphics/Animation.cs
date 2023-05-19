@@ -30,7 +30,7 @@ public sealed class Animation
     {
         SpriteName = sprite;
 
-        this.Sprite = TextureManager.GetPage(page).Sprites[sprite];
+        Sprite = TextureManager.GetSprite(page, sprite);
         Speed = speed;
         OnAnimationEnd = onAnimationEnd ?? OnAnimationEnd;
     }
@@ -69,7 +69,7 @@ public sealed class Animation
     public void SetSprite(PageIndex page, SpriteIndex sprite)
     {
         SpriteName = sprite;
-        this.Sprite = TextureManager.GetPage(page).Sprites[sprite];
+        Sprite = TextureManager.GetSprite(page, sprite);
         WrapIndex(false);
     }
 
