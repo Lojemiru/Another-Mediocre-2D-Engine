@@ -16,6 +16,7 @@ public static class World
     private static readonly Dictionary<string, LDtkLightweightLevelInstance> ldtkLevels = new();
     private static readonly ConcurrentDictionary<string, LDtkLevelInstance> stagedLevels = new();
     private static readonly Dictionary<int, Tileset> Tilesets = new();
+    private static readonly Dictionary<int, LDtkTilesetDefinition> LDtkTilesets = new();
     public static Dictionary<string, Level> LoadedLevels = new();
     public static Dictionary<string, Level> ActiveLevels = new();
     private static bool inTick = false;
@@ -52,13 +53,19 @@ public static class World
         // Load tileset definitions.
         foreach (var tileset in world.Defs.Tilesets)
         {
+            LDtkTilesets.Add(tileset.Uid, tileset);
+            /*
             // TODO: Throw nicer error message here when RelPath is invalid... and when this doesn't match an enum... etc.
+            // TODO: This is going to just load every page with a tileset. Permanently. Make this a per-level thing instead!!!
             var entries = tileset.RelPath.Split('/');
             Enum.TryParse(entries[^2], out PageIndex pageIndex);
             Enum.TryParse(tileset.Identifier, out SpriteIndex spriteIndex);
-            var sprite = TextureManager.GetPage(pageIndex).Sprites[spriteIndex];
-            
-            Tilesets.Add(tileset.Uid, new Tileset(sprite, tileset));
+            TextureManager.LoadPage(pageIndex, _ =>
+            {
+                var sprite = TextureManager.GetPage(pageIndex).Sprites[spriteIndex];
+                Tilesets.Add(tileset.Uid, new Tileset(sprite, tileset));
+            });
+            */
         }
         
         currentPath = new FileInfo(path).Directory.FullName + "/";
@@ -68,6 +75,38 @@ public static class World
         {
             ldtkLevels.Add(level.Iid, level);
         }
+    }
+
+    private static void PopulateTiles(LDtkLevelInstance level, LDtkLayerInstance ldtkLayer)
+    {
+        // TODO: This nullable is probably a bad default lol
+        var key = ldtkLayer.TilesetDefUid ?? 0;
+
+        if (Tilesets.ContainsKey(key))
+        {
+            PlaceTiles(level, ldtkLayer);
+            return;
+        }
+        
+        var tileset = LDtkTilesets[key];
+        var entries = tileset.RelPath.Split('/');
+        Enum.TryParse(entries[^2], out PageIndex pageIndex);
+        Enum.TryParse(tileset.Identifier, out SpriteIndex spriteIndex);
+        TextureManager.LoadPage(pageIndex, _ =>
+        {
+            var sprite = TextureManager.GetPage(pageIndex).Sprites[spriteIndex];
+            Tilesets.Add(tileset.Uid, new Tileset(sprite, tileset));
+            PlaceTiles(level, ldtkLayer);
+        });
+    }
+
+    private static void PlaceTiles(LDtkLevelInstance level, LDtkLayerInstance ldtkLayer)
+    {
+        // TODO: This nullable is probably a bad default lol
+        var key = ldtkLayer.TilesetDefUid ?? 0;
+        
+        foreach (var tile in ldtkLayer.GridTiles)
+            LoadedLevels[level.Iid].Add(ldtkLayer.Identifier, new Tile(tile, Tilesets[key]), level.WorldX + tile.Px[0], level.WorldY + tile.Px[1]);
     }
 
     private static void LoadLevelFromFile(LDtkLightweightLevelInstance level)
@@ -123,12 +162,7 @@ public static class World
                     break;
                 case LDtkLayerType.Tiles:
                     // Get tileset.
-                    // TODO: This nullable is probably bad lol
-                    var set = Tilesets[ldtkLayer.TilesetDefUid ?? 0];
-                    
-                    // Instantiate each tile.
-                    foreach (var tile in ldtkLayer.GridTiles)
-                        LoadedLevels[level.Iid].Add(ldtkLayer.Identifier, new Tile(tile, set), level.WorldX + tile.Px[0], level.WorldY + tile.Px[1]);
+                    PopulateTiles(level, ldtkLayer);
 
                     break;
                 case LDtkLayerType.AutoLayer:

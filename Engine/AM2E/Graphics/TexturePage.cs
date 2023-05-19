@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System.IO;
 using AM2E.IO;
 using GameContent;
+using Microsoft.Xna.Framework;
 
 /*
     * UNQUENCHED THIRST FOR GLORY
@@ -35,6 +36,17 @@ public sealed class TexturePage
     /// The <see cref="Texture2D"/> represented by this <see cref="TexturePage"/>.
     /// </summary>
     public Texture2D Texture { get; private set; }
+
+    /// <summary>
+    /// ONLY TO BE USED BY THE TEXTURE MANAGER
+    /// </summary>
+    /// <param name="texture"></param>
+    /// <param name="???"></param>
+    internal TexturePage(Texture2D texture)
+    {
+        Texture = texture;
+        Sprites = new Dictionary<SpriteIndex, Sprite>();
+    }
 
     #region Templated JSON nonsense
 
