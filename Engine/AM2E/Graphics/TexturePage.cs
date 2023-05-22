@@ -6,7 +6,6 @@ using Microsoft.Xna.Framework.Graphics;
 using System.IO;
 using AM2E.IO;
 using GameContent;
-using Microsoft.Xna.Framework;
 
 /*
     * UNQUENCHED THIRST FOR GLORY

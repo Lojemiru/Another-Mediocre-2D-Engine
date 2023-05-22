@@ -1,106 +1,113 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
-using AM2E.IO;
 using GameContent;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Graphics;
 
 public static class TextureManager
 {
-    private static ConcurrentDictionary<PageIndex, TexturePage> pages = new();
-    private static ConcurrentDictionary<PageIndex, bool> isLoadingPage = new();
-    private static ConcurrentDictionary<PageIndex, Action<TexturePage>> loadCallbacks = new();
+    private static readonly Dictionary<PageIndex, TexturePage> Pages = new();
+    private static readonly Dictionary<PageIndex, bool> IsLoadingPage = new();
+    private static readonly Dictionary<PageIndex, bool> IsUnloadingPage = new();
+    private static readonly Dictionary<PageIndex, Action<TexturePage>> LoadCallbacks = new();
+    private static readonly Dictionary<PageIndex, Thread> LoadingThreads = new();
 
     static TextureManager()
     {   
         foreach (var page in Enum.GetValues<PageIndex>())
         {
-            pages.TryAdd(page, TexturePage.Load(page));
-            isLoadingPage.TryAdd(page, false);
-            loadCallbacks.TryAdd(page, _ => { });
+            Pages.Add(page, null);
+            LoadingThreads.Add(page, null);
+            IsLoadingPage.Add(page, false);
+            IsUnloadingPage.Add(page, false);
+            LoadCallbacks.Add(page, _ => { });
         }
-    }
-
-    public static bool PageExists(PageIndex index)
-    {
-        return pages.ContainsKey(index);
     }
 
     public static bool IsPageLoaded(PageIndex index)
     {
-        return pages[index] != null;
+        return Pages[index] != null;
     }
 
     public static void LoadPageBlocking(PageIndex index)
     {
-        if (!PageExists(index))
-            throw new ArgumentException("Page does not exist: " + index);
-
         if (IsPageLoaded(index))
             return;
 
-        isLoadingPage[index] = true;
-        pages[index] = TexturePage.Load(index);
-        loadCallbacks[index](pages[index]);
-        loadCallbacks[index] = _ => { };
-        isLoadingPage[index] = false;
+        if (IsLoadingPage[index])
+        {
+            LoadingThreads[index].Join();
+        }
+        else
+        {
+            IsLoadingPage[index] = true;
+            DoLoad(index);
+        }
     }
 
     public static void LoadPage(PageIndex index, Action<TexturePage> callback = null)
     {
-        if (!PageExists(index))
-            throw new ArgumentException("Page does not exist: " + index);
-
         if (IsPageLoaded(index))
         {
-            callback?.Invoke(pages[index]);
+            callback?.Invoke(Pages[index]);
             return;
         }
 
         if (callback is not null)
-            loadCallbacks[index] += callback;
+            LoadCallbacks[index] += callback;
 
-        if (isLoadingPage[index])
+        if (IsLoadingPage[index])
             return;
         
-        isLoadingPage[index] = true;
+        IsLoadingPage[index] = true;
 
         var t = new Thread(() =>
         {
-            if (!isLoadingPage[index])
-                return;
-            
-            pages[index] = TexturePage.Load(index);
-            loadCallbacks[index](pages[index]);
-            loadCallbacks[index] = _ => { };
-            isLoadingPage[index] = false;
-        })
-        {
-            IsBackground = true
-        };
+            DoLoad(index);
+            if (IsUnloadingPage[index])
+                DoUnload(index);
+        });
+        
+        t.IsBackground = true;
+        LoadingThreads[index] = t;
         
         t.Start();
+    }
+
+    private static void DoLoad(PageIndex index)
+    {
+        Pages[index] = TexturePage.Load(index);
+        LoadCallbacks[index](Pages[index]);
+        LoadCallbacks[index] = _ => { };
+        IsLoadingPage[index] = false;
+        LoadingThreads[index] = null;
     }
 
     public static Sprite GetSprite(PageIndex page, SpriteIndex sprite)
     {
         LoadPageBlocking(page);
         
-        return pages[page].Sprites[sprite];
+        return Pages[page].Sprites[sprite];
     }
 
     public static void UnloadPage(PageIndex index)
     {
-        if (!PageExists(index))
-            throw new ArgumentException("Page does not exist: " + index);
-
-        pages[index] = null;
+        if (IsLoadingPage[index])
+        {
+            IsUnloadingPage[index] = true;
+            return;
+        }
         
+        DoUnload(index);
+    }
+
+    private static void DoUnload(PageIndex index)
+    {
+        Pages[index] = null;
+        IsUnloadingPage[index] = false;
+        LoadCallbacks[index] = _ => { };
+
         GC.Collect();
     }
 }
