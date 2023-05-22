@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace AM2E.Levels;
 
-public sealed class LDtkFieldInstanceGridPoint
+public class LDtkGridPoint
 {
     /// <summary>
     /// X grid-based coordinate
@@ -16,19 +16,19 @@ public sealed class LDtkFieldInstanceGridPoint
     [JsonProperty("cy")]
     public int Y { get; private set; }
 
-    public static LDtkFieldInstanceGridPoint FromDynamic(dynamic input)
+    public static LDtkGridPoint FromDynamic(dynamic input)
     {
         try
         {
-            return new LDtkFieldInstanceGridPoint
+            return new LDtkGridPoint
             {
-                X = input.cx,
-                Y = input.cy
+                X = (int)input.cx,
+                Y = (int)input.cy
             };
         }
         catch
         {
-            return null;
+            return default;
         }
     }
 }

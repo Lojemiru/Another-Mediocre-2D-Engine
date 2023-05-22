@@ -55,7 +55,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkEnums.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkFieldInstance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkFieldInstanceEntityReference.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkFieldInstanceGridPoint.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkGridPoint.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkLayerInstance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkLevelBackgroundPosition.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkLevelInstance.cs" />
@@ -65,6 +65,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkTableOfContentEntry.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkTileInstance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkTilesetDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkTypeExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkWorldInstance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\Level.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\World.cs" />

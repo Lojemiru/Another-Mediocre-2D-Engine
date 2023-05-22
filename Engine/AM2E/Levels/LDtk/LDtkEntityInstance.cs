@@ -66,7 +66,7 @@ public struct LDtkEntityInstance
             if (field.Value is double)
                 // ReSharper disable once PossibleInvalidCastException
                 return (float)field.Value;
-            
+
             return field.Value;
         }
 
