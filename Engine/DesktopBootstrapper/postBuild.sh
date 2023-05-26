@@ -23,7 +23,7 @@ export MGFXC_WINE_PATH=/home/$username/.winemonogame
 
 dotnet tool install -g dotnet-mgfxc
 
-for f in "../../GameContent/GameContent/Shaders/"*.fx
+for f in ../../GameContent/GameContent/Shaders/*.fx
 do
     fullname="${f##*/}"
     mgfxc $f $1shaders/"${fullname%.*}"
