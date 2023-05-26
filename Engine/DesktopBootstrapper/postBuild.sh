@@ -17,14 +17,21 @@ cp -r ../../GameContent/Worlds $1worlds
 rm -r $1shaders
 mkdir $1shaders
 
-username=$(whoami)
+DIR=../../GameContent/GameContent/Shaders
 
-export MGFXC_WINE_PATH=/home/$username/.winemonogame
+if [ "$(ls -A $DIR)" ];
+then
+    username=$(whoami)
 
-dotnet tool install -g dotnet-mgfxc
+    export MGFXC_WINE_PATH=/home/$username/.winemonogame
 
-for f in ../../GameContent/GameContent/Shaders/*.fx
-do
-    fullname="${f##*/}"
-    mgfxc $f $1shaders/"${fullname%.*}"
-done
+    dotnet tool install -g dotnet-mgfxc
+
+    for f in ../../GameContent/GameContent/Shaders/*.fx
+    do
+        fullname="${f##*/}"
+        mgfxc $f $1shaders/"${fullname%.*}"
+    done
+fi
+
+
