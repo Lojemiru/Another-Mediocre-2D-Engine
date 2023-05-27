@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Graphics;
@@ -17,13 +18,22 @@ public static class SpriteBatchExtensions
     }
     
     /// <summary>
-    /// Resets the <see cref="BlendState"/> that this <see cref="SpriteBatch"/> is using for rendering.
+    /// Resets this <see cref="SpriteBatch"/>.
     /// WARNING: This results in a batch break! Please use sparingly.
     /// </summary>
     /// <param name="spriteBatch">The <see cref="SpriteBatch"/> to reset.</param>
-    public static void ResetBlendState(this SpriteBatch spriteBatch)
+    public static void ResetState(this SpriteBatch spriteBatch)
     {
         spriteBatch.End();
         spriteBatch.Begin(SpriteSortMode.Deferred, samplerState:SamplerState.PointClamp, transformMatrix:Camera.Transform);
+    }
+
+    public static void SetShader(this SpriteBatch spriteBatch, Effect effect)
+    {
+        var projection = Matrix.CreateOrthographicOffCenter(0, EngineCore._graphics.GraphicsDevice.Viewport.Width, EngineCore._graphics.GraphicsDevice.Viewport.Height, 0, 0, 1);
+        effect.Parameters["view_projection"].SetValue(Camera.Transform * projection);
+        
+        spriteBatch.End();
+        spriteBatch.Begin(SpriteSortMode.Deferred, samplerState:SamplerState.PointClamp, transformMatrix:Camera.Transform, effect:effect);
     }
 }

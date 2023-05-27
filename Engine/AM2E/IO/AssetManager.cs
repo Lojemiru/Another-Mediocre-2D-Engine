@@ -16,4 +16,9 @@ public static class AssetManager
     {
         return "textures/" + index + ".png";
     }
+
+    public static string GetShaderPath(string name)
+    {
+        return "shaders/" + name;
+    }
 }
