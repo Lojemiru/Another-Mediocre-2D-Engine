@@ -31,6 +31,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Console\DeferredCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Animation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EngineCore.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Graphics\EffectExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\ShaderManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Sprite.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\SpriteBatchExtensions.cs" />

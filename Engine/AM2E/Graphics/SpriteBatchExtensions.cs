@@ -30,9 +30,6 @@ public static class SpriteBatchExtensions
 
     public static void SetShader(this SpriteBatch spriteBatch, Effect effect)
     {
-        var projection = Matrix.CreateOrthographicOffCenter(0, EngineCore._graphics.GraphicsDevice.Viewport.Width, EngineCore._graphics.GraphicsDevice.Viewport.Height, 0, 0, 1);
-        //effect.Parameters["view_projection"].SetValue(Camera.Transform * projection);
-
         spriteBatch.End();
         spriteBatch.Begin(SpriteSortMode.Deferred, samplerState:SamplerState.PointClamp, transformMatrix:Camera.Transform, effect:effect);
     }

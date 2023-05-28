@@ -51,6 +51,11 @@ public sealed class Animation
         return Sprite.GetAttachPoint(name, Index)[1];
     }
 
+    public Texture2D GetTexture()
+    {
+        return Sprite.TexturePage.Texture;
+    }
+
     private void WrapIndex(bool runAnimEnd = true)
     {
         var exceeded = _index >= Sprite.Length;
