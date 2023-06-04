@@ -150,16 +150,14 @@ public sealed class Sprite
     public void Draw(SpriteBatch batch, float x, float y, int frame, Rectangle subRectangle, float rotation = 0,
         SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1)
     {
-        // TODO: Cropping is borked :(
-        
         // Constrain frame to safe indices.
         frame = MathHelper.Wrap(frame, 0, Length);
-        
+
         PrepareDraw(x, y, scaleX, scaleY);
 
         // Figure out the bounds of our sub-rectangle.
-        subPos.X = positions[frame].X + subRectangle.X;
-        subPos.Y = positions[frame].Y + subRectangle.Y;
+        subPos.X = positions[frame].X + subRectangle.X - cropOffsets[frame][0];
+        subPos.Y = positions[frame].Y + subRectangle.Y - cropOffsets[frame][1];
         subPos.Width = subRectangle.Width;
         subPos.Height = subRectangle.Height;
 
