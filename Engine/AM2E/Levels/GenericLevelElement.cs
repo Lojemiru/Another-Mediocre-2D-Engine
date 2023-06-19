@@ -42,8 +42,8 @@ public abstract class GenericLevelElement
     protected GenericLevelElement(int x, int y, Layer layer, string id = null)
     {
         Layer = layer;
-        Layer.AddGeneric(this);
-        Level = layer.Level;
+        Layer?.AddGeneric(this);
+        Level = layer?.Level;
         X = x;
         Y = y;
         ID = id ?? Guid.NewGuid().ToString();

@@ -354,16 +354,21 @@ public static class World
             levelsToBeUninstantiated.Add(level);
     }
 
-    public static void Tick()
+    internal static void PreTick()
     {
         inTick = true;
-        
         foreach (var level in ActiveLevels.Values)
             level.PreTick();
-        
+    }
+
+    internal static void Tick()
+    {
         foreach (var level in ActiveLevels.Values)
             level.Tick();
-        
+    }
+
+    internal static void PostTick()
+    {
         foreach (var level in ActiveLevels.Values)
             level.PostTick();
         

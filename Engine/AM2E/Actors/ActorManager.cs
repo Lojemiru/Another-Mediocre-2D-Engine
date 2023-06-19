@@ -15,18 +15,9 @@ namespace AM2E.Actors;
 
 #endregion
 
-public static class ActorManager
+internal static class ActorManager
 {
     internal static readonly Dictionary<string, Actor> PersistentActors = new();
-
-    #region Public Methods
-
-    
-
-    #endregion
-    
-    
-    #region Internal Methods
 
     internal static void UpdateActors()
     {
@@ -34,11 +25,27 @@ public static class ActorManager
         foreach (var actor in PersistentActors.Values)
         {
             if (actor.Layer == null)
+                actor.PreStep();
+        }
+        
+        World.PreTick();
+        
+        foreach (var actor in PersistentActors.Values)
+        {
+            if (actor.Layer == null)
                 actor.Step();
         }
 
         World.Tick();
+        
+        foreach (var actor in PersistentActors.Values)
+        {
+            if (actor.Layer == null)
+                actor.PostStep();
+        }
+        
+        World.PostTick();
     }
     
-    #endregion
+    
 }
