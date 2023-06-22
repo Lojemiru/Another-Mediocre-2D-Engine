@@ -114,7 +114,7 @@ public abstract class PolygonHitbox : Hitbox
         // Check if any of our vertices are contained in the rectangle.
         foreach (var point in points)
         {
-            if (hitbox.ContainsPoint(point.X, point.Y))
+            if (hitbox.ContainsPoint(X + point.X, Y + point.Y))
                 return true;
         }
         
