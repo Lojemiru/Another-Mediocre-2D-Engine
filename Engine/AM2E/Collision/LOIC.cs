@@ -146,6 +146,35 @@ public static class LOIC
         return null;
     }
 
+    public static IEnumerable<T> CheckAllColliders<T>(Collider self) where T : ICollider
+    {
+        var output = new List<T>();
+
+        foreach (ICollider collider in ActorManager.PersistentActors.Values)
+        {
+            if (InternalCheckCollider<T>(collider, self))
+                output.Add((T)collider);
+        }
+
+        foreach (var level in World.ActiveLevels.Values)
+        {
+            foreach (var layer in level.Layers.Values)
+            {
+                foreach (ICollider collider in layer.Colliders)
+                {
+                    if (InternalCheckCollider<T>(collider, self))
+                    {
+                        var col = (T)collider;
+                        if (!output.Contains(col))
+                            output.Add(col);
+                    }
+                }
+            }
+        }
+        
+        return output;
+    }
+
     private static bool InternalCheckCollider<T>(ICollider collider, Collider self) where T : ICollider
     {
         if (collider is not T || collider.Collider == self)

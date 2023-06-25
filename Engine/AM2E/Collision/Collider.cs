@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AM2E.Collision;
 
@@ -281,14 +282,20 @@ public sealed class Collider
 
     public void CheckAndRun<T>() where T : ICollider
     {
-        var col = IntersectsAt<T>(checkX, checkY);
+        var colliders = (List<T>)IntersectsAllAt<T>(checkX, checkY);
+        
+        if (colliders.Length() == 0)
+            return;
 
-        if (col == null) return;
         foreach (var ob in events)
         {
-            if (ob is not Action<T> ev) continue;
-            ev(col);
-            return;
+            if (ob is not Action<T> ev)
+                continue;
+            
+            foreach (var col in colliders)
+            {
+                ev(col);
+            }
         }
     }
         
@@ -300,6 +307,21 @@ public sealed class Collider
         Y = y;
 
         var output = (T)LOIC.CheckCollider<T>(this);
+
+        X = prevX;
+        Y = prevY;
+
+        return output;
+    }
+
+    public IEnumerable<T> IntersectsAllAt<T>(int x, int y) where T : ICollider
+    {
+        var prevX = X;
+        var prevY = Y;
+        X = x;
+        Y = y;
+
+        var output = LOIC.CheckAllColliders<T>(this);
 
         X = prevX;
         Y = prevY;
