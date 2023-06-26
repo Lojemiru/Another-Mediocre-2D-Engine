@@ -50,6 +50,21 @@ public sealed class PreciseHitbox : RectangleHitboxBase
     // Defer to generic check.
     public override bool Intersects(PolygonHitbox hitbox) => IntersectsGeneric(hitbox);
 
+    public override bool IntersectsLine(int x1, int y1, int x2, int y2)
+    {
+        if (!base.IntersectsLine(x1, y1, x2, y2))
+            return false;
+
+        var startX = Math.Clamp(x1 - BoundLeft, 0, Width - 1);
+        var startY = Math.Clamp(y1 - BoundTop, 0, Height - 1);
+        var endX = Math.Clamp(x2 - BoundLeft + 1, 0, Width);
+        var endY = Math.Clamp(y2 - BoundTop + 1, 0, Height);
+        
+        // TODO: Finish this!!!
+
+        return false;
+    }
+
     private bool IntersectsGeneric(Hitbox hitbox)
     {
         if (!IntersectsBounds(hitbox))

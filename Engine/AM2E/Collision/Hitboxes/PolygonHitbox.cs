@@ -176,7 +176,7 @@ public abstract class PolygonHitbox : Hitbox
         return false;
     }
 
-    public bool IntersectsLine(int x1, int y1, int x2, int y2)
+    public override bool IntersectsLine(int x1, int y1, int x2, int y2)
     {
         if (ContainsPoint(x1, y1) || ContainsPoint(x2, y2))
             return true;

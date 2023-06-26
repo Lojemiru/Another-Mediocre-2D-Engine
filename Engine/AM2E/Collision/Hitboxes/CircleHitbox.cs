@@ -34,4 +34,9 @@ public sealed class CircleHitbox : Hitbox
     {
         return MathHelper.PointDistance(X, Y, x, y) <= Radius;
     }
+
+    public override bool IntersectsLine(int x1, int y1, int x2, int y2)
+    {
+        throw new System.NotImplementedException();
+    }
 }

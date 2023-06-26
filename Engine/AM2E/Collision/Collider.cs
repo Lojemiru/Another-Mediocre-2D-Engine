@@ -398,4 +398,15 @@ public sealed class Collider
 
         return false;
     }
+
+    public bool IsIntersectedByLine<T>(int x1, int y1, int x2, int y2) where T : ICollider
+    {
+        foreach (var hitbox in hitboxes)
+        {
+            if (hitbox.IsBoundToInterface<T>() && hitbox.IntersectsLine(x1, y1, x2, y2))
+                return true;
+        }
+        
+        return false;
+    }
 }

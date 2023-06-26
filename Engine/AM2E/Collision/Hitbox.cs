@@ -85,6 +85,7 @@ public abstract class Hitbox
     public abstract bool Intersects(PreciseHitbox hitbox);
     public abstract bool Intersects(PolygonHitbox hitbox);
     public abstract bool ContainsPoint(int x, int y);
+    public abstract bool IntersectsLine(int x1, int y1, int x2, int y2);
     public bool Intersects(Hitbox hitbox)
     {
         return hitbox switch

@@ -107,6 +107,42 @@ public static class LOIC
         return output;
     }
 
+    public static bool CheckLine<T>(int x1, int y1, int x2, int y2) where T : ICollider
+    {
+        return ColliderAtLine<T>(x1, y1, x2, y2) is not null;
+    }
+
+    public static T ColliderAtLine<T>(int x1, int y1, int x2, int y2) where T : ICollider
+    {
+        foreach (ICollider collider in ActorManager.PersistentActors.Values)
+        {
+            if (InternalCheckLine<T>(collider, x1, y1, x2, y2))
+                return (T)collider;
+        }
+        
+        foreach (var level in World.ActiveLevels.Values)
+        {
+            foreach (var layer in level.Layers.Values)
+            {
+                foreach (ICollider collider in layer.Colliders)
+                {
+                    if (InternalCheckLine<T>(collider, x1, y1, x2, y2))
+                        return (T)collider;
+                }
+            }
+        }
+        
+        return default;
+    }
+
+    private static bool InternalCheckLine<T>(ICollider collider, int x1, int y1, int x2, int y2) where T : ICollider
+    {
+        if (collider is not T)
+            return false;
+
+        return collider.Collider.IsIntersectedByLine<T>(x1, y1, x2, y2);
+    }
+
     // Static hitbox to save on instantiation/garbage collector spam.
     private static readonly RectangleHitbox RectCheckHitbox = new RectangleHitbox(0, 0, 1, 1);
     private static bool InternalCheckRectangle<T>(ICollider collider, int x1, int y1, int x2, int y2) where T : ICollider

@@ -52,15 +52,4 @@ public sealed class RectangleHitbox : RectangleHitboxBase
 
     // Defer to whether or not the point is in bounds.
     public override bool ContainsPoint(int x, int y) => ContainsPointInBounds(x, y);
-
-    public bool IntersectsLine(int x1, int y1, int x2, int y2)
-    {
-        // If we contain an endpoint of the line segment, it obviously intersects.
-        if (ContainsPoint(x1, y1) || ContainsPoint(x2, y2))
-            return true;
-
-        // Otherwise, the given line segment MUST intersect one of our diagonals if it is intersecting the rectangle.
-        return MathHelper.DoLinesIntersect(x1, y1, x2, y2, BoundLeft, BoundTop, BoundRight, BoundBottom) ||
-               MathHelper.DoLinesIntersect(x1, y1, x2, y2, BoundLeft, BoundBottom, BoundRight, BoundTop);
-    }
 }
