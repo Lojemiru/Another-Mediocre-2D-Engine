@@ -15,6 +15,7 @@ public sealed class TileChunk : IDrawable, IDisposable
     public readonly int Y;
     public readonly int Width;
     public readonly int Height;
+    private readonly int cellsWide;
 
     private bool queueRebuild = true;
 
@@ -27,6 +28,7 @@ public sealed class TileChunk : IDrawable, IDisposable
         Y = y;
         Width = cellsWide * tileSize;
         Height = cellsWide * tileSize;
+        this.cellsWide = cellsWide;
 
         texture = new RenderTarget2D(EngineCore._graphics.GraphicsDevice, Width, Height);
     }
@@ -49,6 +51,10 @@ public sealed class TileChunk : IDrawable, IDisposable
 
     public Tile GetAtCell(int cellX, int cellY)
     {
+        // Tile is invalid - return null.
+        if (cellX < 0 || cellY < 0 || cellX >= cellsWide || cellY >= cellsWide || Tiles[cellX, cellY] is null)
+            return null;
+        
         return Tiles[cellX, cellY];
     }
 

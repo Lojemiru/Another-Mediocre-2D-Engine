@@ -11,11 +11,15 @@ public sealed class TileManager : IDrawable
     private int tileSize;
     private int worldX;
     private int worldY;
+    private int chunksX;
+    private int chunksY;
     
     public TileManager(Level level, int tileSize = 16, int chunkSize = 8)
     {
         chunkSizePx = (tileSize * chunkSize);
-        chunks = new TileChunk[(level.Width / chunkSizePx) + 1, (level.Height / chunkSizePx) + 1];
+        chunksX = (level.Width / chunkSizePx) + 1;
+        chunksY = (level.Height / chunkSizePx) + 1;
+        chunks = new TileChunk[chunksX, chunksY];
         this.chunkSize = chunkSize;
         this.tileSize = tileSize;
         worldX = level.X;
@@ -37,8 +41,10 @@ public sealed class TileManager : IDrawable
     {
         var chunkX = (x - worldX) / chunkSizePx;
         var chunkY = (y - worldY) / chunkSizePx;
-        
-        // TODO: Need a lot of safety checking here lol
+
+        // Chunk invalid - return null.
+        if (chunkX < 0 || chunkY < 0 || chunkX >= chunksX || chunkY >= chunksY || chunks[chunkX, chunkY] is null)
+            return null;
 
         return chunks[chunkX, chunkY].GetAtPosition(x, y);
     }
