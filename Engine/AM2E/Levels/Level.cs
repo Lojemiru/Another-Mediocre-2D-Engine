@@ -142,4 +142,25 @@ public sealed class Level
             layer.Dispose();
         }
     }
+
+    public static event Action<Level> PreLoadHook = _ => { };
+    
+    internal void PreLoad()
+        => PreLoadHook(this);
+
+    public static event Action<Level> PostLoadHook = _ => { };
+    
+    internal void PostLoad()
+        => PostLoadHook(this);
+    
+    public static event Action<Level> PreUnloadHook = _ => { };
+    
+    internal void PreUnload()
+        => PreUnloadHook(this);
+
+    public static event Action<Level> PostUnloadHook = _ => { };
+    
+    internal void PostUnload()
+        => PostUnloadHook(this);
+    
 }

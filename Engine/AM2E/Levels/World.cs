@@ -141,6 +141,8 @@ public static class World
         
         LoadedLevels.Add(level.Iid, new Level(level));
         
+        LoadedLevels[level.Iid].PreLoad();
+        
         foreach (var ldtkLayer in level.LayerInstances.Reverse())
         {
             // Create layer if it doesn't already exist.
@@ -170,6 +172,8 @@ public static class World
                     throw new ArgumentOutOfRangeException();
             }
         }
+        
+        LoadedLevels[level.Iid].PostLoad();
 
         stagedLevels.TryRemove(id, out _);
         stagedCallbacks[id]?.Invoke();
@@ -204,12 +208,16 @@ public static class World
             QueueLevelForUninstantiation(LoadedLevels[iid]);
             return;
         }
+
+        LoadedLevels[iid].PreUnload();
         
         if (ActiveLevels.ContainsKey(iid))
             ActiveLevels.Remove(iid);
 
         LoadedLevels[iid].Dispose();
         
+        LoadedLevels[iid].PostUnload();
+
         LoadedLevels.Remove(iid);
 
         if (collect)
