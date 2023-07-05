@@ -2,11 +2,10 @@
 
 using System.Collections.Generic;
 using System.IO;
-using AM2E;
 using AM2E.IO;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace DesktopBootstrapper.Graphics;
+namespace AM2E.Graphics;
 
 // TODO: make accesses/loads safe
 

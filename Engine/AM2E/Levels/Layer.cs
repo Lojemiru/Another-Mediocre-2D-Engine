@@ -24,12 +24,18 @@ public sealed class Layer
     public bool Visible = true;
     public readonly Level Level;
 
+    public event Action<Layer> OnPreRender = layer => { };
+
+    public event Action<Layer> OnPostRender = layer => { };
+
+    public Effect Effect { get; set; }
+
     public Layer(string name, Level level)
     {
         Name = name;
         Level = level;
     }
-    
+
     // TODO: Safety for all tile methods
 
     public void AddTile(int x, int y, Tile tile)
@@ -213,18 +219,25 @@ public sealed class Layer
     internal void Draw()
     {
         if (!Visible) return;
+
+        OnPreRender(this);
+
+        spriteBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp,
+            transformMatrix: Camera.Transform, blendState: BlendState.AlphaBlend, effect:Effect);
         
-        spriteBatch.Begin(SpriteSortMode.Deferred, samplerState:SamplerState.PointClamp, transformMatrix:Camera.Transform);
         foreach(var drawable in Drawables)
         {
             drawable.Draw(spriteBatch);
         }
         
+        // TODO: Make this only exist in debug builds?
         Renderer.DebugRender(spriteBatch);
 
         TileManager?.Draw(spriteBatch);
         
         spriteBatch.End();
+
+        OnPostRender(this);
     }
 
     internal void PreTick()

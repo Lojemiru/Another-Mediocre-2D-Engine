@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace DesktopBootstrapper.Graphics;
+namespace AM2E.Graphics;
 
 public static class EffectExtensions
 {
