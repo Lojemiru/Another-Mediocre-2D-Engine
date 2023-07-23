@@ -13,6 +13,10 @@ cp ../../GameContent/Graphics/output/*.* $1textures
 rm -r $1worlds
 cp -r ../../GameContent/Worlds $1worlds
 
+# Remove old audio data, copy in new
+rm -r $1audio
+cp -r ../../GameContent/Audio/Build $1audio
+
 # Build shaders, copy in new
 rm -r $1shaders
 mkdir $1shaders

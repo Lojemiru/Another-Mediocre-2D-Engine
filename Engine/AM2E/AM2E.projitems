@@ -14,6 +14,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\IPlayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\PlayerPool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Alarm.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Audio\Audio.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Audio\EventDescription.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Audio\EventInstance.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Audio\FMOD Includes\fmod.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Audio\FMOD Includes\fmod_dsp.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Audio\FMOD Includes\fmod_errors.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Audio\FMOD Includes\fmod_studio.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\Hitboxes\CircleHitbox.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\Hitboxes\PolygonHitbox.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\Hitboxes\PreciseHitbox.cs" />

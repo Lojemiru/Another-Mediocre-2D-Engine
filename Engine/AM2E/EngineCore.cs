@@ -18,6 +18,8 @@ public sealed class EngineCore : Game
     private static EngineCore staticThis;
     private GameContent.EntryPoint entryPoint;
 
+    public const bool DEBUG = true;
+
     public EngineCore()
     {
         staticThis = this;
@@ -47,6 +49,7 @@ public sealed class EngineCore : Game
     protected override void Initialize()
     {
         Renderer.Initialize(_graphics);
+        Audio.Init();
 
         // Run GameContent's EntryPoint.
         entryPoint = new GameContent.EntryPoint();
@@ -102,6 +105,8 @@ public sealed class EngineCore : Game
             FixedUpdate();
             updateAccumulator -= oneSixtieth;
         }
+        
+        Audio.Update();
 
         base.Update(gameTime);
     }

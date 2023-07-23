@@ -26,6 +26,56 @@
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="libfmod.so" />
+    <Content Include="libfmod.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="libfmod.so.13" />
+    <Content Include="libfmod.so.13">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="libfmod.so.13.16" />
+    <Content Include="libfmod.so.13.16">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="libfmodL.so" />
+    <Content Include="libfmodL.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="libfmodL.so.13" />
+    <Content Include="libfmodL.so.13">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="libfmodL.so.13.16" />
+    <Content Include="libfmodL.so.13.16">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="libfmodstudio.so" />
+    <Content Include="libfmodstudio.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="libfmodstudio.so.13" />
+    <Content Include="libfmodstudio.so.13">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="libfmodstudio.so.13.16" />
+    <Content Include="libfmodstudio.so.13.16">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="libfmodstudioL.so" />
+    <Content Include="libfmodstudioL.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="libfmodstudioL.so.13" />
+    <Content Include="libfmodstudioL.so.13">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Remove="libfmodstudioL.so.13.16" />
+    <Content Include="libfmodstudioL.so.13.16">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Target Name="RestoreDotnetTools" BeforeTargets="Restore">
     <Message Text="Restoring dotnet tools" Importance="High" />
     <Exec Command="dotnet tool restore" />
