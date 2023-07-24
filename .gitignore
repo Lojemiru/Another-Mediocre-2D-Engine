@@ -400,6 +400,7 @@ FodyWeavers.xsd
 # YES I KNOW THESE ARE CURSED
 
 Engine/DesktopBootstrapper/libfmod*
+Engine/DesktopBootstrapper/fmod*
 
 # Ignore built texturepages:
 Sprites and Metadata/output/*
