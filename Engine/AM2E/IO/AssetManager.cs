@@ -22,7 +22,6 @@ public static class AssetManager
         return "shaders/" + name;
     }
 
-
     public static string GetAudioPath()
     {
         // TODO: switching for Android necessary???
