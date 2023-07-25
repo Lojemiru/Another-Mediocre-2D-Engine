@@ -9,7 +9,9 @@ public static class Renderer
 {
     public static GraphicsDeviceManager GraphicsDeviceManager { get; private set; }
     public static Rectangle ApplicationSpace = new Rectangle(0, 0, 426, 240);
+    private static Rectangle guiSpace = new();
     private static SpriteBatch applicationBatch;
+    private static SpriteBatch guiBatch;
     public static int GameWidth;
     public static int GameHeight;
 
@@ -21,9 +23,12 @@ public static class Renderer
     // TODO: Pull from engine config instead :)
     // TODO: Figure out accessor proper
     public static RenderTarget2D ApplicationSurface;
+    private static RenderTarget2D guiSurface;
 
     public static event Action<SpriteBatch> OnDebugRender = (SpriteBatch spriteBatch) => { };
 
+    public static event Action<SpriteBatch> OnGUIRender = (_) => { };
+    
     public static void DebugRender(SpriteBatch spriteBatch)
     {
         OnDebugRender(spriteBatch);
@@ -35,13 +40,18 @@ public static class Renderer
         // TODO: Pull size values from config :)
         SetGameResolution(1920, 1080);
         applicationBatch = new SpriteBatch(graphicsDeviceManager.GraphicsDevice);
+        guiBatch = new SpriteBatch(graphicsDeviceManager.GraphicsDevice);
     }
 
     public static void SetGameResolution(int width, int height)
     {
         GameWidth = width;
         GameHeight = height;
-        ApplicationSurface = new RenderTarget2D(GraphicsDeviceManager.GraphicsDevice, width * UpscaleAmount, height * UpscaleAmount, false, SurfaceFormat.Color, DepthFormat.None, 8, RenderTargetUsage.DiscardContents);
+        ApplicationSurface = new RenderTarget2D(GraphicsDeviceManager.GraphicsDevice, width * UpscaleAmount,
+            height * UpscaleAmount, false, SurfaceFormat.Color, DepthFormat.None, 8, RenderTargetUsage.DiscardContents);
+        
+        guiSurface = new RenderTarget2D(GraphicsDeviceManager.GraphicsDevice, width, height);
+
         Camera.UpdateTransform();
     }
 
@@ -74,8 +84,13 @@ public static class Renderer
             var barWidth = (window.ClientBounds.Width - presentWidth) / 2;
             ApplicationSpace = new Rectangle(barWidth, 0, presentWidth, window.ClientBounds.Height);
         }
-    }
         
+        guiSpace.X = ApplicationSpace.X;
+        guiSpace.Y = ApplicationSpace.Y;
+        guiSpace.Width = ApplicationSpace.Width;
+        guiSpace.Height = ApplicationSpace.Height;
+    }
+
     public static void Render()
     {
         // Target and clear application surface.
@@ -84,14 +99,24 @@ public static class Renderer
             
         // Draw each layer.
         World.RenderLevels();
+        
+        // Target and clear GUI surface.
+        GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(guiSurface);
+        GraphicsDeviceManager.GraphicsDevice.Clear(Color.Transparent);
 
+        // Render GUI surface.
+        guiBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp);
+        OnGUIRender(guiBatch);
+        guiBatch.End();
+        
         // Reset render target, clear backbuffer.
         GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(null);
         GraphicsDeviceManager.GraphicsDevice.Clear(Color.Black);
-            
-        // Render application surface into drawable application space.
-        applicationBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.PointClamp);
+
+        // Render application and GUI surfaces into drawable application space.
+        applicationBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp);
         applicationBatch.Draw(ApplicationSurface, ApplicationSpace, Color.White);
+        applicationBatch.Draw(guiSurface, guiSpace, Color.White);
         applicationBatch.End();
     }
 
