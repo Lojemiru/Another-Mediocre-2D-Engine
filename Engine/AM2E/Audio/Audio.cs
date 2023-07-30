@@ -11,6 +11,7 @@ using AM2E.IO;
 
 #endregion
 
+// TODO: Level-based playback system
 
 namespace AM2E;
 
@@ -67,8 +68,12 @@ public static class Audio
 
                 // Load all the banks
                 var bankArray = Directory.GetFiles(AssetManager.GetAudioPath());
-                foreach (var file in bankArray) 
+                foreach (var file in bankArray)
                 {
+                    // Skip if we're about to reload the strings bank.
+                    if (file.Contains("Master.strings.bank"))
+                        continue;
+                    
                     LoadBank(file);
                 }
             }

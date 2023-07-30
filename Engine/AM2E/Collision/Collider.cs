@@ -240,6 +240,9 @@ public sealed class Collider
         inMovement = false;
     }
 
+    // TODO: Should we provide the ability to stop all further processing of a specific collision event?
+    // These don't stop processing of multiple of the same interface that were hit at once...
+    
     public void StopX()
     {
         if (!inMovement)
