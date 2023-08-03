@@ -2,6 +2,7 @@
 using AM2E.Graphics;
 using System;
 using GameContent;
+using Microsoft.Xna.Framework;
 
 namespace AM2E;
 
@@ -78,8 +79,8 @@ public sealed class Animation
         WrapIndex(false);
     }
 
-    public void Draw(SpriteBatch spriteBatch, float x, float y, float rotation = 0, SpriteEffects effects = SpriteEffects.None, float alpha = 1)
+    public void Draw(SpriteBatch spriteBatch, float x, float y, float rotation = 0, SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1, Color color = default)
     {
-        Sprite.Draw(spriteBatch, x, y, Index, rotation, effects, alpha);
+        Sprite.Draw(spriteBatch, x, y, Index, rotation, effects, alpha, scaleX, scaleY, color);
     }
 }

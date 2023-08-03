@@ -109,7 +109,7 @@ public sealed class Sprite
     /// <param name="effects">The <see cref="SpriteEffects"/> that should be applied during drawing.</param>
     /// <param name="alpha">The alpha value that should be applied during drawing; ranges from 0 to 1 inclusive.</param>
     public void Draw(SpriteBatch batch, float x, float y, int frame, float rotation = 0,
-        SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1)
+        SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1, Color color = default)
     {
         // Constrain frame to safe indices.
         frame = MathHelper.Wrap(frame, 0, Length);
@@ -129,8 +129,14 @@ public sealed class Sprite
         origin.Y = ((effects & SpriteEffects.FlipVertically) == SpriteEffects.FlipVertically)
             ? (currentFrame.Height - 1 - originY) : originY;
 
+        scale.X = scaleX;
+        scale.Y = scaleY;
+
+        if (color == default)
+            color = Color.White;
+        
         // Finally, draw!
-        batch.Draw(TexturePage.Texture, drawPos, currentFrame, Color.White * alpha,
+        batch.Draw(TexturePage.Texture, drawPos, currentFrame, color * alpha,
             Microsoft.Xna.Framework.MathHelper.ToRadians(rotation), origin, scale, effects, 0);
     }
 
@@ -148,7 +154,7 @@ public sealed class Sprite
     /// <param name="effects">The <see cref="SpriteEffects"/> that should be applied during drawing.</param>
     /// <param name="alpha">The alpha value that should be applied during drawing; ranges from 0 to 1 inclusive.</param>
     public void Draw(SpriteBatch batch, float x, float y, int frame, Rectangle subRectangle, float rotation = 0,
-        SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1)
+        SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1, Color color = default)
     {
         // Constrain frame to safe indices.
         frame = MathHelper.Wrap(frame, 0, Length);
@@ -160,9 +166,15 @@ public sealed class Sprite
         subPos.Y = positions[frame].Y + subRectangle.Y - cropOffsets[frame][1];
         subPos.Width = subRectangle.Width;
         subPos.Height = subRectangle.Height;
+        
+        scale.X = scaleX;
+        scale.Y = scaleY;
+        
+        if (color == default)
+            color = Color.White;
 
         // Draw!
-        batch.Draw(TexturePage.Texture, drawPos, subPos, Color.White * alpha,
+        batch.Draw(TexturePage.Texture, drawPos, subPos, color * alpha,
             Microsoft.Xna.Framework.MathHelper.ToRadians(rotation), Vector2.Zero, scale, effects, 0);
     }
     
