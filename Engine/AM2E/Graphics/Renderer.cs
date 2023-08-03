@@ -25,7 +25,7 @@ public static class Renderer
     public static RenderTarget2D ApplicationSurface;
     private static RenderTarget2D guiSurface;
 
-    public static event Action<SpriteBatch> OnDebugRender = (SpriteBatch spriteBatch) => { };
+    public static event Action<SpriteBatch> OnDebugRender = _ => { };
 
     public static event Action<SpriteBatch> OnGUIRender = (_) => { };
     

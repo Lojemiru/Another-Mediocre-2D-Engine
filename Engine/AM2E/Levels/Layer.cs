@@ -228,8 +228,8 @@ public sealed class Layer
             drawable.Draw(spriteBatch);
         }
         
-        // TODO: Make this only exist in debug builds?
-        Renderer.DebugRender(spriteBatch);
+        if (EngineCore.DEBUG)
+            Renderer.DebugRender(spriteBatch);
 
         TileManager?.Draw(spriteBatch);
         

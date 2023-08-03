@@ -2,8 +2,6 @@
 
 # arg1 is the build path, with a trailing slash.
 
-# TODO: Run texturepage regeneration routine?
-
 # Remove old texturepages and metadata, copy in new ones
 rm -r $1textures
 mkdir $1textures
