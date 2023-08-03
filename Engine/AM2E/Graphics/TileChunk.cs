@@ -4,12 +4,14 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Graphics;
 
-public sealed class TileChunk : IDrawable, IDisposable
+// Since this class is internal, we do no safety checks on positional queries as we've already done that in the TileManager.
+
+internal sealed class TileChunk : IDrawable, IDisposable
 {
-    private Tile[,] Tiles;
-    private RenderTarget2D texture;
-    private SpriteBatch spriteBatch = new(EngineCore._graphics.GraphicsDevice);
-    private Rectangle renderBounds;
+    private readonly Tile[,] Tiles;
+    private readonly RenderTarget2D texture;
+    private readonly SpriteBatch spriteBatch = new(EngineCore._graphics.GraphicsDevice);
+    private readonly Rectangle renderBounds;
     public readonly int TileSize;
     public readonly int X;
     public readonly int Y;
@@ -19,7 +21,7 @@ public sealed class TileChunk : IDrawable, IDisposable
 
     private bool queueRebuild = true;
 
-    public TileChunk(int x, int y, int cellsWide, int tileSize = 16)
+    internal TileChunk(int x, int y, int cellsWide, int tileSize = 16)
     {
         Tiles = new Tile[cellsWide, cellsWide];
         renderBounds = new Rectangle(x, y, cellsWide * tileSize, cellsWide * tileSize);
@@ -33,32 +35,28 @@ public sealed class TileChunk : IDrawable, IDisposable
         texture = new RenderTarget2D(EngineCore._graphics.GraphicsDevice, Width, Height);
     }
 
-    public void SetAtPosition(int x, int y, Tile tile)
+    internal void SetAtPosition(int x, int y, Tile tile)
     {
         SetAtCell((x - X) / TileSize, (y - Y) / TileSize, tile);
     }
 
-    public void SetAtCell(int cellX, int cellY, Tile tile)
+    internal void SetAtCell(int cellX, int cellY, Tile tile)
     {
         Tiles[cellX, cellY] = tile;
         queueRebuild = true;
     }
 
-    public Tile GetAtPosition(int x, int y)
+    internal Tile GetAtPosition(int x, int y)
     {
         return GetAtCell((x - X) / TileSize, (y - Y) / TileSize);
     }
 
-    public Tile GetAtCell(int cellX, int cellY)
+    internal Tile GetAtCell(int cellX, int cellY)
     {
-        // Tile is invalid - return null.
-        if (cellX < 0 || cellY < 0 || cellX >= cellsWide || cellY >= cellsWide || Tiles[cellX, cellY] is null)
-            return null;
-        
         return Tiles[cellX, cellY];
     }
 
-    public void Step()
+    internal void Step()
     {
         if (queueRebuild)
             Rebuild();
@@ -66,7 +64,7 @@ public sealed class TileChunk : IDrawable, IDisposable
         queueRebuild = false;
     }
 
-    public void Rebuild()
+    private void Rebuild()
     {
         Renderer.SetRenderTarget(texture);
         EngineCore._graphics.GraphicsDevice.Clear(Color.Transparent);

@@ -36,8 +36,6 @@ public sealed class Layer
         Level = level;
     }
 
-    // TODO: Safety for all tile methods
-
     public void AddTile(int x, int y, Tile tile)
     {
         TileManager ??= new TileManager(Level, tile.Size);

@@ -54,8 +54,6 @@ public sealed class EngineCore : Game
         // Run GameContent's EntryPoint.
         entryPoint = new GameContent.EntryPoint();
 
-        // TODO: Proper initialization logic.
-        
         base.Initialize();
     }
 

@@ -1,7 +1,10 @@
+using System;
 using AM2E.Levels;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Graphics;
+
+// TODO: Need some way of configuring tilesize and chunksize on engine config
 
 public sealed class TileManager : IDrawable
 {
@@ -31,6 +34,10 @@ public sealed class TileManager : IDrawable
         var chunkX = (x - worldX) / chunkSizePx;
         var chunkY = (y - worldY) / chunkSizePx;
 
+        // Silently fail if we're trying to place a tile outside of the level bounds.
+        if (chunkX < 0 || chunkY < 0 || chunkX >= chunksX || chunkY >= chunksY)
+            return;
+
         chunks[chunkX, chunkY] ??= new TileChunk(worldX + (chunkX * chunkSizePx), 
             worldY + (chunkY * chunkSizePx), chunkSize, tileSize);
 
@@ -54,7 +61,9 @@ public sealed class TileManager : IDrawable
         var chunkX = (x - worldX) / chunkSizePx;
         var chunkY = (y - worldY) / chunkSizePx;
         
-        // TODO: safety checks
+        // Silently fail if we're trying to delete a tile outside of the level bounds.
+        if (chunkX < 0 || chunkY < 0 || chunkX >= chunksX || chunkY >= chunksY || chunks[chunkX, chunkY] is null)
+            return;
         
         chunks[chunkX, chunkY].SetAtPosition(x, y, null);
     }
@@ -64,7 +73,6 @@ public sealed class TileManager : IDrawable
         for (var i = 0; i < numX; i++)
             for (var j = 0; j < numY; j++)
                 DeleteTile(x + (i * tileSize), y + (j * tileSize));
-        
     }
 
     public void Step()
