@@ -64,17 +64,12 @@ public static class PlayerPool
             return GetFirst();
 
         var closest = Players[0];
-        var closestX = Math.Abs(closest.X - x);
-        var closestY = Math.Abs(closest.Y - y);
+        var closestDistance = MathHelper.PointDistance(x, y, closest.X, closest.Y);
 
         for (var i = 1; i < Players.Length(); i++)
         {
-            if (Math.Abs(Players[i].X - x) >= closestX || Math.Abs(Players[i].Y - y) >= closestY)
-                continue;
-            
-            closest = Players[i];
-            closestX = Math.Abs(closest.X - x);
-            closestY = Math.Abs(closest.Y - y);
+            if (MathHelper.PointDistance(x, y, Players[i].X, Players[i].Y) < closestDistance)
+                closest = Players[i];
         }
 
         return closest;
@@ -93,30 +88,34 @@ public static class PlayerPool
             return null;
         
         IPlayer closest = null;
+        var distance = 0f;
         
         foreach (var player in Players)
         {
-            switch (side)
+            // Figure out if the player matches our side.
+            var sideMatched = side switch
             {
-                case Side.Right:
-                    if (player.X >= x && (closest == null || closest.X > player.X))
-                        closest = player;
-                    break;
-                case Side.Down:
-                    if (player.Y >= y && (closest == null || closest.Y > player.Y))
-                        closest = player;
-                    break;
-                case Side.Left:
-                    if (player.X <= x && (closest == null || closest.X < player.X))
-                        closest = player;
-                    break;
-                case Side.Up:
-                    if (player.Y <= y && (closest == null || closest.Y < player.Y))
-                        closest = player;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(side), side, null);
-            }
+                Side.Right => player.X >= x,
+                Side.Down => player.Y >= y,
+                Side.Left => player.X <= x,
+                Side.Up => player.Y <= y,
+                _ => throw new ArgumentOutOfRangeException(nameof(side), side, null)
+            };
+
+            // Skip if player's not on our desired side.
+            if (!sideMatched)
+                continue;
+            
+            // Get distance to player.
+            var currentDistance = MathHelper.PointDistance(x, y, player.X, player.Y);
+            
+            // If we have a player targeted and they're closer or equal, skip.
+            if (closest != null && distance <= currentDistance) 
+                continue;
+            
+            // Update player and distance.
+            closest = player;
+            distance = currentDistance;
         }
         
         return closest;
