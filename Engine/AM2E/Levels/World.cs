@@ -54,18 +54,6 @@ public static class World
         foreach (var tileset in world.Defs.Tilesets)
         {
             LDtkTilesets.Add(tileset.Uid, tileset);
-            /*
-            // TODO: Throw nicer error message here when RelPath is invalid... and when this doesn't match an enum... etc.
-            // TODO: This is going to just load every page with a tileset. Permanently. Make this a per-level thing instead!!!
-            var entries = tileset.RelPath.Split('/');
-            Enum.TryParse(entries[^2], out PageIndex pageIndex);
-            Enum.TryParse(tileset.Identifier, out SpriteIndex spriteIndex);
-            TextureManager.LoadPage(pageIndex, _ =>
-            {
-                var sprite = TextureManager.GetPage(pageIndex).Sprites[spriteIndex];
-                Tilesets.Add(tileset.Uid, new Tileset(sprite, tileset));
-            });
-            */
         }
         
         currentPath = new FileInfo(path).Directory.FullName + "/";
@@ -79,16 +67,18 @@ public static class World
 
     private static void PopulateTiles(LDtkLevelInstance level, LDtkLayerInstance ldtkLayer)
     {
-        // TODO: This nullable is probably a bad default lol
-        var key = ldtkLayer.TilesetDefUid ?? 0;
+        var key = ldtkLayer.TilesetDefUid;
+        
+        if (key is null)
+            throw new NullReferenceException(nameof(ldtkLayer.TilesetDefUid) + " is somehow null. This indicates a broken LDtk file.");
 
-        if (Tilesets.ContainsKey(key))
+        if (Tilesets.ContainsKey((int)key))
         {
             PlaceTiles(level, ldtkLayer);
             return;
         }
         
-        var tileset = LDtkTilesets[key];
+        var tileset = LDtkTilesets[(int)key];
         var entries = tileset.RelPath.Split('/');
         Enum.TryParse(entries[^2], out PageIndex pageIndex);
         Enum.TryParse(tileset.Identifier, out SpriteIndex spriteIndex);
@@ -101,11 +91,13 @@ public static class World
 
     private static void PlaceTiles(LDtkLevelInstance level, LDtkLayerInstance ldtkLayer)
     {
-        // TODO: This nullable is probably a bad default lol
-        var key = ldtkLayer.TilesetDefUid ?? 0;
+        var key = ldtkLayer.TilesetDefUid;
+
+        if (key is null)
+            throw new NullReferenceException(nameof(ldtkLayer.TilesetDefUid) + " is somehow null. This indicates a broken LDtk file.");
         
         foreach (var tile in ldtkLayer.GridTiles)
-            LoadedLevels[level.Iid].Add(ldtkLayer.Identifier, new Tile(tile, Tilesets[key]), level.WorldX + tile.Px[0], level.WorldY + tile.Px[1]);
+            LoadedLevels[level.Iid].Add(ldtkLayer.Identifier, new Tile(tile, Tilesets[(int)key]), level.WorldX + tile.Px[0], level.WorldY + tile.Px[1]);
     }
 
     private static void LoadLevelFromFile(LDtkLightweightLevelInstance level)
@@ -286,8 +278,7 @@ public static class World
             return;
         }
     }
-
-    // TODO: Review hierarchy of overloads here.
+    
     public static void DeactivateLevel(string iid)
     {
         if (!ActiveLevels.ContainsKey(iid))
