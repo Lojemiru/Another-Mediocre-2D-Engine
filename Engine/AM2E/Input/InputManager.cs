@@ -184,6 +184,7 @@ public static class InputManager
 
     public static int GetHeldSteps(Input input)
     {
+        // TODO: this is probably bad practice and not net-supported, nuke it
         return KeyboardListeners[input].InputHeldSteps | MouseListeners[input].InputHeldSteps | GamePadListeners[input].InputHeldSteps;
     }
 
