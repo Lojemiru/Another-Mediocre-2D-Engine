@@ -10,6 +10,7 @@ namespace AM2E;
 
 public sealed class EngineCore : Game
 {
+    private Action entryPointCallback;
     public static readonly string Version = "ALPHA";
     public static GraphicsDeviceManager _graphics;
     private double updateAccumulator = 0d;
@@ -17,7 +18,6 @@ public sealed class EngineCore : Game
     private const double MAX_ACCUMULATOR_VALUE = 8.0 / 60.0;
     private bool resetDeltaTime = false;
     private static EngineCore staticThis;
-    private GameContent.EntryPoint entryPoint;
     internal static Server Server;
     internal static Client Client;
     public static bool isNetworked = false;
@@ -26,8 +26,9 @@ public sealed class EngineCore : Game
 
     public const bool DEBUG = true;
 
-    public EngineCore()
+    public EngineCore(Action entryPointCallback)
     {
+        this.entryPointCallback = entryPointCallback;
         staticThis = this;
         
         SetTitle("Another Mediocre 2D Engine");
@@ -57,8 +58,8 @@ public sealed class EngineCore : Game
         Renderer.Initialize(_graphics);
         Audio.Init();
 
-        // Run GameContent's EntryPoint.
-        entryPoint = new GameContent.EntryPoint();
+        // Run supplied entrypoint callback.
+        entryPointCallback();
 
         base.Initialize();
     }
