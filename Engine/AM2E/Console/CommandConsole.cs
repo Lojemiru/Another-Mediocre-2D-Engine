@@ -81,7 +81,7 @@ public static class CommandConsole
 
     private static void ParseCommand(string command)
     {
-        if (command.Length < 1)
+        if (command == null || command.Length < 1)
             return;
 
         var split = command.Split(" ");

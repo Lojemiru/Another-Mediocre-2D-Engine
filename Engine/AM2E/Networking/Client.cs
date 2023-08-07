@@ -197,7 +197,6 @@ public class Client
 
     private void StateSnapshotReceive(int snapshotTick, BitPackedData data)
     {
-        Console.WriteLine("He");
         /*
          * Packet Structure
          * 8 bit Reliable message count
@@ -215,23 +214,6 @@ public class Client
             readAverages = true;
         }
         
-        if (readAverages)
-        {
-            var avg = CalculateDelayAverage();
-            
-            if (avg > desiredDelay)
-            {
-                EngineCore.FrameRate = 57;
-            }
-            else if (avg < desiredDelay)
-            {
-                EngineCore.FrameRate = 63;
-            }
-            else
-            {
-                EngineCore.FrameRate = 60;
-            }
-        }
         
         var reliableMessageCount = data.ReadBits(8);
         
@@ -293,7 +275,7 @@ public class Client
         while (NetworkGeneral.SeqDiff(tick, rollForwardTick) != 0)
         {
             UpdateControllers(rollForwardTick);
-            EngineCore.FixedUpdate();
+            //EngineCore.FixedUpdate();
             rollForwardTick = (rollForwardTick + 1) % NetworkGeneral.MaxGameSequence;
         }
     }

@@ -19,7 +19,6 @@ public class Server
     private readonly BitPackedData bitPacker = new BitPackedData();
     private readonly List<NetReliableData> queuedReliableMessages = new();
     private Level level;
-    private readonly Dictionary<int, Player> objectPlayers = new();
     public Server()
     {
         manager = new NetManager(listener);
@@ -49,8 +48,7 @@ public class Server
     {
         players.Remove(peer.Id);
         unjoined.Remove(peer.Id);
-        objectPlayers[peer.Id].Dispose();
-        objectPlayers.Remove(peer.Id);
+
         peer.Tag = null;
         Console.WriteLine("Disconnected");
     }
@@ -82,10 +80,8 @@ public class Server
             players.Add(peer.Id, peer);
             // Make Player Object, this doesn't need to be in server
             level = World.GetLevelByName("Level_0");
-            var player = new Player(50, 50, level.GetLayer("Players"), null, peer.Id);
             Console.WriteLine("ID:");
             Console.WriteLine(peer.Id);
-            objectPlayers.Add(peer.Id, player);
             // Send all previous reliable messages to new player
             foreach (var reliableData in queuedReliableMessages)
             {

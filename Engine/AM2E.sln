@@ -30,5 +30,6 @@ Global
 		..\GameContent\GameContent\GameContent.projitems*{9bd371db-7a12-41ac-9542-b06a6fe48024}*SharedItemsImports = 13
 		AM2E\AM2E.projitems*{a0cdbd0e-3a41-42b7-9425-a838bc2c7383}*SharedItemsImports = 13
 		AM2E\AM2E.projitems*{d7a09176-8b18-4ee6-8e37-2dad76ddd14d}*SharedItemsImports = 5
+		..\GameContent\GameContent\GameContent.projitems*{d7a09176-8b18-4ee6-8e37-2dad76ddd14d}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal
