@@ -1,29 +1,28 @@
-using System;
 using AM2E.Levels;
+using GameContent.EngineConfig;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Graphics;
 
-// TODO: Need some way of configuring tilesize and chunksize on engine config
-
 public sealed class TileManager : IDrawable
 {
-    private TileChunk[,] chunks;
-    private int chunkSizePx;
-    private int chunkSize;
-    private int tileSize;
-    private int worldX;
-    private int worldY;
-    private int chunksX;
-    private int chunksY;
+    private readonly TileChunk[,] chunks;
+    private readonly int chunkSizePx;
+    private readonly int chunkSize;
+    private readonly int tileSize;
+    private readonly int worldX;
+    private readonly int worldY;
+    private readonly int chunksX;
+    private readonly int chunksY;
     
-    public TileManager(Level level, int tileSize = 16, int chunkSize = 8)
+    public TileManager(Level level, int tileSize = 16)
     {
+        chunkSize = EngineConfig.TILE_CHUNK_SIZE;
+        
         chunkSizePx = (tileSize * chunkSize);
         chunksX = (level.Width / chunkSizePx) + 1;
         chunksY = (level.Height / chunkSizePx) + 1;
         chunks = new TileChunk[chunksX, chunksY];
-        this.chunkSize = chunkSize;
         this.tileSize = tileSize;
         worldX = level.X;
         worldY = level.Y;
