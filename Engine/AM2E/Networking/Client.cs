@@ -27,18 +27,12 @@ public class Client
     private int inputdelay = 0;
     private readonly BitPackedData[] stateBuffer = new BitPackedData[NetworkGeneral.MaxGameSequence];
 
-    public Client()
+    public Client(string IP, int port)
     {
         level = World.GetLevelByName("Level_0");
         manager = new NetManager(listener);
         manager.Start();
         manager.Connect("localhost", 64198, "");
-        
-        manager.SimulateLatency = true;
-        manager.SimulationMaxLatency = 60;
-        manager.SimulationMinLatency = 30;
-        manager.SimulatePacketLoss = true;
-        manager.SimulationPacketLossChance = 10;
         
         listener.NetworkReceiveEvent += ListenerNetworkReceiveEvent;
         listener.PeerConnectedEvent += ListenerPeerConnectedEvent;

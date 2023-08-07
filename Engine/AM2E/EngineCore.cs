@@ -4,6 +4,7 @@ using AM2E.Actors;
 using AM2E.Control;
 using System;
 using AM2E.Graphics;
+using AM2E.Networking;
 
 namespace AM2E;
 
@@ -17,6 +18,11 @@ public sealed class EngineCore : Game
     private bool resetDeltaTime = false;
     private static EngineCore staticThis;
     private GameContent.EntryPoint entryPoint;
+    internal static Server Server;
+    internal static Client Client;
+    public static bool isNetworked = false;
+    public static bool isServer;
+
 
     public const bool DEBUG = true;
 
@@ -100,6 +106,7 @@ public sealed class EngineCore : Game
 
         while (updateAccumulator >= oneSixtieth)
         {
+            NetworkUpdate();
             FixedUpdate();
             updateAccumulator -= oneSixtieth;
         }
@@ -108,13 +115,27 @@ public sealed class EngineCore : Game
 
         base.Update(gameTime);
     }
-
     private static void FixedUpdate()
     {
         InputManager.Update();
         ActorManager.UpdateActors();
         
         CommandConsole.ExecuteDeferredCommand();
+    }
+
+    private static void NetworkUpdate()
+    {
+        if (!isNetworked)
+            return;
+        
+        if (isServer)
+        {
+            Server.Update();
+        }
+        else
+        {
+            Client.Update();
+        }
     }
 
     protected override void Draw(GameTime gameTime)
@@ -136,4 +157,19 @@ public sealed class EngineCore : Game
     {
         staticThis.Window.Title = title;
     }
+
+    public static void StartServer(int port)
+    {
+        Server = new Server(port);
+        isNetworked = true;
+        isServer = true;
+    }
+
+    public static void StartClient(string ip, int port)
+    {
+        Client = new Client(ip, port);
+        isNetworked = true;
+        isServer = false;
+    }
 }
+

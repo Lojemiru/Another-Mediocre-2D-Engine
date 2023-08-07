@@ -19,10 +19,10 @@ public class Server
     private readonly BitPackedData bitPacker = new BitPackedData();
     private readonly List<NetReliableData> queuedReliableMessages = new();
     private Level level;
-    public Server()
+    public Server(int port)
     {
         manager = new NetManager(listener);
-        manager.Start(64198);
+        manager.Start(port);
         
         Console.WriteLine("Server Initialised");
 
@@ -78,10 +78,6 @@ public class Server
             // Relevant Code
             unjoined.Remove(peer.Id);
             players.Add(peer.Id, peer);
-            // Make Player Object, this doesn't need to be in server
-            level = World.GetLevelByName("Level_0");
-            Console.WriteLine("ID:");
-            Console.WriteLine(peer.Id);
             // Send all previous reliable messages to new player
             foreach (var reliableData in queuedReliableMessages)
             {
@@ -134,13 +130,13 @@ public class Server
         }
     }
 
-    public void Update()
+    internal void Update()
     {
         tick = (tick + 1) % NetworkGeneral.MaxGameSequence;
         manager.PollEvents();
         UpdateControllers();
         // Send State Packet.
-        SendJoin();
+        //SendJoin();
         SendState();
     }
 
