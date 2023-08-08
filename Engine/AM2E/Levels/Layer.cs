@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using AM2E.Actors;
 using AM2E.Graphics;
+using AM2E.Networking;
 
 namespace AM2E.Levels;
 
@@ -238,28 +239,37 @@ public sealed class Layer
         OnPostRender(this);
     }
 
-    internal void PreTick()
+    internal void PreTick(bool isFastForward)
     {
         inTick = true;
         
         foreach (var actor in Actors)
         {
+            if (isFastForward && actor is not INetSynced)
+                continue;
+
             actor.PreStep();
         }
     }
 
-    internal void Tick()
+    internal void Tick(bool isFastForward)
     {
         foreach (var actor in Actors)
         {
+            if (isFastForward && actor is not INetSynced)
+                continue;
+
             actor.Step();
         }
     }
 
-    internal void PostTick()
+    internal void PostTick(bool isFastForward)
     {
         foreach (var actor in Actors)
         {
+            if (isFastForward && actor is not INetSynced)
+                continue;
+
             actor.PostStep();
         }
         

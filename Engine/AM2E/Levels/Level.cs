@@ -91,27 +91,27 @@ public sealed class Level
         }
     }
 
-    internal void PreTick()
+    internal void PreTick(bool isFastForward)
     {
         foreach (var layer in Layers.Values)
         {
-            layer.PreTick();
+            layer.PreTick(isFastForward);
         }
     }
     
-    internal void Tick()
+    internal void Tick(bool isFastForward)
     {
         foreach (var layer in Layers.Values)
         {
-            layer.Tick();
+            layer.Tick(isFastForward);
         }
     }
 
-    internal void PostTick()
+    internal void PostTick(bool isFastForward)
     {
         foreach (var layer in Layers.Values)
         {
-            layer.PostTick();
+            layer.PostTick(isFastForward);
         }
     }
 

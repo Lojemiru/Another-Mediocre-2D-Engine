@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AM2E.Levels;
+using AM2E.Networking;
 
 namespace AM2E.Actors;
 
@@ -19,32 +20,41 @@ internal static class ActorManager
 {
     internal static readonly Dictionary<string, Actor> PersistentActors = new();
 
-    internal static void UpdateActors()
+    internal static void UpdateActors(bool isFastForward)
     {
         // Step persistent actors with no layer first, then everything else by layer.
         foreach (var actor in PersistentActors.Values)
         {
+            if (isFastForward && actor is not INetSynced)
+                continue;
+
             if (actor.Layer == null)
                 actor.PreStep();
         }
         
-        World.PreTick();
+        World.PreTick(isFastForward);
         
         foreach (var actor in PersistentActors.Values)
         {
+            if (isFastForward && actor is not INetSynced)
+                continue;
+
             if (actor.Layer == null)
                 actor.Step();
         }
 
-        World.Tick();
+        World.Tick(isFastForward);
         
         foreach (var actor in PersistentActors.Values)
         {
+            if (isFastForward && actor is not INetSynced)
+                continue;
+
             if (actor.Layer == null)
                 actor.PostStep();
         }
         
-        World.PostTick();
+        World.PostTick(isFastForward);
     }
     
     

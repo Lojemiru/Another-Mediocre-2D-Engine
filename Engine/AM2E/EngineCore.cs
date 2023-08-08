@@ -119,7 +119,7 @@ public sealed class EngineCore : Game
     private static void FixedUpdate()
     {
         InputManager.Update();
-        ActorManager.UpdateActors();
+        ActorManager.UpdateActors(false);
         
         CommandConsole.ExecuteDeferredCommand();
     }
