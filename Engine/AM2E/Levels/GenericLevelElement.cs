@@ -1,3 +1,4 @@
+using AM2E.Networking;
 using System;
 using System.Collections.Generic;
 
@@ -48,6 +49,10 @@ public abstract class GenericLevelElement
         Y = y;
         ID = id ?? Guid.NewGuid().ToString();
         AllElements.Add(ID, this);
+        if (EngineCore.isNetworked)
+        {
+            EngineCore.Server?.RegisterElement(this);
+        }
     }
 
     protected GenericLevelElement(LDtkEntityInstance entity, int x, int y, Layer layer) 
@@ -62,6 +67,10 @@ public abstract class GenericLevelElement
         if (!fromLayer)
             Layer?.RemoveGeneric(this);
         AllElements.Remove(ID);
+        if (EngineCore.isNetworked)
+        {
+            EngineCore.Server?.DeleteObject(ID, this);
+        }
     }
     
     protected virtual void OnDispose() { }

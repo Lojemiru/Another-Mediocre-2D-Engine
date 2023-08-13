@@ -1,8 +1,6 @@
 using LiteNetLib;
-using LiteNetLib.Utils;
 using System.Collections.Generic;
 using System;
-using GameContent;
 using AM2E.Levels;
 
 namespace AM2E.Networking;
@@ -13,12 +11,11 @@ public class Server
     private readonly Dictionary<int, NetPeer> unjoined = new Dictionary<int, NetPeer>();
     private readonly EventBasedNetListener listener = new EventBasedNetListener();
     private readonly NetManager manager;
-    private readonly NetDataWriter writer = new NetDataWriter();
     internal static readonly Dictionary<string, INetSynced> NetObjects = new();
     private int tick;
     private readonly BitPackedData bitPacker = new BitPackedData();
     private readonly List<NetReliableData> queuedReliableMessages = new();
-    private Level level;
+    private readonly Dictionary<string, NetworkedEntityData> NetworkedEntities = new();
     public Server(int port)
     {
         manager = new NetManager(listener);
@@ -189,7 +186,6 @@ public class Server
     {
         foreach (var peer in players.Values) 
         {
-            writer.Reset();
             bitPacker.Reset();
         
             bitPacker.WriteBits(tick, 10);
@@ -201,32 +197,35 @@ public class Server
             var count = 0;
             
             // Reliable message sending
-            foreach (var data in queuedReliableMessages)
+            foreach (var data in NetworkedEntities.Values)
             {
-                if (!data.SentTicks.ContainsKey(peer)) 
-                    continue;
-                
-                count++;
-                Console.WriteLine(count);
+                if (data.UnacknowledgedCreate.ContainsKey(peer) || data.UnacknowledgedDestroy.ContainsKey(peer))
+                {
+                    count++;
+                }
             }
             
             bitPacker.WriteBits(count, 8);
             
-            foreach (var data in queuedReliableMessages)
+            foreach (var data in NetworkedEntities.Values)
             {
-                if (data.SentTicks.ContainsKey(peer))
+                if (data.UnacknowledgedCreate.ContainsKey(peer))
                 {
-                    data.Serialize(bitPacker);
+                    data.SerializeCreate(bitPacker);
+                }
+                else if (data.UnacknowledgedDestroy.ContainsKey(peer))
+                {
+                    data.SerializeDestroy(bitPacker);
                 }
             }
             
             // NetObject State Syncing
-            bitPacker.WriteBits(NetObjects.Count, 8);
-            foreach (var netObject in NetObjects.Values)
+            bitPacker.WriteBits(NetworkedEntities.Count, 8);
+            foreach (var netData in NetworkedEntities.Values)
             {
-                var gle = netObject as GenericLevelElement;
+                var gle = netData.Instance as GenericLevelElement;
                 bitPacker.WriteID(gle!.ID);
-                netObject.Serialize(bitPacker);
+                netData.Instance.Serialize(bitPacker);
             }
             
             // Player Input Syncing
@@ -256,13 +255,33 @@ public class Server
         }
     }
 
-    internal void RegisterElement(INetSynced netSyncedGle, int x, int y, string layer, string id)
+    internal void RegisterElement(GenericLevelElement gle)
     {
-        if (netSyncedGle is INetControllable or null)
+        if (gle is INetControllable or null)
             return;
-        
-        var type = netSyncedGle.GetType().ToString();
+
+        if (gle is not INetSynced)
+            return;
+
+        var type = gle.GetType().ToString();
+        // Remove 'GameContent.' prefix.
         type = type.Remove(0, 12);
+        var netEntityData = new NetworkedEntityData
+        {
+            ID = gle.ID,
+            X = gle.X,
+            Y = gle.Y,
+            Layer = gle.Layer?.Name,
+            Type = type,
+            Instance = gle as INetSynced
+        };
+        foreach (var netPeer in players.Values)
+        {
+            netEntityData.UnacknowledgedCreate.Add(netPeer, tick);
+        }
+
+        NetworkedEntities.Add(gle.ID, netEntityData);
+        /*
         var objCreation = new ObjectCreationEvent(type, id, layer, x, y);
         queuedReliableMessages.Add(objCreation);
         
@@ -272,8 +291,9 @@ public class Server
         }
         
         NetObjects.Add(id, netSyncedGle);
+        */
     }
-
+    /*
     internal void RegisterControllableElement(INetControllable netControllableGle, int x, int y, string layer, string id)
     {
         var type = netControllableGle.GetType().ToString();
@@ -294,20 +314,19 @@ public class Server
             NetObjects.Add(id, netControllableGle as INetSynced);
         }
     }
+    */
 
-    internal void DeleteObject(string id)
+    internal void DeleteObject(string id, GenericLevelElement gle)
     {
-        var deletionEvent = new ObjectDeletionEvent
-        {
-            ID = id
-        };
+        if (gle is not INetSynced)
+            return;
+
+        NetworkedEntities[id].UnacknowledgedCreate.Clear();
         
         foreach (var netPeer in players.Values)
         {
-            deletionEvent.SentTicks.Add(netPeer, tick);
+            NetworkedEntities[id].UnacknowledgedDestroy.Add(netPeer, tick);
         }
-        
-        queuedReliableMessages.Add(deletionEvent);
     }
 
     public void Stop()

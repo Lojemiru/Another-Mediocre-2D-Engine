@@ -88,6 +88,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Networking\INetSynced.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Networking\NetCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Networking\NetReliableEvent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Networking\NetworkedEntityData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Networking\NetworkGeneral.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Networking\ObjectCreationEvent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Networking\ObjectDeletionEvent.cs" />

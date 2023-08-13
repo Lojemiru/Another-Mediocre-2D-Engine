@@ -29,10 +29,9 @@ public class Client
 
     public Client(string IP, int port)
     {
-        level = World.GetLevelByName("Level_0");
         manager = new NetManager(listener);
         manager.Start();
-        manager.Connect("localhost", 64198, "");
+        manager.Connect(IP, port, "");
         
         listener.NetworkReceiveEvent += ListenerNetworkReceiveEvent;
         listener.PeerConnectedEvent += ListenerPeerConnectedEvent;
@@ -131,6 +130,7 @@ public class Client
 
     private void ObjectCreationEventReceive(BitPackedData data)
     {
+        // TODO: Rework to work with Networked Entity Data
         var objEvent = new ObjectCreationEvent();
         objEvent.Deserialize(data);
         
@@ -144,7 +144,7 @@ public class Client
         var layer = level.GetLayer(objEvent.Layer);
         Activator.CreateInstance(type, objEvent.X, objEvent.Y, layer, objEvent.ID);
     }
-
+    /*
     private void ControllableCreationEventReceive(BitPackedData data)
     {
         var objEvent = new ControllableCreationEvent();
@@ -165,9 +165,10 @@ public class Client
         
         player.controller = players[objEvent.Master].controller;
     }
-
+    */
     private void ObjectDeletionEventReceive(BitPackedData data)
     {
+        // TODO: Rework to work with Networked Entity Data
         var objectDeletionEvent = new ObjectDeletionEvent();
         objectDeletionEvent.Deserialize(data);
         
@@ -220,9 +221,6 @@ public class Client
                     ObjectCreationEventReceive(data);
                     break;
                 case 2:
-                    ControllableCreationEventReceive(data);
-                    break;
-                case 3:
                     ObjectDeletionEventReceive(data);
                     break;
             }
@@ -280,7 +278,6 @@ public class Client
             return;
         
         remoteId = data.ReadBits(8);
-        // TODO: Does this need to be modulo'd?
         tick = (receivedTick + 6) % NetworkGeneral.MaxGameSequence;
         lastServerTick = receivedTick;
         isConnected = true;
