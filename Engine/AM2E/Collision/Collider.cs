@@ -42,6 +42,11 @@ public sealed class Collider
         }
     }
     
+    public int BoundLeft { get; private set; }
+    public int BoundRight { get; private set; }
+    public int BoundTop { get; private set; }
+    public int BoundBottom { get; private set; }
+    
     public int VelX => vel[0];
     public int VelY => vel[1];
 
@@ -114,10 +119,19 @@ public sealed class Collider
 
     private void SyncHitboxPositions()
     {
+        BoundLeft = int.MaxValue;
+        BoundRight = int.MinValue;
+        BoundTop = int.MaxValue;
+        BoundBottom = int.MinValue;
+        
         foreach (var hitbox in hitboxes)
         {
             hitbox.X = X;
             hitbox.Y = Y;
+            if (hitbox.BoundLeft < BoundLeft) BoundLeft = hitbox.BoundLeft;
+            if (hitbox.BoundRight > BoundRight) BoundRight = hitbox.BoundRight;
+            if (hitbox.BoundTop < BoundTop) BoundTop = hitbox.BoundTop;
+            if (hitbox.BoundBottom > BoundBottom) BoundBottom = hitbox.BoundBottom;
         }
     }
 

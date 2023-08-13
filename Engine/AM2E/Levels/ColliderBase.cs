@@ -22,6 +22,8 @@ namespace AM2E.Levels;
 
 public abstract class ColliderBase : GenericLevelElement, ICollider
 {
+    internal ColliderBase Head;
+    
     public Collider Collider { get; }
     
     public new int X
@@ -35,6 +37,11 @@ public abstract class ColliderBase : GenericLevelElement, ICollider
         get => Collider.Y;
         set => Collider.Y = value;
     }
+
+    public int BoundLeft => Collider.BoundLeft;
+    public int BoundRight => Collider.BoundRight;
+    public int BoundTop => Collider.BoundTop;
+    public int BoundBottom => Collider.BoundBottom;
     
     public bool FlippedX { get; private set; } = false;
     
