@@ -113,7 +113,7 @@ public sealed class Collider
             return;
         
         if (!first)
-            parent.Level?.RTree.Delete(Bounds, parent);
+            LOIC.RTree.Delete(Bounds, parent);
         
         FlippedX = xFlip;
         FlippedY = yFlip;
@@ -137,7 +137,7 @@ public sealed class Collider
         
         Bounds = new Rectangle(l, u, r, d);
             
-        parent.Level?.RTree.Add(Bounds, parent);
+        LOIC.RTree.Add(Bounds, parent);
 
         first = false;
     }
@@ -151,7 +151,7 @@ public sealed class Collider
             return;
         
         if (!first)
-            parent.Level?.RTree.Delete(Bounds, parent);
+            LOIC.RTree.Delete(Bounds, parent);
 
         if (hitboxes.Count <= 0) 
             return;
@@ -173,7 +173,7 @@ public sealed class Collider
 
         Bounds = new Rectangle(l, u, r, d);
             
-        parent.Level?.RTree.Add(Bounds, parent);
+        LOIC.RTree.Add(Bounds, parent);
 
         first = false;
     }
@@ -183,7 +183,7 @@ public sealed class Collider
         if (disposed)
             return;
         
-        parent.Level?.RTree.Delete(Bounds, parent);
+        LOIC.RTree.Delete(Bounds, parent);
         disposed = true;
     }
 

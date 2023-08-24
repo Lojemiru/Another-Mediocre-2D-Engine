@@ -10,7 +10,6 @@ namespace AM2E.Levels;
 
 public sealed class Level
 {
-    internal RTree<ICollider> RTree;
     public readonly string Name;
     public readonly int X;
     public readonly int Y;
@@ -28,7 +27,6 @@ public sealed class Level
         Width = level.PxWid;
         Height = level.PxHei;
         Iid = level.Iid;
-        RTree = new RTree<ICollider>();
     }
     public Level(string name, int x, int y, int width, int height)
     {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using AM2E.Actors;
 using AM2E.Levels;
+using RTree;
 
 // We do NOT want to use LINQ in the collision engine. This class is a bottleneck and we need it to run efficiently.
 // ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
@@ -12,6 +13,8 @@ namespace AM2E.Collision;
 
 public static class LOIC
 {
+    internal static RTree<ICollider> RTree = new();
+
     // TODO: These check all *active* colliders and don't filter per-room. That's likely bad... provide a way to do that instead.
 
     public static bool CheckPoint<T>(int x, int y) where T : ICollider
@@ -161,22 +164,11 @@ public static class LOIC
     public static ICollider CheckCollider<T>(Collider self) where T : ICollider
     {
         // Return first (or null) Collider that matches interface and is intersected by input Collider.
-        foreach (var actor in ActorManager.PersistentActors.Values)
+        var check = RTree.Intersects(self.Bounds);
+        foreach (var collider in check)
         {
-            if (InternalCheckCollider<T>(actor, self))
-                return actor;
-        }
-
-        foreach (var level in World.ActiveLevels.Values)
-        {
-            foreach (var layer in level.Layers.Values)
-            {
-                foreach (var collider in layer.Colliders)
-                {
-                    if (InternalCheckCollider<T>(collider, self))
-                        return collider;
-                }
-            }
+            if (InternalCheckCollider<T>(collider, self))
+                return collider;
         }
 
         return null;
@@ -186,45 +178,15 @@ public static class LOIC
     {
         var output = new List<T>();
 
-        // TODO: Put this into an r-tree too somehow?
-        foreach (ICollider collider in ActorManager.PersistentActors.Values)
+        var check = RTree.Intersects(self.Bounds);
+        foreach (var collider in check)
         {
-            if (InternalCheckCollider<T>(collider, self))
-                output.Add((T)collider);
-        }
-        
-        foreach (var level in World.ActiveLevels.Values)
-        {
-            var check = level.RTree.Intersects(self.Bounds);
-            foreach (var collider in check)
-            {
-                if (InternalCheckCollider<T>(collider, self))
-                {
-                    var col = (T)collider;
-                    if (!output.Contains(col))
-                        output.Add(col);
-                }
-            }
+            if (!InternalCheckCollider<T>(collider, self)) 
+                continue;
+            
+            output.Add((T)collider);
         }
 
-        /*
-        foreach (var level in World.ActiveLevels.Values)
-        {
-            foreach (var layer in level.Layers.Values)
-            {
-                foreach (ICollider collider in layer.Colliders)
-                {
-                    if (InternalCheckCollider<T>(collider, self))
-                    {
-                        var col = (T)collider;
-                        if (!output.Contains(col))
-                            output.Add(col);
-                    }
-                }
-            }
-        }
-        */
-        
         return output;
     }
 
