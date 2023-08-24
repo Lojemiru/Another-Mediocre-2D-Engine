@@ -21,6 +21,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Audio\FMOD Includes\fmod_dsp.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Audio\FMOD Includes\fmod_errors.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Audio\FMOD Includes\fmod_studio.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Collision\CollisionDirection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\Hitboxes\CircleHitbox.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\Hitboxes\PolygonHitbox.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Collision\Hitboxes\PreciseHitbox.cs" />

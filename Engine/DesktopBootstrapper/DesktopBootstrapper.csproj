@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <RollForward>Major</RollForward>
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
@@ -19,6 +19,7 @@
     <EmbeddedResource Include="Icon.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="2D-RTree" Version="1.0.0" />
     <PackageReference Include="FontStashSharp.MonoGame" Version="1.2.8" />
     <PackageReference Include="LanguageExt.Core" Version="4.2.9" />
     <PackageReference Include="LiteNetLib" Version="1.1.0" />

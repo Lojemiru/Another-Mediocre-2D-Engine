@@ -60,7 +60,7 @@ public abstract class GenericLevelElement
 
     public void Dispose() => Dispose(false);
     
-    internal void Dispose(bool fromLayer)
+    internal virtual void Dispose(bool fromLayer)
     {
         OnDispose();
         exists = false;

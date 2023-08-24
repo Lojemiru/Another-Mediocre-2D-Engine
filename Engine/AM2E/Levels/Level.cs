@@ -1,12 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using AM2E.Actors;
+using AM2E.Collision;
 using AM2E.Graphics;
+using RTree;
 
 namespace AM2E.Levels;
 
 public sealed class Level
 {
+    internal RTree<ICollider> RTree;
     public readonly string Name;
     public readonly int X;
     public readonly int Y;
@@ -24,6 +28,7 @@ public sealed class Level
         Width = level.PxWid;
         Height = level.PxHei;
         Iid = level.Iid;
+        RTree = new RTree<ICollider>();
     }
     public Level(string name, int x, int y, int width, int height)
     {
@@ -87,7 +92,11 @@ public sealed class Level
     {
         foreach (var layer in Layers.Values)
         {
+            //var s = new Stopwatch();
+            //s.Start();
             layer.Draw();
+            //s.Stop();
+            //Console.WriteLine($"LayerName: {layer.Name}, Time to render: {s.ElapsedMilliseconds}, TTR (ticks): {s.ElapsedTicks}");
         }
     }
 

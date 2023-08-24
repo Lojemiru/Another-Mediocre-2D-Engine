@@ -43,7 +43,7 @@ public abstract class ColliderBase : GenericLevelElement, ICollider
     protected ColliderBase(int x, int y, Layer layer, Hitbox hitbox = null, bool flipX = false, bool flipY = false, string id = null) 
         : base(x, y, layer, id)
     {
-        Collider = new Collider(x, y);
+        Collider = new Collider(x, y, this);
         if (hitbox != null)
             Collider.AddHitbox(hitbox);
         ApplyFlips(flipX, flipY);
@@ -75,5 +75,11 @@ public abstract class ColliderBase : GenericLevelElement, ICollider
             throw new ArgumentOutOfRangeException(nameof(bits), "Bits must be equal to or less than decimal 3!");
         
         ApplyFlips((bits & 1) != 0, (bits & 2) != 0);
+    }
+
+    internal override void Dispose(bool fromLayer)
+    {
+        Collider.Dispose();
+        base.Dispose(fromLayer);
     }
 }

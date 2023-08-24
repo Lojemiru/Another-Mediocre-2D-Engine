@@ -186,12 +186,28 @@ public static class LOIC
     {
         var output = new List<T>();
 
+        // TODO: Put this into an r-tree too somehow?
         foreach (ICollider collider in ActorManager.PersistentActors.Values)
         {
             if (InternalCheckCollider<T>(collider, self))
                 output.Add((T)collider);
         }
+        
+        foreach (var level in World.ActiveLevels.Values)
+        {
+            var check = level.RTree.Intersects(self.Bounds);
+            foreach (var collider in check)
+            {
+                if (InternalCheckCollider<T>(collider, self))
+                {
+                    var col = (T)collider;
+                    if (!output.Contains(col))
+                        output.Add(col);
+                }
+            }
+        }
 
+        /*
         foreach (var level in World.ActiveLevels.Values)
         {
             foreach (var layer in level.Layers.Values)
@@ -207,6 +223,7 @@ public static class LOIC
                 }
             }
         }
+        */
         
         return output;
     }

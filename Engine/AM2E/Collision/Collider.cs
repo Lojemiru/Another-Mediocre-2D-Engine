@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using AM2E.Levels;
+using RTree;
 
 namespace AM2E.Collision;
 
-public enum CollisionDirection
-{
-    None,
-    Left,
-    Right,
-    Up,
-    Down
-}
+// TODO: Some really bad things are gonna happen here when we change rooms (r-trees won't be updated properly)
+// so we need some kind of dedicated room-changing mechanism for the holding class
+
+// TODO: make constructors internal?
+
 public sealed class Collider
 {
+    public Rectangle Bounds;
+    
     private enum Axis
     {
         X,
@@ -70,6 +70,8 @@ public sealed class Collider
 
     private bool inMovement = false;
 
+    private bool disposed = false;
+    
     public Action OnSubstep { get; set; }
     public Action AfterSubstep { get; set; } = () => { };
 
@@ -87,6 +89,9 @@ public sealed class Collider
         hitbox.X = X;
         hitbox.Y = Y;
         hitbox.ApplyFlips(FlippedX, FlippedY);
+        
+        SyncHitboxPositions();
+        
         return hitboxes.Count - 1;
     }
 
@@ -104,31 +109,94 @@ public sealed class Collider
     }
     public void ApplyFlips(bool xFlip, bool yFlip)
     {
+        if (disposed)
+            return;
+        
+        if (!first)
+            parent.Level?.RTree.Delete(Bounds, parent);
+        
         FlippedX = xFlip;
         FlippedY = yFlip;
+        
+        if (hitboxes.Count <= 0) 
+            return;
+        
+        var l = int.MaxValue;
+        var r = int.MinValue;
+        var u = int.MaxValue;
+        var d = int.MinValue;
+
         foreach (var hitbox in hitboxes)
         {
             hitbox.ApplyFlips(FlippedX, FlippedY);
+            l = Math.Min(l, hitbox.BoundLeft);
+            r = Math.Max(r, hitbox.BoundRight);
+            u = Math.Min(u, hitbox.BoundTop);
+            d = Math.Max(d, hitbox.BoundBottom);
         }
+        
+        Bounds = new Rectangle(l, u, r, d);
+            
+        parent.Level?.RTree.Add(Bounds, parent);
+
+        first = false;
     }
 
+    private ColliderBase parent;
+    private bool first = true;
+    
     private void SyncHitboxPositions()
     {
+        if (disposed)
+            return;
+        
+        if (!first)
+            parent.Level?.RTree.Delete(Bounds, parent);
+
+        if (hitboxes.Count <= 0) 
+            return;
+        
+        var l = int.MaxValue;
+        var r = int.MinValue;
+        var u = int.MaxValue;
+        var d = int.MinValue;
+            
         foreach (var hitbox in hitboxes)
         {
             hitbox.X = X;
             hitbox.Y = Y;
+            l = Math.Min(l, hitbox.BoundLeft);
+            r = Math.Max(r, hitbox.BoundRight);
+            u = Math.Min(u, hitbox.BoundTop);
+            d = Math.Max(d, hitbox.BoundBottom);
         }
+
+        Bounds = new Rectangle(l, u, r, d);
+            
+        parent.Level?.RTree.Add(Bounds, parent);
+
+        first = false;
     }
 
-    public Collider(int x, int y)
+    internal void Dispose()
     {
+        if (disposed)
+            return;
+        
+        parent.Level?.RTree.Delete(Bounds, parent);
+        disposed = true;
+    }
+
+    public Collider(int x, int y, ColliderBase parent)
+    {
+        this.parent = parent;
         X = x;
         Y = y;
     }
     
-    public Collider(int x, int y, Hitbox hitbox)
+    public Collider(int x, int y, ColliderBase parent, Hitbox hitbox)
     {
+        this.parent = parent;
         X = x;
         Y = y;
         AddHitbox(hitbox);

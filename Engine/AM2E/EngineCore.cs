@@ -141,6 +141,16 @@ public sealed class EngineCore : Game
 
     protected override void Draw(GameTime gameTime)
     {
+        /*
+        var s = $"Frametime: {gameTime.ElapsedGameTime}";
+
+        Console.WriteLine(s);
+
+        if (gameTime.ElapsedGameTime.Milliseconds > 16) {
+            Console.WriteLine($"{gameTime.TotalGameTime} {gameTime.ElapsedGameTime} Lag!");
+        }
+        */
+        
         Renderer.Render();
     }
 
