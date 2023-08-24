@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using AM2E.Actors;
-using AM2E.Levels;
+﻿using System.Collections.Generic;
 using RTree;
 
 // We do NOT want to use LINQ in the collision engine. This class is a bottleneck and we need it to run efficiently.
@@ -15,7 +12,7 @@ public static class LOIC
 {
     internal static RTree<ICollider> RTree = new();
 
-    // TODO: These check all *active* colliders and don't filter per-room. That's likely bad... provide a way to do that instead.
+    // TODO: Add method for checking closest of given type? RTree library seems to support this quite handily.
 
     public static bool CheckPoint<T>(int x, int y) where T : ICollider
     {
@@ -24,24 +21,12 @@ public static class LOIC
 
     public static T ColliderAtPoint<T>(int x, int y) where T : ICollider
     {
-        foreach (ICollider collider in ActorManager.PersistentActors.Values)
+        // TODO: Modify RTree to allow for checking points directly
+        var check = RTree.Intersects(new Rectangle(x - 1, y - 1, x + 1, y + 1));
+        foreach (var collider in check)
         {
-            // Return whether any collider is found that matches interface and contains the input point.
             if (InternalCheckPoint<T>(collider, x, y))
                 return (T)collider;
-        }
-        
-        foreach (var level in World.ActiveLevels.Values)
-        {
-            foreach (var layer in level.Layers.Values)
-            {
-                foreach (ICollider collider in layer.Colliders)
-                {
-                    // Return whether any collider is found that matches interface and contains the input point.
-                    if (InternalCheckPoint<T>(collider, x, y))
-                        return (T)collider;
-                }
-            }
         }
 
         return default;
@@ -59,52 +44,25 @@ public static class LOIC
 
     public static T ColliderAtRectangle<T>(int x1, int y1, int x2, int y2) where T : ICollider
     {
-        // Return whether any collider is found that matches interface and is intersected by the input hitbox.
-        foreach (ICollider collider in ActorManager.PersistentActors.Values)
+        var check = RTree.Intersects(new Rectangle(x1, y1, x2, y2));
+        foreach (var collider in check)
         {
             if (InternalCheckRectangle<T>(collider, x1, y1, x2, y2))
                 return (T)collider;
         }
-        
-        foreach (var level in World.ActiveLevels.Values)
-        {
-            foreach (var layer in level.Layers.Values)
-            {
-                foreach (ICollider collider in layer.Colliders)
-                {
-                    if (InternalCheckRectangle<T>(collider, x1, y1, x2, y2))
-                        return (T)collider;
-                }
-            }
-        }
-        
+
         return default;
     }
 
     public static IEnumerable<T> AllCollidersAtRectangle<T>(int x1, int y1, int x2, int y2) where T : ICollider
     {
         var output = new List<T>();
-    
-        foreach (ICollider collider in ActorManager.PersistentActors.Values)
+        
+        var check = RTree.Intersects(new Rectangle(x1, y1, x2, y2));
+        foreach (var collider in check)
         {
             if (InternalCheckRectangle<T>(collider, x1, y1, x2, y2))
                 output.Add((T)collider);
-        }
-        
-        foreach (var level in World.ActiveLevels.Values)
-        {
-            foreach (var layer in level.Layers.Values)
-            {
-                foreach (ICollider collider in layer.Colliders)
-                {
-                    if (InternalCheckRectangle<T>(collider, x1, y1, x2, y2))
-                    {
-                        var col = (T)collider;
-                        if (!output.Contains(col))
-                            output.Add(col);
-                    }
-                }
-            }
         }
 
         return output;
@@ -114,27 +72,17 @@ public static class LOIC
     {
         return ColliderAtLine<T>(x1, y1, x2, y2) is not null;
     }
-
+    
     public static T ColliderAtLine<T>(int x1, int y1, int x2, int y2) where T : ICollider
     {
-        foreach (ICollider collider in ActorManager.PersistentActors.Values)
+        // TODO: Write custom method for checking a line within the tree??? This is going to hit a LOT of things we don't need to consider...
+        var check = RTree.Intersects(new Rectangle(x1, y1, x2, y2));
+        foreach (var collider in check)
         {
             if (InternalCheckLine<T>(collider, x1, y1, x2, y2))
                 return (T)collider;
         }
-        
-        foreach (var level in World.ActiveLevels.Values)
-        {
-            foreach (var layer in level.Layers.Values)
-            {
-                foreach (ICollider collider in layer.Colliders)
-                {
-                    if (InternalCheckLine<T>(collider, x1, y1, x2, y2))
-                        return (T)collider;
-                }
-            }
-        }
-        
+
         return default;
     }
 
