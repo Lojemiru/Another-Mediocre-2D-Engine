@@ -12,8 +12,6 @@ public static class LOIC
 {
     internal static RTree<ICollider> RTree = new();
 
-    // TODO: Add method for checking closest of given type? RTree library seems to support this quite handily.
-
     public static bool CheckPoint<T>(int x, int y) where T : ICollider
     {
         return ColliderAtPoint<T>(x, y) is not null;
