@@ -10,7 +10,7 @@ namespace AM2E.Collision;
 
 public static class LOIC
 {
-    internal static RTree<ICollider> RTree = new();
+    internal static readonly RTree<ICollider> RTree = new();
 
     public static bool CheckPoint<T>(int x, int y) where T : ICollider
     {

@@ -112,6 +112,9 @@ public sealed class Collider
         if (disposed)
             return;
         
+        // TODO: Some weird stuff here will probably cause problems with addition/removal from the RTree
+        // try making a deleted variable instead of this first nonsense, it'll work nicer and then we can stably check against both that and hitbox count to figure out what we need to do
+        
         if (!first)
             LOIC.RTree.Delete(Bounds, parent);
         
@@ -182,8 +185,12 @@ public sealed class Collider
     {
         if (disposed)
             return;
-        
-        LOIC.RTree.Delete(Bounds, parent);
+
+        if (hitboxes.Count > 0)
+        {
+            LOIC.RTree.Delete(Bounds, parent);
+        }
+
         disposed = true;
     }
 
