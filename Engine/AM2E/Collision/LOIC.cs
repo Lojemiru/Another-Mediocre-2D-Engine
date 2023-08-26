@@ -32,7 +32,7 @@ public static class LOIC
 
     private static bool InternalCheckPoint<T>(ICollider collider, int x, int y) where T : ICollider
     {
-        return (collider is T && collider.Collider.ContainsPoint<T>(x, y));
+        return (collider.CollisionActive && collider is T && collider.Collider.ContainsPoint<T>(x, y));
     }
     
     public static bool CheckRectangle<T>(int x1, int y1, int x2, int y2) where T : ICollider
@@ -86,7 +86,7 @@ public static class LOIC
 
     private static bool InternalCheckLine<T>(ICollider collider, int x1, int y1, int x2, int y2) where T : ICollider
     {
-        if (collider is not T)
+        if (!collider.CollisionActive || collider is not T)
             return false;
 
         return collider.Collider.IsIntersectedByLine<T>(x1, y1, x2, y2);
@@ -96,7 +96,7 @@ public static class LOIC
     private static readonly RectangleHitbox RectCheckHitbox = new RectangleHitbox(0, 0, 1, 1);
     private static bool InternalCheckRectangle<T>(ICollider collider, int x1, int y1, int x2, int y2) where T : ICollider
     {
-        if (collider is not T)
+        if (!collider.CollisionActive || collider is not T)
             return false;
         
         // Update hitbox.
@@ -138,7 +138,7 @@ public static class LOIC
 
     private static bool InternalCheckCollider<T>(ICollider collider, Collider self) where T : ICollider
     {
-        if (collider is not T || collider.Collider == self)
+        if (!collider.CollisionActive || collider is not T || collider.Collider == self)
             return false;
 
         return self.Intersects<T>(collider.Collider);
