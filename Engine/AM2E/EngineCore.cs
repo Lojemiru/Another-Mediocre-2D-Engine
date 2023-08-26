@@ -20,14 +20,16 @@ public sealed class EngineCore : Game
     private static EngineCore staticThis;
     internal static Server Server;
     internal static Client Client;
+    internal static string ContentNamespace;
     public static bool isNetworked = false;
     public static bool isServer;
 
 
     public const bool DEBUG = true;
 
-    public EngineCore(Action entryPointCallback)
+    public EngineCore(string contentNamespace, Action entryPointCallback)
     {
+        ContentNamespace = contentNamespace;
         this.entryPointCallback = entryPointCallback;
         staticThis = this;
         

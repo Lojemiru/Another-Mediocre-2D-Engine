@@ -111,8 +111,6 @@ public static class World
 
     public static void InstantiateLevel(string id, Action callback = null)
     {
-        // TODO: Review instantiation here for security
-
         if (LoadedLevels.ContainsKey(id))
             return;
 
@@ -148,8 +146,7 @@ public static class World
                 case LDtkLayerType.Entities:
                     foreach (var entity in ldtkLayer.EntityInstances)
                     {
-                        var entityType = Type.GetType("GameContent." + entity.Identifier);
-                        // TODO: CreateInstance may be a major bottleneck when given args here :(
+                        var entityType = Type.GetType(EngineCore.ContentNamespace + "." + entity.Identifier);
                         Activator.CreateInstance(entityType, entity, level.WorldX + entity.Px[0], level.WorldY + entity.Px[1], layer);
                     }
                     break;
