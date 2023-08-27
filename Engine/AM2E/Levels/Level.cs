@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using AM2E.Actors;
-using AM2E.Collision;
 using AM2E.Graphics;
-using RTree;
 
 namespace AM2E.Levels;
 
