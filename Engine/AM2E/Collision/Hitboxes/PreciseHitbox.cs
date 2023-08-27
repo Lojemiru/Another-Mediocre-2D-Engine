@@ -2,6 +2,25 @@ using System;
 
 namespace AM2E.Collision;
 
+#region Design Notes
+
+/*
+ * Hoo boy, pixel-perfect collision masks. These things tend to be horribly slow, but they can be quite useful... I'd
+ *      generally recommend /not/ using them if you can avoid it, but they're supported.
+ *
+ * We always run general bound checks before doing anything more complicated. This ensures that we're not wasting time
+ *      on for() loops when we can quickly verify that we'd never collide with the other hitbox in the first place.
+ *
+ * We also trim down the space we check within the hitbox mask to just the overlap of the two hitboxes we're checking.
+ *      Sure, the Math.Clamp() calls probably eat some extra clock cycles but it'll save us a ton of time considering
+ *      that most collisions will occur with only a slight hitbox overlap.
+ *
+ * I considered interlacing the mask checks to hopefully find a collision quicker, but the extra logic required would
+ *      probably end up creating more overhead in most situations compared to just doing the full loop.
+ */
+
+#endregion
+
 public sealed class PreciseHitbox : RectangleHitboxBase
 {
     public bool[, ] Mask { get; }
@@ -21,8 +40,7 @@ public sealed class PreciseHitbox : RectangleHitboxBase
         var startY = Math.Clamp(hitbox.BoundTop - BoundTop, 0, Height - 1);
         var endX = Math.Clamp(hitbox.BoundRight - BoundLeft + 1, 0, Width);
         var endY = Math.Clamp(hitbox.BoundBottom - BoundTop + 1, 0, Height);
-
-        // TODO: Should this check be interlaced? Might speed up some use cases, but wouldn't affect our worst-case scenario :/
+        
         for (var i = startX; i < endX; ++i)
         {
             for (var j = startY; j < endY; ++j)
@@ -36,19 +54,16 @@ public sealed class PreciseHitbox : RectangleHitboxBase
     }
 
     // Defer to generic check.
-    public override bool Intersects(CircleHitbox hitbox) => IntersectsGeneric(hitbox);
+    public override bool Intersects(CircleHitbox hitbox) 
+        => IntersectsGeneric(hitbox);
     
-    // TODO: Can't this be the generic intersection instead?
+    // Defer to generic check.
     public override bool Intersects(PreciseHitbox hitbox)
-    {
-        return !IntersectsBounds(hitbox) &&
-               // Early exit - return false if bounds don't even overlap
-               // TODO: Based on rectangle -> precise check testing, this might be slightly scuffed. Give it a proper test.
-               MaskIntersects(hitbox, hitbox.BoundLeft - BoundLeft, hitbox.BoundTop - BoundTop);
-    }
+        => IntersectsGeneric(hitbox);
 
     // Defer to generic check.
-    public override bool Intersects(PolygonHitbox hitbox) => IntersectsGeneric(hitbox);
+    public override bool Intersects(PolygonHitbox hitbox) 
+        => IntersectsGeneric(hitbox);
 
     public override bool IntersectsLine(int x1, int y1, int x2, int y2)
     {
