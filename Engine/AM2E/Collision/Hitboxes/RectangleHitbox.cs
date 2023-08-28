@@ -22,26 +22,21 @@ public sealed class RectangleHitbox : RectangleHitboxBase
 
     // Defer to general bounds intersection.
     public override bool Intersects(RectangleHitbox hitbox) => IntersectsBounds(hitbox);
-
-    // TODO: Defer to circle instead?
+    
     public override bool Intersects(CircleHitbox hitbox)
     {
-        // Only two conditions: circle center is in rectangle, or endpoint of radius is in rectangle
-        if (ContainsPoint(hitbox.X, hitbox.Y)) return true;
-
-        var centerX = (float)(BoundLeft + BoundRight) / 2;
-        var centerY = (float)(BoundTop + BoundBottom) / 2;
-
-        var pos = new Vector2(centerX - hitbox.X, centerY - hitbox.Y);
+        if (!IntersectsBounds(hitbox))
+            return false;
         
-        // ReSharper disable once InvertIf
-        if ((int)pos.Length() > hitbox.Radius) 
-        {
-            pos.Normalize();
-            pos *= hitbox.Radius;
-        }
+        // Only two conditions: circle center is in rectangle...
+        if (ContainsPoint(hitbox.X, hitbox.Y)) 
+            return true;
 
-        return ContainsPoint((int)(hitbox.X - pos.X), (int)(hitbox.Y - pos.Y));
+        // Or the circle intersects one of our edges.
+        return hitbox.IntersectsLine(BoundLeft, BoundTop, BoundRight, BoundTop) || 
+               hitbox.IntersectsLine(BoundRight, BoundTop, BoundRight, BoundBottom) || 
+               hitbox.IntersectsLine(BoundLeft, BoundBottom, BoundRight, BoundBottom) ||
+               hitbox.IntersectsLine(BoundLeft, BoundTop, BoundLeft, BoundBottom);
     }
 
     // Defer to PreciseHitbox.

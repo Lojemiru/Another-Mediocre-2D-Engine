@@ -20,13 +20,17 @@ public abstract class PolygonHitbox : Hitbox
     private const double TO_RADIANS = Math.PI / 180;
     public float Angle { get; private set; } = 0;
 
-    public sealed override int BoundLeft => X + furthestLeft;
+    public sealed override int BoundLeft 
+        => X + furthestLeft;
 
-    public sealed override int BoundRight => X + furthestRight;
+    public sealed override int BoundRight 
+        => X + furthestRight;
 
-    public sealed override int BoundTop => Y + furthestTop;
+    public sealed override int BoundTop 
+        => Y + furthestTop;
 
-    public sealed override int BoundBottom => Y + furthestBottom;
+    public sealed override int BoundBottom 
+        => Y + furthestBottom;
 
     protected PolygonHitbox(int size, int x, int y, int offsetX = 0, int offsetY = 0)
     {
@@ -125,11 +129,29 @@ public abstract class PolygonHitbox : Hitbox
 
     public override bool Intersects(CircleHitbox hitbox)
     {
-        throw new NotImplementedException();
+        // If we're not intersecting on bounds, exit early.
+        if (!IntersectsBounds(hitbox))
+            return false;
+        
+        // Either a) circle center is in polygon...
+        if (ContainsPoint(hitbox.X, hitbox.Y))
+            return true;
+
+        // ...or b) an edge intersects.
+        for (var i = 0; i < points.Length; i++)
+        {
+            var last = points[MathHelper.Wrap(i - 1, 0, points.Length)];
+            var current = points[i];
+            if (hitbox.IntersectsLine(X + last.X, Y + last.Y, X + current.X, Y + current.Y))
+                return true;
+        }
+        
+        return false;
     }
 
     // Defer to PreciseHitbox.
-    public override bool Intersects(PreciseHitbox hitbox) => hitbox.Intersects(this);
+    public override bool Intersects(PreciseHitbox hitbox) 
+        => hitbox.Intersects(this);
 
     public override bool Intersects(PolygonHitbox hitbox)
     {
