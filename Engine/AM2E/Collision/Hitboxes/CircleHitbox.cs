@@ -39,7 +39,7 @@ public sealed class CircleHitbox : Hitbox
     public override bool Intersects(CircleHitbox hitbox)
     {
         // Add radii, compare to distance between both centers
-        return (Radius + hitbox.Radius) >= MathHelper.PointDistance(X, Y, hitbox.X, hitbox.Y);
+        return (Radius + hitbox.Radius + 1) > MathHelper.PointDistance(X, Y, hitbox.X, hitbox.Y);
     }
 
     // Defer to PreciseHitbox.
