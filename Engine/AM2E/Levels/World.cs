@@ -53,7 +53,9 @@ public static class World
         }
         
         Console.WriteLine("Loading world. World: " + world);
-        
+
+        Console.WriteLine("Loading world. Table of Content: " + world.TableOfContent);
+
         Console.WriteLine("Loading world. Tilesets: " + world.Defs.Tilesets);
 
         // Load tileset definitions.
