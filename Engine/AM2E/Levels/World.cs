@@ -43,12 +43,18 @@ public static class World
         ldtkLevels.Clear();
         stagedLevels.Clear();
         deferredLevelsToBeInstantiated.Clear();
+
+        Console.WriteLine("Loading world. Path: " + path);
         
         JsonSerializer serializer = new();
         using (var reader = File.OpenText(path))
         {
             world = (LDtkWorldInstance)serializer.Deserialize(reader, typeof(LDtkWorldInstance));
         }
+        
+        Console.WriteLine("Loading world. World: " + world);
+        
+        Console.WriteLine("Loading world. Tilesets: " + world.Defs.Tilesets);
 
         // Load tileset definitions.
         foreach (var tileset in world.Defs.Tilesets)
