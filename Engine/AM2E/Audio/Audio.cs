@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using AM2E.IO;
+using AM2E.Levels;
 
 #region Design Notes
 
@@ -10,8 +11,6 @@ using AM2E.IO;
  */
 
 #endregion
-
-// TODO: Level-based playback system
 
 namespace AM2E;
 
@@ -136,9 +135,14 @@ public static class Audio
     /// <summary>
     /// Play an FMOD event
     /// </summary>
-    /// <param name="eventName">Name of the event</param>
-    public static EventInstance PlayEvent(string eventName)
+    /// <param name="eventName">Name of the event.</param>
+    /// <param name="level">The <see cref="Level"/> to require active to play this event. If null, will always play.</param>
+    public static EventInstance PlayEvent(string eventName, Level level)
     {
+        // Cancel event if our target level exists and is NOT active.
+        if (level is not null && !level.Active)
+            return null;
+        
         EventInstance newInstance = null;
         var eventPath = "event:/" + eventName;
         
@@ -163,6 +167,8 @@ public static class Audio
 
     public static void StopEvent(string eventName)
     {
+        // Since this is a brute-force cutoff anyway, we're not going to scan for an input room and just cancel everything.
+        
         var eventPath = "event:/" + eventName;
 
         // Check to see if the event exists
