@@ -111,5 +111,10 @@ public abstract class Hitbox
         return !(x < BoundLeft || x > BoundRight || y < BoundTop || y > BoundBottom);
     }
 
+    /// <summary>
+    /// Debug hitbox render. This can be quite slow for various <see cref="Hitbox"/> children; this is intended ONLY for debugging use!
+    /// </summary>
+    /// <param name="spriteBatch">The <see cref="SpriteBatch"/> to which draw calls will be submitted.</param>
+    /// <param name="color">The <see cref="Color"/> that should be used for the base render.</param>
     public abstract void DebugRender(SpriteBatch spriteBatch, Color color = default);
 }

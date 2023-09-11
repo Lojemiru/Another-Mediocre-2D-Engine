@@ -14,6 +14,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Actors\IPlayer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Actors\PlayerPool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Alarm.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AM2EConfig.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Audio\Audio.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Audio\EventDescription.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Audio\EventInstance.cs" />

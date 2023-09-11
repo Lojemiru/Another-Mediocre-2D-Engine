@@ -6,11 +6,6 @@ using RTree;
 
 namespace AM2E.Collision;
 
-// TODO: Some really bad things are gonna happen here when we change rooms (r-trees won't be updated properly)
-// so we need some kind of dedicated room-changing mechanism for the holding class
-
-// TODO: make constructors internal?
-
 public sealed class Collider
 {
     public Rectangle Bounds;
@@ -194,14 +189,14 @@ public sealed class Collider
         disposed = true;
     }
 
-    public Collider(int x, int y, ColliderBase parent)
+    internal Collider(int x, int y, ColliderBase parent)
     {
         this.parent = parent;
         X = x;
         Y = y;
     }
     
-    public Collider(int x, int y, ColliderBase parent, Hitbox hitbox)
+    internal Collider(int x, int y, ColliderBase parent, Hitbox hitbox)
     {
         this.parent = parent;
         X = x;

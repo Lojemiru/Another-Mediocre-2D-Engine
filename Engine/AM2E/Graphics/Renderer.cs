@@ -15,15 +15,19 @@ public static class Renderer
     public static int GameWidth;
     public static int GameHeight;
 
-    public static int UpscaleAmount { get; private set; } = 1;
+    internal static int UpscaleAmount { get; private set; } = 1;
 
-    // TODO: This should probably be configured/controlled elsewhere.
-    public static float TargetRatio = 16 / (float)9;
-        
-    // TODO: Pull from engine config instead :)
+    private static float targetRatio;
+    
     // TODO: Figure out accessor proper
     public static RenderTarget2D ApplicationSurface;
     private static RenderTarget2D guiSurface;
+
+    internal static void PopulateConfiguration(AM2EConfig config)
+    {
+        targetRatio = config.TargetAspectRatio;
+        SetGameResolution(config.DefaultResolutionWidth, config.DefaultResolutionHeight);
+    }
 
     public static event Action<SpriteBatch> OnDebugRender = _ => { };
 
@@ -37,8 +41,6 @@ public static class Renderer
     internal static void Initialize(GraphicsDeviceManager graphicsDeviceManager)
     {
         GraphicsDeviceManager = graphicsDeviceManager;
-        // TODO: Pull size values from config :)
-        SetGameResolution(1920, 1080);
         applicationBatch = new SpriteBatch(graphicsDeviceManager.GraphicsDevice);
         guiBatch = new SpriteBatch(graphicsDeviceManager.GraphicsDevice);
     }
@@ -66,21 +68,20 @@ public static class Renderer
         var window = (GameWindow)sender;
             
         // Thanks be to http://www.infinitespace-studios.co.uk/general/monogame-scaling-your-game-using-rendertargets-and-touchpanel/
-            
-            
+
         var outputAspect = window.ClientBounds.Width / (float)window.ClientBounds.Height;
 
-        if (outputAspect <= TargetRatio)
+        if (outputAspect <= targetRatio)
         {
             // output is taller than it is wider, bars on top/bottom
-            var presentHeight = (int)((window.ClientBounds.Width / TargetRatio) + 0.5f);
+            var presentHeight = (int)((window.ClientBounds.Width / targetRatio) + 0.5f);
             var barHeight = (window.ClientBounds.Height - presentHeight) / 2;
             ApplicationSpace = new Rectangle(0, barHeight, window.ClientBounds.Width, presentHeight);
         }
         else
         {
             // output is wider than it is tall, bars left/right
-            var presentWidth = (int)((window.ClientBounds.Height * TargetRatio) + 0.5f);
+            var presentWidth = (int)((window.ClientBounds.Height * targetRatio) + 0.5f);
             var barWidth = (window.ClientBounds.Width - presentWidth) / 2;
             ApplicationSpace = new Rectangle(barWidth, 0, presentWidth, window.ClientBounds.Height);
         }

@@ -74,7 +74,6 @@ public sealed class CircleHitbox : Hitbox
         return MathHelper.DoLinesIntersect(X - x, Y - y, X + x, Y + y, x1, y1, x2, y2);
     }
     
-    // TODO: Speed up debug render? Extremely slow right now.
     public override void DebugRender(SpriteBatch spriteBatch, Color color = default)
     {
         if (color == default)

@@ -27,37 +27,38 @@ public sealed class EngineCore : Game
 
     public const bool DEBUG = true;
 
-    public EngineCore(string contentNamespace, Action entryPointCallback)
+    public EngineCore(string contentNamespace, AM2EConfig config, Action entryPointCallback)
     {
         ContentNamespace = contentNamespace;
         this.entryPointCallback = entryPointCallback;
         staticThis = this;
         
-        SetTitle("Another Mediocre 2D Engine");
-        Window.AllowUserResizing = true;
-
-        // TODO: Load parameters from config class/object
+        SetTitle("Built in Another Mediocre 2D Engine");
+        Window.AllowUserResizing = config.AllowResizing;
 
         _graphics = new GraphicsDeviceManager(this);
         Window.ClientSizeChanged += Renderer.OnResize;
-
-        Content.RootDirectory = "Content";
-        IsMouseVisible = true;
+        
+        IsMouseVisible = config.IsMouseVisible;
+        
         // Timestep fixing 
         InactiveSleepTime = new TimeSpan(0);
         IsFixedTimeStep = false;
         
         // TODO: Everything here but vsync is boilerplate from M3D. Review!
         _graphics.GraphicsProfile = GraphicsProfile.HiDef;
-        _graphics.SynchronizeWithVerticalRetrace = true;
+        _graphics.SynchronizeWithVerticalRetrace = config.UseVSync;
         _graphics.PreferMultiSampling = false;
         _graphics.GraphicsProfile = GraphicsProfile.HiDef;
         _graphics.ApplyChanges();
+        
+        Renderer.Initialize(_graphics);
+        
+        Renderer.PopulateConfiguration(config);
     }
 
     protected override void Initialize()
     {
-        Renderer.Initialize(_graphics);
         Audio.Init();
 
         // Run supplied entrypoint callback.
