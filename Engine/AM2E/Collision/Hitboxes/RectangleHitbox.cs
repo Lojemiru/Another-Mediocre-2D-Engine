@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Collision;
 
@@ -47,4 +48,17 @@ public sealed class RectangleHitbox : RectangleHitboxBase
 
     // Defer to whether or not the point is in bounds.
     public override bool ContainsPoint(int x, int y) => ContainsPointInBounds(x, y);
+
+    private static Vector2 debugScale = new();
+    private static Vector2 debugOffset = new();
+    public override void DebugRender(SpriteBatch spriteBatch, Color color = default)
+    {
+        debugScale.X = Width;
+        debugScale.Y = Height;
+        DrawPosition.X = X;
+        DrawPosition.Y = Y;
+        debugOffset.X = OffsetX;
+        debugOffset.Y = OffsetY;
+        spriteBatch.Draw(Pixel, DrawPosition, null, color, 0, debugOffset, debugScale, SpriteEffects.None, 0);
+    }
 }

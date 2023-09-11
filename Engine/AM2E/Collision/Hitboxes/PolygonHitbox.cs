@@ -234,48 +234,49 @@ public abstract class PolygonHitbox : Hitbox
         return true;
     }
     
-    // TODO: Finish moving all the debug render shenanigans to the parent class
-    private static Vector2 position = new();
-    private static Vector2 origin = new();
+    private static readonly Vector2 Origin = new();
     private static Vector2 scale = new(0, 1);
     
-    public void Draw(SpriteBatch spriteBatch)
+    public override void DebugRender(SpriteBatch spriteBatch, Color color = default)
     {
+        if (color == default)
+            color = Color.White;
+        
         // Draw origin.
-        position.X = X;
-        position.Y = Y;
-        spriteBatch.Draw(Pixel, position, Color.Lime);
+        DrawPosition.X = X;
+        DrawPosition.Y = Y;
+        spriteBatch.Draw(Pixel, DrawPosition, Color.Lime);
         
         // Draw lines.
         for (var i = 0; i < points.Length; i++)
         {
             var next = points[i < (points.Length - 1) ? i + 1 : 0];
-            position.X = points[i].X + X;
-            position.Y = points[i].Y + Y;
+            DrawPosition.X = points[i].X + X;
+            DrawPosition.Y = points[i].Y + Y;
             scale.X = (float)Math.Round(MathHelper.PointDistance(points[i].X, points[i].Y, next.X, next.Y));
             var rotation = (float)(Math.Atan2(next.Y - points[i].Y, next.X - points[i].X));
-            spriteBatch.Draw(Pixel, position, null, Color, rotation, origin, scale, SpriteEffects.None, 0);
+            spriteBatch.Draw(Pixel, DrawPosition, null, color, rotation, Origin, scale, SpriteEffects.None, 0);
             
             next = untranslatedPoints[i < (points.Length - 1) ? i + 1 : 0];
-            position.X = untranslatedPoints[i].X + X;
-            position.Y = untranslatedPoints[i].Y + Y;
+            DrawPosition.X = untranslatedPoints[i].X + X;
+            DrawPosition.Y = untranslatedPoints[i].Y + Y;
             scale.X = (float)Math.Round(MathHelper.PointDistance(untranslatedPoints[i].X, untranslatedPoints[i].Y, next.X, next.Y));
             rotation = (float)(Math.Atan2(next.Y - untranslatedPoints[i].Y, next.X - untranslatedPoints[i].X));
-            spriteBatch.Draw(Pixel, position, null, Color * 0.2f, rotation, origin, scale, SpriteEffects.None, 0);
+            spriteBatch.Draw(Pixel, DrawPosition, null, color * 0.2f, rotation, Origin, scale, SpriteEffects.None, 0);
         }
         
         // Draw bounding box corners.
-        position.X = BoundLeft;
-        position.Y = BoundTop;
-        spriteBatch.Draw(Pixel, position, Color.Orange);
+        DrawPosition.X = BoundLeft;
+        DrawPosition.Y = BoundTop;
+        spriteBatch.Draw(Pixel, DrawPosition, Color.Orange);
 
-        position.X = BoundRight;
-        spriteBatch.Draw(Pixel, position, Color.Orange);
+        DrawPosition.X = BoundRight;
+        spriteBatch.Draw(Pixel, DrawPosition, Color.Orange);
         
-        position.Y = BoundBottom;
-        spriteBatch.Draw(Pixel, position, Color.Orange);
+        DrawPosition.Y = BoundBottom;
+        spriteBatch.Draw(Pixel, DrawPosition, Color.Orange);
         
-        position.X = BoundLeft;
-        spriteBatch.Draw(Pixel, position, Color.Orange);
+        DrawPosition.X = BoundLeft;
+        spriteBatch.Draw(Pixel, DrawPosition, Color.Orange);
     }
 }

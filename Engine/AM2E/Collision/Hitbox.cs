@@ -9,9 +9,10 @@ namespace AM2E.Collision;
 
 public abstract class Hitbox
 {
+    protected static Vector2 DrawPosition = new();
     private protected static readonly Texture2D Pixel = new(EngineCore._graphics.GraphicsDevice, 1, 1);
-    static Hitbox() => Pixel.SetData(new[] { Color.White });
-    public Color Color = Color.White;
+    static Hitbox() 
+        => Pixel.SetData(new[] { Color.White });
     private class TypeContainer<T> where T : ICollider { }
     public int OffsetX { get; protected set; } = 0;
     public int OffsetY { get; protected set; } = 0;
@@ -109,4 +110,6 @@ public abstract class Hitbox
     {
         return !(x < BoundLeft || x > BoundRight || y < BoundTop || y > BoundBottom);
     }
+
+    public abstract void DebugRender(SpriteBatch spriteBatch, Color color = default);
 }

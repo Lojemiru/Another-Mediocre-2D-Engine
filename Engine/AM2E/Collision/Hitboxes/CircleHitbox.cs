@@ -73,11 +73,9 @@ public sealed class CircleHitbox : Hitbox
         // And return whether or not our perpendicular diameter and the input line intersect.
         return MathHelper.DoLinesIntersect(X - x, Y - y, X + x, Y + y, x1, y1, x2, y2);
     }
-
-    // TODO: Refactor display shenanigans to be part of the parent, yadda yadda
-    // also make this not horrible slow even though it's debug lol
-    private static Vector2 pos;
-    public void DebugRender(SpriteBatch spriteBatch, Color color = default)
+    
+    // TODO: Speed up debug render? Extremely slow right now.
+    public override void DebugRender(SpriteBatch spriteBatch, Color color = default)
     {
         if (color == default)
             color = Color.White;
@@ -86,10 +84,10 @@ public sealed class CircleHitbox : Hitbox
         {
             for (var j = 0; j < (BoundBottom - BoundTop) + 1; j++)
             {
-                pos.X = BoundLeft + i;
-                pos.Y = BoundTop + j;
+                DrawPosition.X = BoundLeft + i;
+                DrawPosition.Y = BoundTop + j;
                 if (ContainsPoint(BoundLeft + i, BoundTop + j))
-                    spriteBatch.Draw(Pixel, pos, color);
+                    spriteBatch.Draw(Pixel, DrawPosition, color);
             }
         }
     }

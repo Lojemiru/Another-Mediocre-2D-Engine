@@ -1,4 +1,6 @@
 using System;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Collision;
 
@@ -229,5 +231,24 @@ public sealed class PreciseHitbox : RectangleHitboxBase
         }
         
         return false;
+    }
+
+    public override void DebugRender(SpriteBatch spriteBatch, Color color = default)
+    {
+        if (color == default)
+            color = Color.White;
+        
+        for (var i = 0; i < Mask.GetLength(0); i++)
+        {
+            for (var j = 0; j < Mask.GetLength(1); j++)
+            {
+                if (!CheckPointInMask(i, j))
+                    continue;
+                
+                DrawPosition.X = X - OffsetX + i;
+                DrawPosition.Y = Y - OffsetY + j;
+                spriteBatch.Draw(Pixel, DrawPosition, color);
+            }
+        }
     }
 }
