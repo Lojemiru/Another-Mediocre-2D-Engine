@@ -18,12 +18,12 @@ public sealed class EngineCore : Game
     private const double MAX_ACCUMULATOR_VALUE = 8.0 / 60.0;
     private bool resetDeltaTime = false;
     private static EngineCore staticThis;
+    internal static GameWindow StaticWindow;
     internal static Server Server;
     internal static Client Client;
     internal static string ContentNamespace;
     public static bool isNetworked = false;
     public static bool isServer;
-
 
     public const bool DEBUG = true;
 
@@ -32,11 +32,14 @@ public sealed class EngineCore : Game
         ContentNamespace = contentNamespace;
         this.entryPointCallback = entryPointCallback;
         staticThis = this;
+        StaticWindow = Window;
         
         SetTitle("Built in Another Mediocre 2D Engine");
+        
         Window.AllowUserResizing = config.AllowResizing;
-
+        
         _graphics = new GraphicsDeviceManager(this);
+        
         Window.ClientSizeChanged += Renderer.OnResize;
         
         IsMouseVisible = config.IsMouseVisible;
@@ -53,8 +56,9 @@ public sealed class EngineCore : Game
         _graphics.ApplyChanges();
         
         Renderer.Initialize(_graphics);
-        
         Renderer.PopulateConfiguration(config);
+        
+        SetWindowSize(config.DefaultResolutionWidth, config.DefaultResolutionHeight);
     }
 
     protected override void Initialize()
@@ -170,6 +174,28 @@ public sealed class EngineCore : Game
     public static void SetTitle(string title)
     {
         staticThis.Window.Title = title;
+    }
+    
+    /// <summary>
+    /// Sets the window size.
+    /// </summary>
+    /// <param name="width">The desired window width, in pixels.</param>
+    /// <param name="height">The desired window height, in pixels.</param>
+    public static void SetWindowSize(int width, int height)
+    {
+        // Disable OnResize event.
+        StaticWindow.ClientSizeChanged -= Renderer.OnResize;
+        
+        // Set preferred size in the GDM and then apply the changes.
+        _graphics.PreferredBackBufferWidth = width;
+        _graphics.PreferredBackBufferHeight = height;
+        _graphics.ApplyChanges();
+        
+        // Re-enable OnResize event.
+        StaticWindow.ClientSizeChanged += Renderer.OnResize;
+
+        // Run the OnResize event manually to update the draw space and scale.
+        Renderer.OnResizeInternal(StaticWindow, true);
     }
 
     public static void StartServer(int port)

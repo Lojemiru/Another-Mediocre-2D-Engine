@@ -8,7 +8,7 @@ namespace AM2E.Graphics;
 public static class Renderer
 {
     public static GraphicsDeviceManager GraphicsDeviceManager { get; private set; }
-    public static Rectangle ApplicationSpace = new Rectangle(0, 0, 426, 240);
+    public static Rectangle ApplicationSpace;
     private static Rectangle guiSpace = new();
     private static SpriteBatch applicationBatch;
     private static SpriteBatch guiBatch;
@@ -31,7 +31,7 @@ public static class Renderer
 
     public static event Action<SpriteBatch> OnDebugRender = _ => { };
 
-    public static event Action<SpriteBatch> OnGUIRender = (_) => { };
+    public static event Action<SpriteBatch> OnGUIRender = _ => { };
     
     public static void DebugRender(SpriteBatch spriteBatch)
     {
@@ -55,6 +55,8 @@ public static class Renderer
         guiSurface = new RenderTarget2D(GraphicsDeviceManager.GraphicsDevice, width, height);
 
         Camera.UpdateTransform();
+        
+        OnResizeInternal(EngineCore.StaticWindow);
     }
 
     public static void SetUpscaleAmount(int amount)
@@ -63,10 +65,23 @@ public static class Renderer
         SetGameResolution(ApplicationSurface.Width, ApplicationSurface.Height);
     }
 
-    public static void OnResize(Object sender, EventArgs e)
+    internal static void OnResize(object sender, EventArgs e)
+        => OnResizeInternal(sender as GameWindow);
+    
+
+    internal static void OnResizeInternal(GameWindow window, bool fromManualResize = false)
     {
-        var window = (GameWindow)sender;
-            
+        if (!fromManualResize)
+        {
+            window.ClientSizeChanged -= OnResize;
+
+            GraphicsDeviceManager.PreferredBackBufferWidth = window.ClientBounds.Width;
+            GraphicsDeviceManager.PreferredBackBufferHeight = window.ClientBounds.Height;
+            GraphicsDeviceManager.ApplyChanges();
+
+            window.ClientSizeChanged += OnResize;
+        }
+
         // Thanks be to http://www.infinitespace-studios.co.uk/general/monogame-scaling-your-game-using-rendertargets-and-touchpanel/
 
         var outputAspect = window.ClientBounds.Width / (float)window.ClientBounds.Height;
