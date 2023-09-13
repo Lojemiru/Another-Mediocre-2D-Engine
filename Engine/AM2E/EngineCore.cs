@@ -49,10 +49,9 @@ public sealed class EngineCore : Game
         IsFixedTimeStep = false;
         
         // TODO: Everything here but vsync is boilerplate from M3D. Review!
-        _graphics.GraphicsProfile = GraphicsProfile.HiDef;
+        _graphics.GraphicsProfile = config.GraphicsProfile;
         _graphics.SynchronizeWithVerticalRetrace = config.UseVSync;
         _graphics.PreferMultiSampling = false;
-        _graphics.GraphicsProfile = GraphicsProfile.HiDef;
         _graphics.ApplyChanges();
         
         Renderer.Initialize(_graphics);
@@ -196,6 +195,23 @@ public sealed class EngineCore : Game
 
         // Run the OnResize event manually to update the draw space and scale.
         Renderer.OnResizeInternal(StaticWindow, true);
+    }
+
+    public static void SetVsync(bool status)
+    {
+        _graphics.SynchronizeWithVerticalRetrace = status;
+        _graphics.ApplyChanges();
+    }
+
+    public static void SetFullscreen(bool status)
+    {
+        if (_graphics.IsFullScreen == status)
+            return;
+
+        _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+        _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+        _graphics.IsFullScreen = status;
+        _graphics.ApplyChanges();
     }
 
     public static void StartServer(int port)
