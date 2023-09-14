@@ -24,6 +24,7 @@ public sealed class EngineCore : Game
     internal static string ContentNamespace;
     public static bool isNetworked = false;
     public static bool isServer;
+    internal static int TileChunkSize;
 
     public const bool DEBUG = true;
 
@@ -33,6 +34,7 @@ public sealed class EngineCore : Game
         this.entryPointCallback = entryPointCallback;
         staticThis = this;
         StaticWindow = Window;
+        TileChunkSize = config.TileChunkSize;
         
         SetTitle("Built in Another Mediocre 2D Engine");
         
@@ -58,6 +60,8 @@ public sealed class EngineCore : Game
         Renderer.PopulateConfiguration(config);
         
         SetWindowSize(config.DefaultResolutionWidth, config.DefaultResolutionHeight);
+        
+        InputManager.Initialize(config.InputEnum);
     }
 
     protected override void Initialize()

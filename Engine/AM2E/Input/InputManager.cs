@@ -36,9 +36,9 @@ namespace AM2E.Control;
 
 public static class InputManager
 {
-    private static readonly Dictionary<Input, KeyboardInput> KeyboardListeners = new();
-    private static readonly Dictionary<Input, MouseInput> MouseListeners = new();
-    private static readonly Dictionary<Input, GamePadInput> GamePadListeners = new();
+    private static readonly Dictionary<string, KeyboardInput> KeyboardListeners = new();
+    private static readonly Dictionary<string, MouseInput> MouseListeners = new();
+    private static readonly Dictionary<string, GamePadInput> GamePadListeners = new();
     
     private const double PI_HALVES = Math.PI / 2;
     private const double PI_FOURTHS = Math.PI / 4;
@@ -61,9 +61,9 @@ public static class InputManager
     public static float RightTrigger { get; private set; }
     public static float LeftTrigger { get; private set; }
 
-    static InputManager()
+    internal static void Initialize(Type enumType)
     {
-        foreach (Input input in Enum.GetValues(typeof(Input)))
+        foreach (var input in Enum.GetNames(enumType))
         {
             KeyboardListeners.Add(input, new KeyboardInput(Keys.None));
             MouseListeners.Add(input, new MouseInput(MouseButton.None));
@@ -71,7 +71,7 @@ public static class InputManager
         }
     }
 
-    public static void Update()
+    internal static void Update()
     {
         // Keyboard
         var keyboardState = Keyboard.GetState();
@@ -118,74 +118,78 @@ public static class InputManager
 
     #region Binding
     
-    public static void BindKey(Input input, Keys key, int index = 0)
+    public static void BindKey(Enum input, Keys key, int index = 0)
     {
-        KeyboardListeners[input].Rebind(key, index);
+        KeyboardListeners[input.ToString()].Rebind(key, index);
     }
 
-    public static void BindMouseButton(Input input, MouseButton mouseButton, int index = 0)
+    public static void BindMouseButton(Enum input, MouseButton mouseButton, int index = 0)
     {
-        MouseListeners[input].Rebind(mouseButton, index);
+        MouseListeners[input.ToString()].Rebind(mouseButton, index);
     }
 
-    public static void BindGamePadButton(Input input, Buttons button, int index = 0)
+    public static void BindGamePadButton(Enum input, Buttons button, int index = 0)
     {
-        GamePadListeners[input].Rebind(button, index);
+        GamePadListeners[input.ToString()].Rebind(button, index);
     }
     
-    public static int BindAlternateKey(Input input, Keys key)
+    public static int BindAlternateKey(Enum input, Keys key)
     {
-        return KeyboardListeners[input].AddAlternateBinding(key);
+        return KeyboardListeners[input.ToString()].AddAlternateBinding(key);
     }
 
-    public static int BindAlternateMouseButton(Input input, MouseButton mouseButton)
+    public static int BindAlternateMouseButton(Enum input, MouseButton mouseButton)
     {
-        return MouseListeners[input].AddAlternateBinding(mouseButton);
+        return MouseListeners[input.ToString()].AddAlternateBinding(mouseButton);
     }
 
-    public static int BindAlternateGamePadButton(Input input, Buttons button)
+    public static int BindAlternateGamePadButton(Enum input, Buttons button)
     {
-        return GamePadListeners[input].AddAlternateBinding(button);
+        return GamePadListeners[input.ToString()].AddAlternateBinding(button);
     }
     
     #endregion
 
     #region Getters
 
-    public static bool GetPressed(Input input)
+    public static bool GetPressed(Enum input)
     {
-        return KeyboardListeners[input].InputPressed | MouseListeners[input].InputPressed | GamePadListeners[input].InputPressed;
+        var inputStr = input.ToString();
+        return KeyboardListeners[inputStr].InputPressed | MouseListeners[inputStr].InputPressed | GamePadListeners[inputStr].InputPressed;
     }
 
-    public static bool GetPressedCancelling(Input input, Input cancellingInput)
+    public static bool GetPressedCancelling(Enum input, Enum cancellingInput)
     {
         return GetPressed(input) && !GetHeld(cancellingInput);
     }
 
-    public static bool GetReleased(Input input)
+    public static bool GetReleased(Enum input)
     {
-        return KeyboardListeners[input].InputReleased | MouseListeners[input].InputReleased | GamePadListeners[input].InputReleased;
+        var inputStr = input.ToString();
+        return KeyboardListeners[inputStr].InputReleased | MouseListeners[inputStr].InputReleased | GamePadListeners[inputStr].InputReleased;
     }
 
-    public static bool GetReleasedCancelling(Input input, Input cancellingInput)
+    public static bool GetReleasedCancelling(Enum input, Enum cancellingInput)
     {
         return GetReleased(input) && !GetHeld(cancellingInput);
     }
 
-    public static bool GetHeld(Input input)
+    public static bool GetHeld(Enum input)
     {
-        return KeyboardListeners[input].InputHeld | MouseListeners[input].InputHeld | GamePadListeners[input].InputHeld;
+        var inputStr = input.ToString();
+        return KeyboardListeners[inputStr].InputHeld | MouseListeners[inputStr].InputHeld | GamePadListeners[inputStr].InputHeld;
     }
 
-    public static bool GetHeldCancelling(Input input, Input cancellingInput)
+    public static bool GetHeldCancelling(Enum input, Enum cancellingInput)
     {
         return GetHeld(input) && !GetHeld(cancellingInput);
     }
 
-    public static int GetHeldSteps(Input input)
+    public static int GetHeldSteps(Enum input)
     {
+        var inputStr = input.ToString();
         // TODO: this is probably bad practice and not net-supported, nuke it
-        return KeyboardListeners[input].InputHeldSteps | MouseListeners[input].InputHeldSteps | GamePadListeners[input].InputHeldSteps;
+        return KeyboardListeners[inputStr].InputHeldSteps | MouseListeners[inputStr].InputHeldSteps | GamePadListeners[inputStr].InputHeldSteps;
     }
 
     #endregion

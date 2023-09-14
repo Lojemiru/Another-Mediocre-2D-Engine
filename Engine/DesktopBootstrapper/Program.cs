@@ -3,5 +3,5 @@
 
 using GameContent;
 
-using var game = new AM2E.EngineCore("GameContent", EngineConfigurator.GetConfig(), GameContent.EntryPoint.OnEntry);
+using var game = new AM2E.EngineCore("GameContent", EngineConfigurator.GetConfig(), EntryPoint.OnEntry);
 game.Run();

@@ -17,7 +17,7 @@ public sealed class TileManager : IDrawable
     
     public TileManager(Level level, int tileSize = 16)
     {
-        chunkSize = EngineConfig.TILE_CHUNK_SIZE;
+        chunkSize = EngineCore.TileChunkSize;
         
         chunkSizePx = (tileSize * chunkSize);
         chunksX = (level.Width / chunkSizePx) + 1;
