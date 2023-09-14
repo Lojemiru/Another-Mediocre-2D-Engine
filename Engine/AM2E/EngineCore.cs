@@ -50,10 +50,9 @@ public sealed class EngineCore : Game
         InactiveSleepTime = new TimeSpan(0);
         IsFixedTimeStep = false;
         
-        // TODO: Everything here but vsync is boilerplate from M3D. Review!
         _graphics.GraphicsProfile = config.GraphicsProfile;
         _graphics.SynchronizeWithVerticalRetrace = config.UseVSync;
-        _graphics.PreferMultiSampling = false;
+        _graphics.PreferMultiSampling = config.PreferMultiSampling;
         _graphics.ApplyChanges();
         
         Renderer.Initialize(_graphics);

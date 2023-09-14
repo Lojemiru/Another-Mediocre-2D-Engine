@@ -19,8 +19,7 @@ public static class Renderer
 
     private static float targetRatio;
     
-    // TODO: Figure out accessor proper
-    public static RenderTarget2D ApplicationSurface;
+    public static RenderTarget2D ApplicationSurface { get; private set; }
     private static RenderTarget2D guiSurface;
 
     internal static void PopulateConfiguration(AM2EConfig config)
