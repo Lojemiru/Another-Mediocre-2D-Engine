@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -48,7 +49,8 @@ public sealed class TexturePage
         },
     };
 
-    private static TexturePage FromJson(string json) => JsonConvert.DeserializeObject<TexturePage>(json, Settings);
+    private static TexturePage FromJson(string json) 
+        => JsonConvert.DeserializeObject<TexturePage>(json, Settings);
 
     #endregion
     
@@ -59,11 +61,56 @@ public sealed class TexturePage
     /// <returns>The instantiated <see cref="TexturePage"/>.</returns>
     public static TexturePage Load(PageIndex index)
     {
-        // TODO: Make this safe or something lol
+        string fileText;
+        TexturePage output;
+        FileStream fileStream;
 
-        var output = FromJson(File.ReadAllText(AssetManager.GetTextureMetadataPath(index)));
-        FileStream fileStream = new(AssetManager.GetTexturePath(index), FileMode.Open);
-        output.Texture = Texture2D.FromStream(EngineCore._graphics.GraphicsDevice, fileStream);
+        // Try to load file as text...
+        try
+        {
+            fileText = File.ReadAllText(AssetManager.GetTextureMetadataPath(index));
+        }
+        catch (FileNotFoundException e)
+        {
+            throw new FileNotFoundException("Unable to find metadata file for page \"" + index + "\"\n" + e.StackTrace);
+        }
+
+        // Then try to convert to JSON...
+        try
+        {
+            output = FromJson(fileText);
+        }
+        catch (JsonReaderException e)
+        {
+            throw new JsonReaderException("Error loading JSON for page \"" + index + "\":" + e.Message + "\n" + e.StackTrace);
+        }
+
+        // Ensure we didn't get handed null.
+        if (output is null)
+        {
+            throw new NullReferenceException("Error loading metadata file for page \"" + index + "\": JSON conversion returned null.");
+        }
+
+        // Then try to open a FileStream to the texture atlas...
+        try
+        {
+            fileStream = new FileStream(AssetManager.GetTexturePath(index), FileMode.Open);
+        }
+        catch (FileNotFoundException e)
+        {
+            throw new FileNotFoundException("Unable to find texture file for page \"" + index + "\"\n" + e.StackTrace);
+        }
+
+        // Then try to convert said FileStream to the actual Texture2D...
+        try
+        {
+            output.Texture = Texture2D.FromStream(EngineCore._graphics.GraphicsDevice, fileStream);
+        }
+        catch (InvalidOperationException e)
+        {
+            throw new InvalidOperationException("Found unsupported image format while loading texture for page \"" + index + "\". What are you doing???\n" + e.StackTrace);
+        }
+
         fileStream.Dispose();
         
         // Assign sprites their TexturePage. Not the fastest thing ever, but I don't think I have any better options due to the direction JSON serializes in.
