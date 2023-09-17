@@ -65,6 +65,7 @@ public sealed class EngineCore : Game
 
     protected override void Initialize()
     {
+        ShaderManager.LoadAll();
         Audio.Init();
 
         // Run supplied entrypoint callback.
