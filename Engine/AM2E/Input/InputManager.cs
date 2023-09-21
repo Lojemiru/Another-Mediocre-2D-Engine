@@ -1,5 +1,4 @@
-﻿using GameContent.EngineConfig;
-using Microsoft.Xna.Framework.Input;
+﻿using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using AM2E.Graphics;
@@ -39,6 +38,7 @@ public static class InputManager
     private static readonly Dictionary<string, KeyboardInput> KeyboardListeners = new();
     private static readonly Dictionary<string, MouseInput> MouseListeners = new();
     private static readonly Dictionary<string, GamePadInput> GamePadListeners = new();
+    private static readonly Dictionary<string, List<string>> RebindGroups = new();
     
     private const double PI_HALVES = Math.PI / 2;
     private const double PI_FOURTHS = Math.PI / 4;
@@ -114,81 +114,214 @@ public static class InputManager
         }
     }
 
-    // TODO: Rebinding. Needs to handle smart swapping via groups.
+    private static void ValidateGroupExists(string groupName)
+    {
+        if (!RebindGroups.ContainsKey(groupName))
+            throw new ArgumentException("Group name \"" + groupName + "\" is invalid!");
+    }
+
+    private static void ValidateInputExists(string inputName)
+    {
+        if (!KeyboardListeners.ContainsKey(inputName))
+            throw new ArgumentException("Input name \"" + inputName + "\" is invalid!");
+    }
 
     #region Binding
-    
+
     public static void BindKey(Enum input, Keys key, int index = 0)
+        => BindKey(input.ToString(), key, index);
+
+    public static void BindKey(string input, Keys key, int index = 0)
     {
-        KeyboardListeners[input.ToString()].Rebind(key, index);
+        ValidateInputExists(input);
+        KeyboardListeners[input].Rebind(key, index);
     }
 
     public static void BindMouseButton(Enum input, MouseButton mouseButton, int index = 0)
+        => BindMouseButton(input.ToString(), mouseButton, index);
+    
+    public static void BindMouseButton(string input, MouseButton mouseButton, int index = 0)
     {
-        MouseListeners[input.ToString()].Rebind(mouseButton, index);
+        ValidateInputExists(input);
+        MouseListeners[input].Rebind(mouseButton, index);
     }
 
     public static void BindGamePadButton(Enum input, Buttons button, int index = 0)
-    {
-        GamePadListeners[input.ToString()].Rebind(button, index);
-    }
+        => BindGamePadButton(input.ToString(), button, index);
     
-    public static int BindAlternateKey(Enum input, Keys key)
+    public static void BindGamePadButton(string input, Buttons button, int index = 0)
     {
-        return KeyboardListeners[input.ToString()].AddAlternateBinding(key);
+        ValidateInputExists(input);
+        GamePadListeners[input].Rebind(button, index);
+    }
+
+    public static int BindAlternateKey(Enum input, Keys key)
+        => BindAlternateKey(input.ToString(), key);
+    
+    public static int BindAlternateKey(string input, Keys key)
+    {
+        ValidateInputExists(input);
+        return KeyboardListeners[input].AddAlternateBinding(key);
     }
 
     public static int BindAlternateMouseButton(Enum input, MouseButton mouseButton)
+        => BindAlternateMouseButton(input.ToString(), mouseButton);
+    
+    public static int BindAlternateMouseButton(string input, MouseButton mouseButton)
     {
-        return MouseListeners[input.ToString()].AddAlternateBinding(mouseButton);
+        ValidateInputExists(input);
+        return MouseListeners[input].AddAlternateBinding(mouseButton);
     }
 
     public static int BindAlternateGamePadButton(Enum input, Buttons button)
+        => BindAlternateGamePadButton(input.ToString(), button);
+    
+    public static int BindAlternateGamePadButton(string input, Buttons button)
     {
-        return GamePadListeners[input.ToString()].AddAlternateBinding(button);
+        ValidateInputExists(input);
+        return GamePadListeners[input].AddAlternateBinding(button);
     }
     
     #endregion
 
+    #region Rebinding
+    
+    // TODO: Finish rebinding. Needs to handle smart swapping via groups
+
+    public static void CreateRebindGroup(Enum groupName, IEnumerable<Enum> entries = null)
+    {
+        var name = groupName.ToString();
+        
+        if (RebindGroups.ContainsKey(name))
+            throw new ArgumentException("Group \"" + name + "\" already exists!");
+        
+        RebindGroups[name] = new List<string>();
+        
+        if (entries is null) 
+            return;
+        
+        foreach (var entry in entries)
+        {
+            RebindGroups[name].Add(entry.ToString());
+        }
+    }
+
+    public static void CreateRebindGroup(string groupName, IEnumerable<string> entries = null)
+    {
+        if (RebindGroups.ContainsKey(groupName))
+            throw new ArgumentException("Group \"" + groupName + "\" already exists!");
+        
+        RebindGroups[groupName] = new List<string>();
+        
+        if (entries is null) 
+            return;
+        
+        foreach (var entry in entries)
+        {
+            RebindGroups[groupName].Add(entry);
+        }
+    }
+
+    public static void DeleteRebindGroup(Enum groupName)
+        => DeleteRebindGroup(groupName.ToString());
+
+    public static void DeleteRebindGroup(string groupName)
+    {
+        RebindGroups.Remove(groupName);
+    }
+
+    public static void AddInputToGroup(Enum groupName, Enum inputName)
+        => AddInputToGroup(groupName.ToString(), inputName.ToString());
+
+    public static void AddInputToGroup(string groupName, string inputName)
+    {
+        // Check for invalid group and input names...
+        ValidateGroupExists(groupName);
+        ValidateInputExists(inputName);
+        
+        // Then add the bind if we don't already have it in this group.
+        if (!RebindGroups[groupName].Contains(inputName))
+            RebindGroups[groupName].Add(inputName);
+    }
+
+    public static void RemoveInputFromGroup(Enum groupName, Enum inputName)
+        => RemoveInputFromGroup(groupName.ToString(), inputName.ToString());
+    
+    public static void RemoveInputFromGroup(string groupName, string inputName)
+    {
+        // Check for invalid group and input names...
+        ValidateGroupExists(groupName);
+        ValidateInputExists(inputName);
+        
+        // Then remove the bind.
+        RebindGroups[groupName].Remove(inputName);
+    }
+    
+    #endregion
+    
     #region Getters
 
     public static bool GetPressed(Enum input)
+        => GetPressed(input.ToString());
+    
+    public static bool GetPressed(string input)
     {
-        var inputStr = input.ToString();
-        return KeyboardListeners[inputStr].InputPressed | MouseListeners[inputStr].InputPressed | GamePadListeners[inputStr].InputPressed;
+        ValidateInputExists(input);
+        return KeyboardListeners[input].InputPressed | MouseListeners[input].InputPressed | GamePadListeners[input].InputPressed;
     }
 
     public static bool GetPressedCancelling(Enum input, Enum cancellingInput)
+        => GetPressedCancelling(input.ToString(), cancellingInput.ToString());
+    
+    public static bool GetPressedCancelling(string input, string cancellingInput)
     {
+        ValidateInputExists(input);
+        ValidateInputExists(cancellingInput);
         return GetPressed(input) && !GetHeld(cancellingInput);
     }
 
-    public static bool GetReleased(Enum input)
+    public static bool GetReleased(Enum input) 
+        => GetReleased(input.ToString());
+    
+    public static bool GetReleased(string input)
     {
-        var inputStr = input.ToString();
-        return KeyboardListeners[inputStr].InputReleased | MouseListeners[inputStr].InputReleased | GamePadListeners[inputStr].InputReleased;
+        ValidateInputExists(input);
+        return KeyboardListeners[input].InputReleased | MouseListeners[input].InputReleased | GamePadListeners[input].InputReleased;
     }
 
     public static bool GetReleasedCancelling(Enum input, Enum cancellingInput)
+        => GetReleasedCancelling(input.ToString(), cancellingInput.ToString());
+    
+    public static bool GetReleasedCancelling(string input, string cancellingInput)
     {
+        ValidateInputExists(input);
+        ValidateInputExists(cancellingInput);
         return GetReleased(input) && !GetHeld(cancellingInput);
     }
 
     public static bool GetHeld(Enum input)
+        => GetHeld(input.ToString());
+    
+    public static bool GetHeld(string input)
     {
-        var inputStr = input.ToString();
-        return KeyboardListeners[inputStr].InputHeld | MouseListeners[inputStr].InputHeld | GamePadListeners[inputStr].InputHeld;
+        ValidateInputExists(input);
+        return KeyboardListeners[input].InputHeld | MouseListeners[input].InputHeld | GamePadListeners[input].InputHeld;
     }
 
     public static bool GetHeldCancelling(Enum input, Enum cancellingInput)
+        => GetHeldCancelling(input.ToString(), cancellingInput.ToString());
+    
+    public static bool GetHeldCancelling(string input, string cancellingInput)
     {
+        ValidateInputExists(input);
+        ValidateInputExists(cancellingInput);
         return GetHeld(input) && !GetHeld(cancellingInput);
     }
 
+    // TODO: this is probably bad practice and not net-supported, nuke it
     public static int GetHeldSteps(Enum input)
     {
         var inputStr = input.ToString();
-        // TODO: this is probably bad practice and not net-supported, nuke it
         return KeyboardListeners[inputStr].InputHeldSteps | MouseListeners[inputStr].InputHeldSteps | GamePadListeners[inputStr].InputHeldSteps;
     }
 
@@ -213,7 +346,7 @@ public static class InputManager
     
     internal static Vector2 ApplyDeadZone(Vector2 value, float deadZone)
     {
-        return InputManager.CenterDeadZoneType switch
+        return CenterDeadZoneType switch
         {
             GamePadDeadZone.None => value,
             GamePadDeadZone.IndependentAxes => ExcludeAngularAxisDeadZone(ExcludeIndependentAxesDeadZone(value, deadZone), AngularAxisDeadZone),
