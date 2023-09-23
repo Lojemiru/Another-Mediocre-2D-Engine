@@ -4,7 +4,7 @@ namespace AM2E.Control;
 
 internal abstract class InputBase<TInput, TState>
 {
-    protected List<TInput> Inputs = new();
+    internal readonly List<TInput> Inputs = new();
     
     protected InputBase(TInput input)
     {

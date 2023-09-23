@@ -56,7 +56,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Input\KeyboardInput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\IDrawable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Renderer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Input\MouseButton.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Input\MouseButtons.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\MouseInput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\ColliderBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\GenericLevelElement.cs" />

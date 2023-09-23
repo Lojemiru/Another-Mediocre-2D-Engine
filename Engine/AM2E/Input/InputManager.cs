@@ -9,23 +9,35 @@ namespace AM2E.Control;
 #region Design Notes
 
 /*
- * With the exception of mouse X/Y position, all inputs (including analog like thumbsticks/triggers) are processed into
+ * [Analog vs. binary inputs]
+ * With the exception of mouse X/Y position, all inputs (including analog like thumb sticks/triggers) are processed into
  *      a binary state. This is the simplest solution for most end users in a traditional 2D context, especially when
  *      we're applying dead zones. However, there are several reasons that the end user may still want raw analog input,
- *      so I have provided a means to read this input for thumbsticks and analog triggers.
+ *      so I have provided a means to read this input for thumb sticks and analog triggers.
  *
- * Alternative bindings are also an important concept. These allow for the simple assignment of multiple buttons to the
- *      same user-defined Input; a common use case for this is assigning both the d-pad and left thumbstick to movement.
+ * [Bindings]
+ * Alternative bindings are an important concept. These allow for the simple assignment of multiple buttons to the same
+ *      user-defined input; a common use case for this is assigning both the d-pad and left thumbstick to movement. I've
+ *      dealt with this too many times to not support it out of the box.
  *
+ * Rebinding is something I've tussled with for far longer than I'd like to admit. Not the actual key indexes being
+ *      changed, but setting up a sane system for automatically swapping conflicting keys. The problem is that in a lot
+ *      of situations you NEED keys to conflict - you need "groups" of keys that will auto-swap with each other, but not
+ *      with keys outside their group. A common example is having separate bindings for menu controls; you probably want
+ *      these to be able to overlap with gameplay controls like jumping and attacking. I've provided this with the
+ *      "rebinding groups" functionality, and I hope it proves useful.
+ *
+ * [Dead zones]
  * MonoGame does not allow you to modify the applied dead zone values (presumably an XNA leftover because Microsoft
  *      assumed nobody would use anything other than an Xbox controller). As such, I've copied their dead zone code
  *      (and license, as per its terms) into here so that user-defined dead zone values may be utilized.
- *
+ * 
  * I've also added another type of dead zone that should be used in more 2D games: an angular axis dead zone.
  *      It determines how many degrees away from any of the four cardinal directions should still be counted as being
  *      that direction alone; this is a way to prevent over-sensitive controllers from drifting off the intended
  *      direction too easily.
  *
+ * [Haptics]
  * MonoGame does not allow you to set a duration for controller rumble. Instead, it picks a default value based on the
  *      platform (or something similar, I didn't dig too deep). Anyway, point is: the slightly odd rumble setup here is
  *      necessary to let us set custom durations.
@@ -38,7 +50,7 @@ public static class InputManager
     private static readonly Dictionary<string, KeyboardInput> KeyboardListeners = new();
     private static readonly Dictionary<string, MouseInput> MouseListeners = new();
     private static readonly Dictionary<string, GamePadInput> GamePadListeners = new();
-    private static readonly Dictionary<string, List<string>> RebindGroups = new();
+    private static readonly Dictionary<string, string> RebindGroupMappings = new();
     
     private const double PI_HALVES = Math.PI / 2;
     private const double PI_FOURTHS = Math.PI / 4;
@@ -66,7 +78,7 @@ public static class InputManager
         foreach (var input in Enum.GetNames(enumType))
         {
             KeyboardListeners.Add(input, new KeyboardInput(Keys.None));
-            MouseListeners.Add(input, new MouseInput(MouseButton.None));
+            MouseListeners.Add(input, new MouseInput(MouseButtons.None));
             GamePadListeners.Add(input, new GamePadInput(Buttons.None));
         }
     }
@@ -114,12 +126,6 @@ public static class InputManager
         }
     }
 
-    private static void ValidateGroupExists(string groupName)
-    {
-        if (!RebindGroups.ContainsKey(groupName))
-            throw new ArgumentException("Group name \"" + groupName + "\" is invalid!");
-    }
-
     private static void ValidateInputExists(string inputName)
     {
         if (!KeyboardListeners.ContainsKey(inputName))
@@ -137,13 +143,13 @@ public static class InputManager
         KeyboardListeners[input].Rebind(key, index);
     }
 
-    public static void BindMouseButton(Enum input, MouseButton mouseButton, int index = 0)
-        => BindMouseButton(input.ToString(), mouseButton, index);
+    public static void BindMouseButton(Enum input, MouseButtons mouseButtons, int index = 0)
+        => BindMouseButton(input.ToString(), mouseButtons, index);
     
-    public static void BindMouseButton(string input, MouseButton mouseButton, int index = 0)
+    public static void BindMouseButton(string input, MouseButtons mouseButtons, int index = 0)
     {
         ValidateInputExists(input);
-        MouseListeners[input].Rebind(mouseButton, index);
+        MouseListeners[input].Rebind(mouseButtons, index);
     }
 
     public static void BindGamePadButton(Enum input, Buttons button, int index = 0)
@@ -164,13 +170,13 @@ public static class InputManager
         return KeyboardListeners[input].AddAlternateBinding(key);
     }
 
-    public static int BindAlternateMouseButton(Enum input, MouseButton mouseButton)
-        => BindAlternateMouseButton(input.ToString(), mouseButton);
+    public static int BindAlternateMouseButton(Enum input, MouseButtons mouseButtons)
+        => BindAlternateMouseButton(input.ToString(), mouseButtons);
     
-    public static int BindAlternateMouseButton(string input, MouseButton mouseButton)
+    public static int BindAlternateMouseButton(string input, MouseButtons mouseButtons)
     {
         ValidateInputExists(input);
-        return MouseListeners[input].AddAlternateBinding(mouseButton);
+        return MouseListeners[input].AddAlternateBinding(mouseButtons);
     }
 
     public static int BindAlternateGamePadButton(Enum input, Buttons button)
@@ -185,76 +191,139 @@ public static class InputManager
     #endregion
 
     #region Rebinding
+
+    // Yes, I know that these methods have a large copypasted loop.
+    // No, I can't be bothered to find a way to cleanly make it generic. If you're here and annoyed, please open a PR.
     
-    // TODO: Finish rebinding. Needs to handle smart swapping via groups
-
-    public static void CreateRebindGroup(Enum groupName, IEnumerable<Enum> entries = null)
+    public static void RebindKey(Enum inputName, Keys key, int index = 0)
+        => RebindKey(inputName.ToString(), key, index);
+    
+    public static void RebindKey(string inputName, Keys key, int index = 0)
     {
-        var name = groupName.ToString();
+        var groupName = RebindGroupMappings[inputName];
+        var oldKey = KeyboardListeners[inputName].Inputs[index];
         
-        if (RebindGroups.ContainsKey(name))
-            throw new ArgumentException("Group \"" + name + "\" already exists!");
+        KeyboardListeners[inputName].Rebind(key, index);
         
-        RebindGroups[name] = new List<string>();
-        
-        if (entries is null) 
+        // If we don't have a group, don't try to smart rebind.
+        if (groupName is null) 
             return;
         
-        foreach (var entry in entries)
+        // Search group mappings index...
+        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+        foreach (var input in RebindGroupMappings)
         {
-            RebindGroups[name].Add(entry.ToString());
+            // Skip to next loop if it doesn't use our group.
+            if (input.Value != groupName)
+                continue;
+                
+            var targetListener = KeyboardListeners[input.Key];
+                    
+            // Otherwise, search each binding layer in the listener...
+            for (var i = 0; i < targetListener.Inputs.Count; i++)
+            {
+                // ...and, if it matches our new key, rebind it to use our old key!
+                if (targetListener.Inputs[i] == key)
+                    targetListener.Rebind(oldKey, i);
+            }
         }
     }
 
-    public static void CreateRebindGroup(string groupName, IEnumerable<string> entries = null)
+    public static void RebindMouseButton(Enum inputName, MouseButtons mouseButtons, int index = 0)
+        => RebindMouseButton(inputName.ToString(), mouseButtons, index);
+    
+    public static void RebindMouseButton(string inputName, MouseButtons mouseButtons, int index = 0)
     {
-        if (RebindGroups.ContainsKey(groupName))
-            throw new ArgumentException("Group \"" + groupName + "\" already exists!");
+        var groupName = RebindGroupMappings[inputName];
+        var oldButton = MouseListeners[inputName].Inputs[index];
         
-        RebindGroups[groupName] = new List<string>();
+        MouseListeners[inputName].Rebind(mouseButtons, index);
         
-        if (entries is null) 
+        // If we don't have a group, don't try to smart rebind.
+        if (groupName is null) 
             return;
         
-        foreach (var entry in entries)
+        // Search group mappings index...
+        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+        foreach (var input in RebindGroupMappings)
         {
-            RebindGroups[groupName].Add(entry);
+            // Skip to next loop if it doesn't use our group.
+            if (input.Value != groupName)
+                continue;
+                
+            var targetListener = MouseListeners[input.Key];
+                    
+            // Otherwise, search each binding layer in the listener...
+            for (var i = 0; i < targetListener.Inputs.Count; i++)
+            {
+                // ...and, if it matches our new button, rebind it to use our old button!
+                if (targetListener.Inputs[i] == mouseButtons)
+                    targetListener.Rebind(oldButton, i);
+            }
         }
     }
 
-    public static void DeleteRebindGroup(Enum groupName)
-        => DeleteRebindGroup(groupName.ToString());
-
-    public static void DeleteRebindGroup(string groupName)
+    public static void RebindGamePadButton(Enum inputName, Buttons button, int index = 0)
+        => RebindGamePadButton(inputName.ToString(), button, index);
+    
+    public static void RebindGamePadButton(string inputName, Buttons button, int index = 0)
     {
-        RebindGroups.Remove(groupName);
+        var groupName = RebindGroupMappings[inputName];
+        var oldButton = GamePadListeners[inputName].Inputs[index];
+        
+        GamePadListeners[inputName].Rebind(button, index);
+        
+        // If we don't have a group, don't try to smart rebind.
+        if (groupName is null) 
+            return;
+        
+        // Search group mappings index...
+        // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
+        foreach (var input in RebindGroupMappings)
+        {
+            // Skip to next loop if it doesn't use our group.
+            if (input.Value != groupName)
+                continue;
+                
+            var targetListener = GamePadListeners[input.Key];
+                    
+            // Otherwise, search each binding layer in the listener...
+            for (var i = 0; i < targetListener.Inputs.Count; i++)
+            {
+                // ...and, if it matches our new button, rebind it to use our old button!
+                if (targetListener.Inputs[i] == button)
+                    targetListener.Rebind(oldButton, i);
+            }
+        }
     }
+    
+    #endregion
+    
+    #region Rebinding Groups
 
-    public static void AddInputToGroup(Enum groupName, Enum inputName)
-        => AddInputToGroup(groupName.ToString(), inputName.ToString());
+    public static void AddInputToGroup(Enum inputName, Enum groupName)
+        => AddInputToGroup(inputName.ToString(), groupName.ToString());
 
-    public static void AddInputToGroup(string groupName, string inputName)
+    public static void AddInputToGroup(string inputName, string groupName)
     {
-        // Check for invalid group and input names...
-        ValidateGroupExists(groupName);
+        // Check for invalid input name...
         ValidateInputExists(inputName);
         
         // Then add the bind if we don't already have it in this group.
-        if (!RebindGroups[groupName].Contains(inputName))
-            RebindGroups[groupName].Add(inputName);
+        if (!RebindGroupMappings[inputName].Contains(groupName))
+            RebindGroupMappings[inputName] = groupName;
     }
 
-    public static void RemoveInputFromGroup(Enum groupName, Enum inputName)
-        => RemoveInputFromGroup(groupName.ToString(), inputName.ToString());
+    public static void RemoveInputFromGroup(Enum inputName)
+        => RemoveInputFromGroup(inputName.ToString());
     
-    public static void RemoveInputFromGroup(string groupName, string inputName)
+    public static void RemoveInputFromGroup(string inputName)
     {
         // Check for invalid group and input names...
-        ValidateGroupExists(groupName);
         ValidateInputExists(inputName);
         
         // Then remove the bind.
-        RebindGroups[groupName].Remove(inputName);
+        RebindGroupMappings[inputName] = null;
     }
     
     #endregion
@@ -329,7 +398,8 @@ public static class InputManager
     
     #region Vibration
 
-    public static void SetVibration(int ticks, float strength) => SetVibration(ticks, strength, strength);
+    public static void SetVibration(int ticks, float strength) 
+        => SetVibration(ticks, strength, strength);
 
     public static void SetVibration(int ticks, float leftMotor, float rightMotor)
     {
@@ -338,7 +408,8 @@ public static class InputManager
         rightMotorVibration = rightMotor;
     }
 
-    public static void StopVibration() => GamePad.SetVibration(GamePadIndex, 0, 0);
+    public static void StopVibration() 
+        => GamePad.SetVibration(GamePadIndex, 0, 0);
 
     #endregion
     

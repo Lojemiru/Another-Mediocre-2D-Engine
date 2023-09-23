@@ -1,6 +1,6 @@
 namespace AM2E.Control;
 
-public enum MouseButton
+public enum MouseButtons
 {
     None,
     Left,
