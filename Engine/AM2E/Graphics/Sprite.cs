@@ -74,6 +74,8 @@ public sealed class Sprite
     /// Static <see cref="Rectangle"/> used to translate sub-rectangles for sub-rectangle draw calls.
     /// </summary>
     private static Rectangle subPos;
+    
+    private const double TO_RADIANS = Math.PI / 180;
 
     #endregion
     
@@ -182,19 +184,32 @@ public sealed class Sprite
     /// </summary>
     /// <param name="name">The name of the attach point.</param>
     /// <param name="frame">The frame of the sprite that should be searched for the attach point.</param>
+    /// <param name="angle">The angle the attach point should be rotated by.</param>
     /// <returns>A <see cref="Vector2"/> for the given attach point if it exists;
     /// otherwise an empty <see cref="Vector2"/>.</returns>
-    public int[] GetAttachPoint(string name, int frame)
+    public int[] GetAttachPoint(string name, int frame, float angle = 0)
     {
         if (!attachPoints.ContainsKey(name))
             return new[] { 0, 0 };
-        
-        // TODO: Account for sprite rotation? This needs to be done for rigging support.
-        
-        var point = (int[])attachPoints[name][Math.Min(frame, attachPoints[name].Length - 1)].Clone();
 
+        var point = (int[])attachPoints[name][Math.Min(frame, attachPoints[name].Length - 1)].Clone();
+        
         point[0] -= (int)Origin.X;
         point[1] -= (int)Origin.Y;
+
+        // If we have a modified angle, apply rotation!
+        if (angle != 0)
+        {
+            var radAngle = angle * TO_RADIANS;
+            var x = point[0];
+            var y = point[1];
+
+            var distance = Math.Round(MathHelper.PointDistance(0f, 0, x, y));
+            var originalAngle = MathHelper.PointAngle(0, 0, x, y);
+
+            point[0] = (int)Math.Round(Math.Cos(originalAngle + radAngle) * distance);
+            point[1] = (int)Math.Round(Math.Sin(originalAngle + radAngle) * distance);
+        }
 
         return point;
     }
