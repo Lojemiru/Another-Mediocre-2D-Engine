@@ -1,4 +1,5 @@
 ﻿using GameContent;
+using MonoGame.Framework.Utilities;
 
 namespace AM2E.IO;
 
@@ -7,11 +8,11 @@ namespace AM2E.IO;
 /// </summary>
 public static class AssetManager
 {
-        
     public static string GetTextureMetadataPath(PageIndex index)
     {
         return "textures/" + index + ".json";
     }
+    
     public static string GetTexturePath(PageIndex index)
     {
         return "textures/" + index + ".png";
@@ -19,7 +20,7 @@ public static class AssetManager
 
     public static string GetAudioPath()
     {
-        // TODO: switching for Android necessary???
-        return "audio/Desktop";
+        var folder = PlatformInfo.MonoGamePlatform == MonoGamePlatform.Android ? "Mobile" : "Desktop";
+        return "audio/" + folder;
     }
 }
