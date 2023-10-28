@@ -241,10 +241,17 @@ public sealed class Collider
         int domAxis = x,
             subAxis = y;
 
-        if (Math.Abs(vel[y]) > Math.Abs(vel[x]))
+        try
         {
-            domAxis = y;
-            subAxis = x;
+            if (Math.Abs(vel[y]) > Math.Abs(vel[x]))
+            {
+                domAxis = y;
+                subAxis = x;
+            }
+        }
+        catch (OverflowException e)
+        {
+            throw new OverflowException("Collider.MoveAndCollider(xVel, yVel): one of the arguments became equal to the smallest possible integer. Please check your inputs.", e);
         }
 
         var subIncrement = false;
