@@ -32,6 +32,11 @@ public abstract class Actor : ColliderBase, IDrawable
     /// </summary>
     public float Angle = 0;
 
+    public static Func<bool> DefaultPauseCondition = () => false;
+
+    public readonly bool UsePauseCondition = true;
+
+    public Func<bool> PauseCondition = null;
 
     private float alpha = 1;
     public float Alpha
@@ -69,7 +74,20 @@ public abstract class Actor : ColliderBase, IDrawable
     
     
     #endregion
+
+    #region Private Methods
     
+    private bool IsPaused()
+    {
+        // If we don't pause at all (control objects, audio), return immediately.
+        if (!UsePauseCondition)
+            return false;
+
+        // Otherwise, try our custom pause condition; if that fails, return default;
+        return PauseCondition?.Invoke() ?? DefaultPauseCondition();
+    }
+    
+    #endregion
     
     #region Public Methods
 
@@ -129,7 +147,8 @@ public abstract class Actor : ColliderBase, IDrawable
     /// </summary>
     internal void Step()
     {
-        OnStep();
+        if (!IsPaused())
+            OnStep();
     }
 
     /// <summary>
@@ -137,12 +156,14 @@ public abstract class Actor : ColliderBase, IDrawable
     /// </summary>
     internal void PreStep()
     {
-        OnPreStep();
+        if (!IsPaused())
+            OnPreStep();
     }
 
     internal void PostStep()
     {
-        OnPostStep();
+        if (!IsPaused())
+            OnPostStep();
     }
 
     #endregion
