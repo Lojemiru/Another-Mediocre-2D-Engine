@@ -34,7 +34,7 @@ public abstract class Actor : ColliderBase, IDrawable
 
     public static Func<bool> DefaultPauseCondition = () => false;
 
-    public readonly bool UsePauseCondition = true;
+    public bool UsePauseCondition = true;
 
     public Func<bool> PauseCondition = null;
 
