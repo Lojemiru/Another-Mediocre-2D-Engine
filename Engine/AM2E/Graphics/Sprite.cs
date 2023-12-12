@@ -63,7 +63,7 @@ public sealed class Sprite
     /// <summary>
     /// A collection of locations on this <see cref="Sprite"/>'s <see cref="TexturePage"/>, one entry for each frame.
     /// </summary>
-    private readonly Rectangle[] positions;
+    internal readonly Rectangle[] positions;
     
     /// <summary>
     /// Static <see cref="Vector2"/> used to translate x/y scale values for <see cref="SpriteBatch"/> draw calls.

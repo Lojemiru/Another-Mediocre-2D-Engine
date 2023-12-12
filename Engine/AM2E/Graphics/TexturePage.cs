@@ -30,7 +30,7 @@ public sealed class TexturePage
     /// Collection of all <see cref="Sprite"/>s contained within this <see cref="TexturePage"/>.
     /// </summary>
     [JsonProperty("sprites")]
-    public Dictionary<SpriteIndex, Sprite> Sprites { get; private set; }
+    public Dictionary<string, Sprite> Sprites { get; private set; }
     
     /// <summary>
     /// The <see cref="Texture2D"/> represented by this <see cref="TexturePage"/>.
@@ -53,13 +53,17 @@ public sealed class TexturePage
         => JsonConvert.DeserializeObject<TexturePage>(json, Settings);
 
     #endregion
+
+    public static TexturePage Load(Enum index)
+        => Load(index.ToString());
+    
     
     /// <summary>
     /// Instantiates the <see cref="TexturePage"/> associated with the given <see cref="PageIndex"/>.
     /// </summary>
     /// <param name="index">The index of the <see cref="TexturePage"/> to be instantiated.</param>
     /// <returns>The instantiated <see cref="TexturePage"/>.</returns>
-    public static TexturePage Load(PageIndex index)
+    public static TexturePage Load(string index)
     {
         string fileText;
         TexturePage output;

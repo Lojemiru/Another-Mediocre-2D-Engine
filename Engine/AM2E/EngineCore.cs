@@ -61,6 +61,8 @@ public sealed class EngineCore : Game
         SetWindowSize(config.DefaultResolutionWidth, config.DefaultResolutionHeight);
         
         InputManager.Initialize(config.InputEnum);
+        
+        RichTextConfiguration.ApplyConfiguration();
     }
 
     protected override void Initialize()

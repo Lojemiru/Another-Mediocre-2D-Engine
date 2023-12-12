@@ -8,12 +8,12 @@ namespace AM2E.IO;
 /// </summary>
 public static class AssetManager
 {
-    public static string GetTextureMetadataPath(PageIndex index)
+    public static string GetTextureMetadataPath(string index)
     {
         return "textures/" + index + ".json";
     }
     
-    public static string GetTexturePath(PageIndex index)
+    public static string GetTexturePath(string index)
     {
         return "textures/" + index + ".png";
     }
@@ -22,5 +22,10 @@ public static class AssetManager
     {
         var folder = PlatformInfo.MonoGamePlatform == MonoGamePlatform.Android ? "Mobile" : "Desktop";
         return "audio/" + folder;
+    }
+
+    public static string GetFontPath(string fontName)
+    {
+        return "Fonts/" + fontName + ".ttf";
     }
 }
