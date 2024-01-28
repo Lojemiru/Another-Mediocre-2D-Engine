@@ -203,13 +203,7 @@ public static class InputManager
     {
         var groupName = RebindGroupMappings[inputName];
         var oldKey = KeyboardListeners[inputName].Inputs[index];
-        
-        KeyboardListeners[inputName].Rebind(key, index);
-        
-        // If we don't have a group, don't try to smart rebind.
-        if (groupName is null) 
-            return;
-        
+
         // Search group mappings index...
         // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         foreach (var input in RebindGroupMappings)
@@ -228,6 +222,8 @@ public static class InputManager
                     targetListener.Rebind(oldKey, i);
             }
         }
+        
+        KeyboardListeners[inputName].Rebind(key, index);
     }
 
     public static void RebindMouseButton(Enum inputName, MouseButtons mouseButtons, int index = 0)
@@ -237,13 +233,7 @@ public static class InputManager
     {
         var groupName = RebindGroupMappings[inputName];
         var oldButton = MouseListeners[inputName].Inputs[index];
-        
-        MouseListeners[inputName].Rebind(mouseButtons, index);
-        
-        // If we don't have a group, don't try to smart rebind.
-        if (groupName is null) 
-            return;
-        
+
         // Search group mappings index...
         // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         foreach (var input in RebindGroupMappings)
@@ -262,6 +252,8 @@ public static class InputManager
                     targetListener.Rebind(oldButton, i);
             }
         }
+        
+        MouseListeners[inputName].Rebind(mouseButtons, index);
     }
 
     public static void RebindGamePadButton(Enum inputName, Buttons button, int index = 0)
@@ -271,13 +263,7 @@ public static class InputManager
     {
         var groupName = RebindGroupMappings[inputName];
         var oldButton = GamePadListeners[inputName].Inputs[index];
-        
-        GamePadListeners[inputName].Rebind(button, index);
-        
-        // If we don't have a group, don't try to smart rebind.
-        if (groupName is null) 
-            return;
-        
+
         // Search group mappings index...
         // ReSharper disable once ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
         foreach (var input in RebindGroupMappings)
@@ -296,6 +282,8 @@ public static class InputManager
                     targetListener.Rebind(oldButton, i);
             }
         }
+        
+        GamePadListeners[inputName].Rebind(button, index);
     }
     
     #endregion
