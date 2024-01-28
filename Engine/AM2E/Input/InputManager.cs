@@ -80,6 +80,7 @@ public static class InputManager
             KeyboardListeners.Add(input, new KeyboardInput(Keys.None));
             MouseListeners.Add(input, new MouseInput(MouseButtons.None));
             GamePadListeners.Add(input, new GamePadInput(Buttons.None));
+            RebindGroupMappings[input] = "";
         }
     }
 
@@ -310,7 +311,7 @@ public static class InputManager
         ValidateInputExists(inputName);
         
         // Then add the bind if we don't already have it in this group.
-        if (!RebindGroupMappings[inputName].Contains(groupName))
+        if (!RebindGroupMappings[inputName].Equals(groupName))
             RebindGroupMappings[inputName] = groupName;
     }
 
