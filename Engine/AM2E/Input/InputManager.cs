@@ -385,6 +385,37 @@ public static class InputManager
 
     #endregion
     
+    #region Binding Getters
+
+    public static Keys GetBoundKey(Enum input, int index = 0)
+        => GetBoundKey(input.ToString(), index);
+    
+    public static Keys GetBoundKey(string input, int index = 0)
+    {
+        ValidateInputExists(input);
+        return KeyboardListeners[input].Inputs[index];
+    }
+
+    public static Buttons GetBoundGamePadButton(Enum input, int index = 0)
+        => GetBoundGamePadButton(input.ToString(), index);
+
+    public static Buttons GetBoundGamePadButton(string input, int index = 0)
+    {
+        ValidateInputExists(input);
+        return GamePadListeners[input].Inputs[index];
+    }
+
+    public static MouseButtons GetBoundMouseButton(Enum input, int index = 0)
+        => GetBoundMouseButton(input.ToString(), index);
+    
+    public static MouseButtons GetBoundMouseButton(string input, int index = 0)
+    {
+        ValidateInputExists(input);
+        return MouseListeners[input].Inputs[index];
+    }
+    
+    #endregion
+    
     #region Vibration
 
     public static void SetVibration(int ticks, float strength) 
