@@ -20,6 +20,7 @@ public static class Renderer
     private static float targetRatio;
     
     public static RenderTarget2D ApplicationSurface { get; private set; }
+    // TODO: Make this do the upscaling bit?
     private static RenderTarget2D guiSurface;
 
     internal static void PopulateConfiguration(AM2EConfig config)
