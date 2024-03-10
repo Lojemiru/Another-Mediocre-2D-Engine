@@ -91,7 +91,7 @@ public sealed class Alarm
     {
         alarm?.Run();
     }
-        
+
     /// <summary>
     /// Safely runs the given enumerable of <see cref="Alarm"/>s.
     /// Should any entry within <paramref name="alarms"/> be <see langword="null"/>, then this will do nothing for that entry.
@@ -106,7 +106,7 @@ public sealed class Alarm
     /// <summary>
     /// Runs this Alarm.
     /// </summary>
-    private void Run()
+    public void Run()
     {
         if (Time > -1)
             Time -= 1;
