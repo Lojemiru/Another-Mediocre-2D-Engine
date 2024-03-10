@@ -359,7 +359,7 @@ public sealed class Collider
         checkX = x + X;
         checkY = y + Y;
 
-        OnSubstep();
+        OnSubstep?.Invoke();
     }
 
     public void CheckAndRun<T>() where T : ICollider
