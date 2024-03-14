@@ -110,7 +110,7 @@ public sealed class Sprite
     /// <param name="effects">The <see cref="SpriteEffects"/> that should be applied during drawing.</param>
     /// <param name="alpha">The alpha value that should be applied during drawing; ranges from 0 to 1 inclusive.</param>
     public void Draw(SpriteBatch batch, float x, float y, int frame, float rotation = 0,
-        SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1, Color color = default)
+        SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1, Color color = default, bool flipOnCorner = true)
     {
         // Constrain frame to safe indices.
         frame = MathHelper.Wrap(frame, 0, Length);
@@ -125,10 +125,10 @@ public sealed class Sprite
 
         // ...and then apply the origin flips. 
         origin.X = ((effects & SpriteEffects.FlipHorizontally) == SpriteEffects.FlipHorizontally) 
-            ? (currentFrame.Width - 1 - originX) : originX;
+            ? (currentFrame.Width - (flipOnCorner ? 1 : 0) - originX) : originX;
         
         origin.Y = ((effects & SpriteEffects.FlipVertically) == SpriteEffects.FlipVertically)
-            ? (currentFrame.Height - 1 - originY) : originY;
+            ? (currentFrame.Height - (flipOnCorner ? 1 : 0) - originY) : originY;
 
         scale.X = scaleX;
         scale.Y = scaleY;

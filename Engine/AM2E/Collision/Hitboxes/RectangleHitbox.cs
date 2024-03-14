@@ -55,10 +55,10 @@ public sealed class RectangleHitbox : RectangleHitboxBase
     {
         debugScale.X = Width;
         debugScale.Y = Height;
-        DrawPosition.X = X;
-        DrawPosition.Y = Y;
-        debugOffset.X = OffsetX;
-        debugOffset.Y = OffsetY;
+        DrawPosition.X = BoundLeft;
+        DrawPosition.Y = BoundTop;
+        debugOffset.X = 0;
+        debugOffset.Y = 0;
         spriteBatch.Draw(Pixel, DrawPosition, null, color, 0, debugOffset, debugScale, SpriteEffects.None, 0);
     }
 }

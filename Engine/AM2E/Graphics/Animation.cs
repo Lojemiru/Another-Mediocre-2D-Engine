@@ -79,8 +79,8 @@ public sealed class Animation
         WrapIndex(false);
     }
 
-    public void Draw(SpriteBatch spriteBatch, float x, float y, float rotation = 0, SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1, Color color = default)
+    public void Draw(SpriteBatch spriteBatch, float x, float y, float rotation = 0, SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1, Color color = default, bool flipOnCorner = true)
     {
-        Sprite.Draw(spriteBatch, x, y, Index, rotation, effects, alpha, scaleX, scaleY, color);
+        Sprite.Draw(spriteBatch, x, y, Index, rotation, effects, alpha, scaleX, scaleY, color, flipOnCorner);
     }
 }
