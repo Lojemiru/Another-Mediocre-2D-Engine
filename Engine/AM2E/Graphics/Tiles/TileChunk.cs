@@ -10,7 +10,7 @@ internal sealed class TileChunk : IDrawable, IDisposable
 {
     private readonly Tile[,] Tiles;
     private readonly RenderTarget2D texture;
-    private readonly SpriteBatch spriteBatch = new(EngineCore._graphics.GraphicsDevice);
+    private static readonly SpriteBatch SpriteBatch = new(EngineCore._graphics.GraphicsDevice);
     private readonly Rectangle renderBounds;
     public readonly int TileSize;
     public readonly int X;
@@ -68,15 +68,15 @@ internal sealed class TileChunk : IDrawable, IDisposable
     {
         Renderer.SetRenderTarget(texture);
         EngineCore._graphics.GraphicsDevice.Clear(Color.Transparent);
-        spriteBatch.Begin(SpriteSortMode.Texture, BlendState.AlphaBlend);
+        SpriteBatch.Begin(SpriteSortMode.Texture, BlendState.AlphaBlend);
         for (var i = 0; i < Tiles.GetLength(0); i++)
         {
             for (var j = 0; j < Tiles.GetLength(1); j++)
             {
-                Tiles[i, j]?.Draw(spriteBatch, i * TileSize, j * TileSize);
+                Tiles[i, j]?.Draw(SpriteBatch, i * TileSize, j * TileSize);
             }
         }
-        spriteBatch.End();
+        SpriteBatch.End();
         Renderer.SetRenderTarget(null);
     }
 
