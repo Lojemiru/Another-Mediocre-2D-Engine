@@ -34,4 +34,9 @@ public static class RNG
     {
         return list.OrderBy(x => random.Next()).ToList();
     }
+
+    public static T Choose<T>(params T[] items)
+    {
+        return items[Random(items.Length - 1)];
+    }
 }
