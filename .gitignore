@@ -409,7 +409,7 @@ Asset Porting/**/input/*
 GameContent/*
 !GameContent/TEMPLATE_INFO.md
 TexturePacker/*
-!Texturepacker/README.md
+!TexturePacker/README.md
 
 Asset Porting/GameChanger/*
 !Asset Porting/GameChanger/README.md
