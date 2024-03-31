@@ -37,7 +37,7 @@ internal static class RichTextConfiguration
                 }
             }
 
-            return new TextureFragment(sprite.TexturePage.Texture, sprite.positions[frame]);
+            return new TextureFragment(sprite.TexturePage.Texture, sprite.Positions[0][frame]);
         };
     }
 }

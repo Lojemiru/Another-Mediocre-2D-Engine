@@ -22,6 +22,7 @@ public sealed class Animation
         
     public float Speed { get; set; } = 1;
     public int Length => Sprite.Length;
+    public int Layers => Sprite.Layers;
 
     public Action OnAnimationEnd = () => { };
 
@@ -79,8 +80,8 @@ public sealed class Animation
         WrapIndex(false);
     }
 
-    public void Draw(SpriteBatch spriteBatch, float x, float y, float rotation = 0, SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1, Color color = default, bool flipOnCorner = true)
+    public void Draw(SpriteBatch spriteBatch, float x, float y, float rotation = 0, SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1, Color color = default, int layer = 0, bool flipOnCorner = true)
     {
-        Sprite.Draw(spriteBatch, x, y, Index, rotation, effects, alpha, scaleX, scaleY, color, flipOnCorner);
+        Sprite.Draw(spriteBatch, x, y, Index, rotation, effects, alpha, scaleX, scaleY, color, layer, flipOnCorner);
     }
 }

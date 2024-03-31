@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿#nullable enable
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using System;
@@ -16,10 +17,15 @@ public sealed class Sprite
     public int Height { get; }
     
     /// <summary>
+    /// The number of layers in this <see cref="Sprite"/>.
+    /// </summary>
+    public int Layers { get; }
+    
+    /// <summary>
     /// The number of frames in this <see cref="Sprite"/>.
     /// </summary>
     public int Length { get; }
-    
+
     /// <summary>
     /// The origin point of this <see cref="Sprite"/>.
     /// </summary>
@@ -46,10 +52,15 @@ public sealed class Sprite
     private readonly Dictionary<string, int[][]> attachPoints;
 
     /// <summary>
+    /// Indicates whether <see cref="cropOffsets"/> are null for drawing purposes.
+    /// </summary>
+    private readonly bool cropsAreNotNull;
+    
+    /// <summary>
     /// The offsets required to draw each cropped frame correctly.
     /// </summary>
-    private readonly int[][] cropOffsets;
-    
+    private readonly int[][][]? cropOffsets;
+
     /// <summary>
     /// Static <see cref="Vector2"/> used to translate int/int positions for <see cref="SpriteBatch"/> draw calls.
     /// </summary>
@@ -63,7 +74,7 @@ public sealed class Sprite
     /// <summary>
     /// A collection of locations on this <see cref="Sprite"/>'s <see cref="TexturePage"/>, one entry for each frame.
     /// </summary>
-    internal readonly Rectangle[] positions;
+    internal readonly Rectangle[][] Positions;
     
     /// <summary>
     /// Static <see cref="Vector2"/> used to translate x/y scale values for <see cref="SpriteBatch"/> draw calls.
@@ -75,29 +86,34 @@ public sealed class Sprite
     /// </summary>
     private static Rectangle subPos;
     
+    /// <summary>
+    /// Numeric constant for converting degrees to radians.
+    /// </summary>
     private const double TO_RADIANS = Math.PI / 180;
 
     #endregion
     
     
     [JsonConstructor]
-    public Sprite([JsonProperty("length")] int length, [JsonProperty("originX")] int originX,
-        [JsonProperty("originY")] int originY, [JsonProperty("attachPoints")] Dictionary<string, int[][]> attachPoints,
-        [JsonProperty("positions")] Rectangle[] positions, [JsonProperty("width")] int width,
-        [JsonProperty("height")] int height, [JsonProperty("cropOffsets")] int[][] cropOffsets)
+    public Sprite([JsonProperty("L")] int length, [JsonProperty("X")] int originX,
+        [JsonProperty("Y")] int originY, [JsonProperty("A")] Dictionary<string, int[][]> attachPoints,
+        [JsonProperty("P")] Rectangle[][] positions, [JsonProperty("W")] int width,
+        [JsonProperty("H")] int height, [JsonProperty("C")] int[][][]? cropOffsets)
     {
         Length = length;
         Origin = new Vector2(originX, originY);
         this.attachPoints = attachPoints;
-        this.positions = positions;
+        Positions = positions;
         Width = width;
         Height = height;
         this.cropOffsets = cropOffsets;
+        cropsAreNotNull = cropOffsets is not null;
+        Layers = positions.Length;
     }
     
     
     #region Public Methods
-    
+
     /// <summary>
     /// Draws this <see cref="Sprite"/> at the specified position and with the specified parameters.
     /// </summary>
@@ -109,19 +125,33 @@ public sealed class Sprite
     /// <param name="rotation">The rotation to draw with, in degrees.</param>
     /// <param name="effects">The <see cref="SpriteEffects"/> that should be applied during drawing.</param>
     /// <param name="alpha">The alpha value that should be applied during drawing; ranges from 0 to 1 inclusive.</param>
+    /// <param name="scaleX">The X-axis scale with which to draw.</param>
+    /// <param name="scaleY">The Y-axis scale with which to draw.</param>
+    /// <param name="color">The color with which to draw.</param>
+    /// <param name="layer">The layer to draw.</param>
+    /// <param name="flipOnCorner">Whether flips should apply on the corner or the center of the origin pixel.</param>
     public void Draw(SpriteBatch batch, float x, float y, int frame, float rotation = 0,
-        SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1, Color color = default, bool flipOnCorner = true)
+        SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1, Color color = default, int layer = 0, bool flipOnCorner = true)
     {
         // Constrain frame to safe indices.
         frame = MathHelper.Wrap(frame, 0, Length);
         
+        // Constrain layer to safe indices.
+        layer = Math.Clamp(layer, 0, Layers - 1);
+        
         PrepareDraw(x, y, scaleX, scaleY);
         
-        var currentFrame = positions[frame];
+        var currentFrame = Positions[layer][frame];
         
         // Calculate the unflipped origin...
-        var originX = Origin.X - cropOffsets[frame][0];
-        var originY = Origin.Y - cropOffsets[frame][1];
+        var originX = Origin.X;
+        var originY = Origin.Y;
+        
+        if (cropsAreNotNull)
+        {
+            originX -= cropOffsets![layer][frame][0];
+            originY -= cropOffsets![layer][frame][1];
+        }
 
         // ...and then apply the origin flips. 
         origin.X = ((effects & SpriteEffects.FlipHorizontally) == SpriteEffects.FlipHorizontally) 
@@ -154,17 +184,31 @@ public sealed class Sprite
     /// <param name="rotation">The rotation to draw with, in degrees.</param>
     /// <param name="effects">The <see cref="SpriteEffects"/> that should be applied during drawing.</param>
     /// <param name="alpha">The alpha value that should be applied during drawing; ranges from 0 to 1 inclusive.</param>
+    /// <param name="scaleX">The X-axis scale with which to draw.</param>
+    /// <param name="scaleY">The Y-axis scale with which to draw.</param>
+    /// <param name="color">The color with which to draw.</param>
+    /// <param name="layer">The layer to draw.</param>
     public void Draw(SpriteBatch batch, float x, float y, int frame, Rectangle subRectangle, float rotation = 0,
-        SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1, Color color = default)
+        SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1, Color color = default, int layer = 0)
     {
         // Constrain frame to safe indices.
         frame = MathHelper.Wrap(frame, 0, Length);
+        
+        // Constrain layer to safe indices.
+        layer = Math.Clamp(layer, 0, Layers - 1);
 
         PrepareDraw(x, y, scaleX, scaleY);
 
         // Figure out the bounds of our sub-rectangle.
-        subPos.X = positions[frame].X + subRectangle.X - cropOffsets[frame][0];
-        subPos.Y = positions[frame].Y + subRectangle.Y - cropOffsets[frame][1];
+        subPos.X = Positions[layer][frame].X + subRectangle.X;
+        subPos.Y = Positions[layer][frame].Y + subRectangle.Y;
+
+        if (cropsAreNotNull)
+        {
+            subPos.X -= cropOffsets![layer][frame][0];
+            subPos.Y -= cropOffsets![layer][frame][1];
+        }
+        
         subPos.Width = subRectangle.Width;
         subPos.Height = subRectangle.Height;
         
@@ -217,19 +261,23 @@ public sealed class Sprite
     /// <summary>
     /// Generates a precise collision mask based on a single frame of this <see cref="Sprite"/>.
     /// </summary>
-    /// <param name="frame">The frame to generate the precise collision mask from.</param>
+    /// <param name="frame">The frame from which the precise collision mask should be generated.</param>
+    /// <param name="layer">The layer from which the collision mask should be taken.</param>
     /// <returns>A 2D bool array representing a precise collision mask.</returns>
-    public bool[,] ToPreciseMask(int frame)
+    public bool[,] ToPreciseMask(int frame, int layer = 0)
     {
         // Constrain frame to safe indices.
         frame = MathHelper.Wrap(frame, 0, Length);
         
+        // Constrain layer to safe indices.
+        layer = Math.Clamp(layer, 0, Layers - 1);
+
         // Copy data into array of our desired length.
         var colorArray = new Color[Width * Height];
-        TexturePage.Texture.GetData(0, 0, positions[frame], colorArray, 0, Width * Height);
-            
+        TexturePage.Texture.GetData(0, 0, Positions[layer][frame], colorArray, 0, Width * Height);
+        
         var outputArray = new bool[Width, Height];
-            
+        
         // Split 1D array into a 2D array based on alpha value.
         var pos = 0;
         for (var i = 0; i < Height; i++)

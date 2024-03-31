@@ -402,25 +402,14 @@ FodyWeavers.xsd
 Engine/DesktopBootstrapper/libfmod*
 Engine/DesktopBootstrapper/fmod*
 
-# Ignore built texturepages:
-Sprites and Metadata/output/*
-Sprites and Metadata/Aseprite/*
-!Sprites and Metadata/Aseprite/README.md
-mdat.json
-
 Asset Porting/**/*.aseprite
 Asset Porting/**/*.png
 Asset Porting/**/origin.txt
 Asset Porting/**/input/*
 GameContent/*
 !GameContent/TEMPLATE_INFO.md
-Engine/AM2E/Graphics/PageIndex.cs
-Engine/AM2E/Graphics/SpriteIndex.cs
-Sprites and Metadata/TexturePacker/*
-!Sprites and Metadata/Texturepacker/README.md
-
-Aseprite/*
-!Aseprite/README.md
+TexturePacker/*
+!Texturepacker/README.md
 
 Asset Porting/GameChanger/*
 !Asset Porting/GameChanger/README.md
