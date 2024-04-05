@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using GameContent;
 
 namespace AM2E.Graphics;
 
@@ -13,17 +12,16 @@ public static class TextureManager
     private static readonly Dictionary<string, Action<TexturePage>> LoadCallbacks = new();
     private static readonly Dictionary<string, Thread> LoadingThreads = new();
 
-    static TextureManager()
-    {   
-        foreach (var pageIndex in Enum.GetValues<PageIndex>())
-        {
-            var page = pageIndex.ToString();
-            Pages.Add(page, null);
-            LoadingThreads.Add(page, null);
-            IsLoadingPage.Add(page, false);
-            IsUnloadingPage.Add(page, false);
-            LoadCallbacks.Add(page, _ => { });
-        }
+    private static void AddPageName(string page)
+    {
+        if (Pages.ContainsKey(page))
+            return;
+        
+        Pages.Add(page, null);
+        LoadingThreads.Add(page, null);
+        IsLoadingPage.Add(page, false);
+        IsUnloadingPage.Add(page, false);
+        LoadCallbacks.Add(page, _ => { });
     }
 
     public static bool IsPageLoaded(Enum index)
@@ -31,6 +29,8 @@ public static class TextureManager
     
     public static bool IsPageLoaded(string index)
     {
+        AddPageName(index);
+        
         return Pages[index] != null;
     }
 
@@ -87,6 +87,8 @@ public static class TextureManager
 
     private static void DoLoad(string index)
     {
+        AddPageName(index);
+        
         Pages[index] = TexturePage.Load(index);
         LoadCallbacks[index](Pages[index]);
         LoadCallbacks[index] = _ => { };
@@ -109,6 +111,8 @@ public static class TextureManager
     
     public static void UnloadPage(string index)
     {
+        AddPageName(index);
+        
         if (IsLoadingPage[index])
         {
             IsUnloadingPage[index] = true;

@@ -1,4 +1,5 @@
-﻿using GameContent.EngineConfig;
+﻿// TODO: All GameContent references need to be removed from AM2E.
+using GameContent.EngineConfig;
 using AM2E.Control;
 
 namespace AM2E.Networking;

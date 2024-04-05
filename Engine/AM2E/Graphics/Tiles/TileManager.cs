@@ -1,5 +1,4 @@
 using AM2E.Levels;
-using GameContent.EngineConfig;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Graphics;

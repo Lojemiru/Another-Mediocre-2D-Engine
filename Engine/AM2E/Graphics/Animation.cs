@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using AM2E.Graphics;
 using System;
-using GameContent;
 using Microsoft.Xna.Framework;
 
 namespace AM2E;
@@ -20,18 +19,21 @@ public sealed class Animation
         }
     }
         
-    public float Speed { get; set; } = 1;
+    public float Speed { get; set; }
+    
     public int Length => Sprite.Length;
+    
     public int Layers => Sprite.Layers;
 
     public Action OnAnimationEnd = () => { };
 
-    public SpriteIndex SpriteName { get; private set; }
+    public string SpriteName => Sprite.Name;
 
-    public Animation(PageIndex page, SpriteIndex sprite, float speed, Action onAnimationEnd = null)
+    public Animation(Enum page, Enum sprite, float speed, Action onAnimationEnd = null)
+        : this(page.ToString(), sprite.ToString(), speed, onAnimationEnd) { }
+    
+    public Animation(string page, string sprite, float speed, Action onAnimationEnd = null)
     {
-        SpriteName = sprite;
-
         Sprite = TextureManager.GetSprite(page, sprite);
         Speed = speed;
         OnAnimationEnd = onAnimationEnd ?? OnAnimationEnd;
@@ -73,9 +75,11 @@ public sealed class Animation
             OnAnimationEnd();
     }
 
-    public void SetSprite(PageIndex page, SpriteIndex sprite)
+    public void SetSprite(Enum page, Enum sprite)
+        => SetSprite(page.ToString(), sprite.ToString()); 
+
+    public void SetSprite(string page, string sprite)
     {
-        SpriteName = sprite;
         Sprite = TextureManager.GetSprite(page, sprite);
         WrapIndex(false);
     }

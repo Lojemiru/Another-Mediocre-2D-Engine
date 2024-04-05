@@ -1,5 +1,4 @@
-﻿using GameContent;
-using MonoGame.Framework.Utilities;
+﻿using MonoGame.Framework.Utilities;
 
 namespace AM2E.IO;
 

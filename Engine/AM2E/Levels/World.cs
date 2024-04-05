@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using AM2E.Graphics;
-using GameContent;
 using Newtonsoft.Json;
 
 namespace AM2E.Levels;
@@ -80,11 +79,11 @@ public static class World
         
         var tileset = LDtkTilesets[(int)key];
         var entries = tileset.RelPath.Split('/');
-        Enum.TryParse(entries[^2], out PageIndex pageIndex);
-        Enum.TryParse(tileset.Identifier, out SpriteIndex spriteIndex);
+        var pageIndex = entries[^2];
+        
         TextureManager.LoadPage(pageIndex, _ =>
         {
-            Tilesets.Add(tileset.Uid, new Tileset(TextureManager.GetSprite(pageIndex, spriteIndex), tileset));
+            Tilesets.Add(tileset.Uid, new Tileset(TextureManager.GetSprite(pageIndex, tileset.Identifier), tileset));
             PlaceTiles(level, ldtkLayer);
         });
     }

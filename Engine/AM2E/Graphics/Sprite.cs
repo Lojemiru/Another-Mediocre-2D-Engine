@@ -25,6 +25,11 @@ public sealed class Sprite
     /// The number of frames in this <see cref="Sprite"/>.
     /// </summary>
     public int Length { get; }
+    
+    /// <summary>
+    /// The name of this <see cref="Sprite"/>.
+    /// </summary>
+    public string Name { get; internal set; }
 
     /// <summary>
     /// The origin point of this <see cref="Sprite"/>.
