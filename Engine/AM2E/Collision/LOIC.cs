@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using RTree;
 
 // We do NOT want to use LINQ in the collision engine. This class is a bottleneck and we need it to run efficiently.
@@ -42,6 +43,12 @@ public static class LOIC
 
     public static T ColliderAtRectangle<T>(int x1, int y1, int x2, int y2) where T : ICollider
     {
+        if (x2 < x1)
+            (x1, x2) = (x2, x1);
+
+        if (y2 < y1)
+            (y1, y2) = (y2, y1);
+
         var check = RTree.Intersects(new Rectangle(x1, y1, x2, y2));
         foreach (var collider in check)
         {
@@ -54,6 +61,12 @@ public static class LOIC
 
     public static IEnumerable<T> AllCollidersAtRectangle<T>(int x1, int y1, int x2, int y2) where T : ICollider
     {
+        if (x2 < x1)
+            (x1, x2) = (x2, x1);
+
+        if (y2 < y1)
+            (y1, y2) = (y2, y1);
+        
         var output = new List<T>();
         
         var check = RTree.Intersects(new Rectangle(x1, y1, x2, y2));
