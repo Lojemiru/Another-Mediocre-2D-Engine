@@ -101,6 +101,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Networking\ObjectDeletionEvent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Networking\PeerInput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Networking\Server.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Particles\ParticleDefinition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Particles\ParticleDefinitions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Particles\ParticleSystem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RNG.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StateMachine.cs" />
