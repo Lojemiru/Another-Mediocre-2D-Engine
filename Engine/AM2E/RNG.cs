@@ -19,6 +19,16 @@ public static class RNG
     {
         SetSeed(0);
     }
+
+    public static float RandomRange(float min, float max)
+    {
+        return (min + random.NextSingle()) * (max - min);
+    }
+
+    public static float Random(float max)
+    {
+        return random.NextSingle() * max;
+    }
     
     public static int RandomRange(int min, int max)
     {
