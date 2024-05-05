@@ -118,8 +118,8 @@ public class EventInstance
         myEvent.getDescription(out var description);
         description.getPath(out var path);
         
-        // We remove the first 7 characters to get rid of the "event:/" prefix
-        return path.Remove(0,7);
+        // aaaah
+        return path.Split(":/")[1];
     }
 
     #endregion

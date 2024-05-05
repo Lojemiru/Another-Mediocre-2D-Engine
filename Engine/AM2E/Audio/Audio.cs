@@ -12,6 +12,8 @@ using AM2E.Levels;
 
 #endregion
 
+// TODO: Steal changes from newer CAudio for snapshots
+
 namespace AM2E;
 
 public static class Audio 
