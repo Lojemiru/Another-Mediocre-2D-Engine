@@ -22,7 +22,7 @@ public static class RNG
 
     public static float RandomRange(float min, float max)
     {
-        return (min + random.NextSingle()) * (max - min);
+        return min + (random.NextSingle() * (max - min));
     }
 
     public static float Random(float max)
