@@ -81,7 +81,7 @@ public class ParticleSystem
             if (p[P_LIFE] <= 0)
                 continue;
             
-            p[P_ALPHA] += p[P_FADE];
+            p[P_ALPHA] -= p[P_FADE];
 
             if (p[P_ALPHA] < 0)
             {
@@ -115,13 +115,16 @@ public class ParticleSystem
         }
     }
 
-    public void Draw(SpriteBatch spriteBatch, int x, int y)
+    public void Draw(SpriteBatch spriteBatch, float x, float y)
     {
         for (var i = 0; i < Size; i++)
         {
             var p = particles[i];
             
-            Definition.Sprite.Draw(spriteBatch, p[P_X], p[P_Y], (int)p[P_INDEX], p[P_ANGLE], SpriteEffects.None, p[P_ALPHA]);
+            if (p[P_LIFE] <= 0)
+                continue;
+            
+            Definition.Sprite.Draw(spriteBatch, x + p[P_X], y + p[P_Y], (int)p[P_INDEX], p[P_ANGLE], SpriteEffects.None, p[P_ALPHA]);
         }
     }
 }
