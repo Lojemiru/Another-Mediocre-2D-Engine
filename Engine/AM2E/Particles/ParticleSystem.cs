@@ -107,9 +107,23 @@ public class ParticleSystem
             // If people pass massive values into this it'll break.
             // But I don't care because that would look like crap anyway and this needs to be "fast".
             if (p[P_INDEX] < 0)
+            {
+                if (Definition.DestroyOnAnimationEnd)
+                {
+                    p[P_LIFE] = -1;
+                    continue;
+                }
                 p[P_INDEX] += len;
+            }
             else if (p[P_INDEX] > len)
+            {
+                if (Definition.DestroyOnAnimationEnd)
+                {
+                    p[P_LIFE] = -1;
+                    continue;
+                }
                 p[P_INDEX] -= len;
+            }
 
             p[P_X] += MathHelper.LineComponentX(p[P_DIRECTION] * TO_RADIANS, p[P_SPEED]);
             p[P_Y] += MathHelper.LineComponentY(p[P_DIRECTION] * TO_RADIANS, p[P_SPEED]);

@@ -31,6 +31,8 @@ public struct ParticleDefinition
     public float AnimateMin = 0;
     public float AnimateMax = 0;
 
+    public bool DestroyOnAnimationEnd = false;
+
     public float LifetimeMin = 60;
     public float LifetimeMax = 60;
 
