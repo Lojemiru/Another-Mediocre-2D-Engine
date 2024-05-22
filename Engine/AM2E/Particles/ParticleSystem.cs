@@ -53,7 +53,7 @@ public class ParticleSystem
         }
     }
 
-    public void Create(int x, int y)
+    public void Create(float x, float y)
     {
         // TODO: Custom RNG instance so we don't interfere with the main one?
         particles[index][P_LIFE] = RNG.RandomRange(Definition.LifetimeMin, Definition.LifetimeMax);

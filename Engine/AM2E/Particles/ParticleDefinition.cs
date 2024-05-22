@@ -2,7 +2,7 @@ using AM2E.Graphics;
 
 namespace AM2E.Particles;
 
-public struct ParticleDefinition
+public class ParticleDefinition
 {
     // Rendering angle
     public float AngleMin = 0;
