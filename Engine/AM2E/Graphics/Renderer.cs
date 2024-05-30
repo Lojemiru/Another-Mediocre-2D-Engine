@@ -12,6 +12,7 @@ public static class Renderer
     private static Rectangle guiSpace = new();
     private static SpriteBatch applicationBatch;
     private static SpriteBatch guiBatch;
+    private static Vector2 posVector = new(0, 0);
     public static int GameWidth;
     public static int GameHeight;
     public static int OffsetX = 0;
@@ -147,5 +148,21 @@ public static class Renderer
     public static void SetRenderTarget(RenderTarget2D target)
     {
         GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(target);
+    }
+
+    public static void CopyApplicationSurfaceTo(SpriteBatch spriteBatch, RenderTarget2D target)
+    {
+        spriteBatch.End();
+        
+        GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(target);
+        GraphicsDeviceManager.GraphicsDevice.Clear(Color.Transparent);
+        
+        spriteBatch.Begin();
+        spriteBatch.Draw(ApplicationSurface, posVector, Color.White);
+        spriteBatch.End();
+        
+        GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(ApplicationSurface);
+        spriteBatch.Begin();
+        spriteBatch.Draw(target, posVector, Color.White);
     }
 }
