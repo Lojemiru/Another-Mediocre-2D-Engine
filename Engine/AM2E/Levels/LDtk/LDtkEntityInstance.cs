@@ -1,3 +1,5 @@
+using System;
+using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -62,9 +64,22 @@ public struct LDtkEntityInstance
             
             // LDtk will pass us floats as doubles... even though they're called floats in the editor.
             // This could also just be a JSON issue. Either way, I'd rather catch it here than on the other end every time...
-            if (field.Value is double)
-                // ReSharper disable once PossibleInvalidCastException
+            if (field.Type == "Float")
                 return (float)field.Value;
+
+            // Ints report back as doubles, I believe. This forces them to be typed appropriately.
+            if (field.Type == "Int")
+                return (int)field.Value;
+
+            // Colors are passed as a string in the format #RRGGBB.
+            // This is very annoying to parse, but I've done it nonetheless.
+            if (field.Type == "Color")
+            {
+                var r = Convert.ToInt32(field.Value.Substring(1, 2), 16);
+                var g = Convert.ToInt32(field.Value.Substring(3, 2), 16);
+                var b = Convert.ToInt32(field.Value.Substring(5, 2), 16);
+                return new Color(r, g, b);
+            }
 
             return field.Value;
         }
