@@ -81,13 +81,19 @@ public struct LDtkEntityInstance
                 return new Color(r, g, b);
             }
 
+            if (field.Type == "Point")
+                return LDtkGridPoint.FromDynamic(field.Value);
+
+            if (field.Type == "EntityRef")
+                return LDtkFieldInstanceEntityReference.FromDynamic(field.Value);
+
             return field.Value;
         }
 
         return null;
     }
 
-    public dynamic GetFieldInstanceArray<T>(string identifier)
+    public T[] GetFieldInstanceArray<T>(string identifier)
     {
         // LDtk hands us a JArray instead of an actual array. This should resolve that before any other code sees that.
         
