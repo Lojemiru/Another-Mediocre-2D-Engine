@@ -1,3 +1,4 @@
+using System.Drawing;
 using Newtonsoft.Json;
 
 namespace AM2E.Levels;
@@ -30,5 +31,10 @@ public class LDtkGridPoint
         {
             return default;
         }
+    }
+    
+    public Point ToPoint(Level level)
+    {
+        return new Point(level.X + X * 16, level.Y + Y * 16);
     }
 }
