@@ -40,4 +40,7 @@ public struct LDtkDefinition
     /// </summary>
     [JsonProperty("tilesets")]
     public LDtkTilesetDefinition[] Tilesets { get; set; }
+    
+    [JsonProperty("compositeBackgrounds")]
+    public LDtkCompositeBackgroundDefinition[] CompositeBackgrounds { get; set; }
 }

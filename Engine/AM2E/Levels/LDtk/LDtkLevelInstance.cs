@@ -12,12 +12,6 @@ public struct LDtkLevelInstance
     public string BgColor { get; set; }
 
     /// <summary>
-    /// Position informations of the background image, if there is one.
-    /// </summary>
-    [JsonProperty("__bgPos")]
-    public LDtkLevelBackgroundPosition? BgPos { get; set; }
-
-    /// <summary>
     /// An array listing all other levels touching this one on the world map.<br/>  Only relevant
     /// for world layouts where level spatial positioning is manual (ie. GridVania, Free). For
     /// Horizontal and Vertical layouts, this array is always empty.
@@ -26,22 +20,10 @@ public struct LDtkLevelInstance
     public LDtkNeighbourLevel[] Neighbours { get; set; }
 
     /// <summary>
-    /// Background image X pivot (0-1)
+    /// UID for this Level's CompositeBackgroundDefinition.
     /// </summary>
-    [JsonProperty("bgPivotX")]
-    public double BgPivotX { get; set; }
-
-    /// <summary>
-    /// Background image Y pivot (0-1)
-    /// </summary>
-    [JsonProperty("bgPivotY")]
-    public double BgPivotY { get; set; }
-
-    /// <summary>
-    /// The *optional* relative path to the level background image.
-    /// </summary>
-    [JsonProperty("bgRelPath")]
-    public string BgRelPath { get; set; }
+    [JsonProperty("backgroundUid")]
+    public int BackgroundUid { get; set; }
 
     /// <summary>
     /// An array containing this level custom field values.

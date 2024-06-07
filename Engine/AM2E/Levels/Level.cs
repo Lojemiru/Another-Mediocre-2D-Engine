@@ -5,6 +5,8 @@ using AM2E.Graphics;
 
 namespace AM2E.Levels;
 
+// TODO: Support for swapping the background? Could do it with sprite layers pretty cheaply...
+
 public sealed class Level
 {
     public readonly string Name;
@@ -15,6 +17,7 @@ public sealed class Level
     public readonly Dictionary<string, Layer> Layers = new();
     public readonly string Iid;
     public bool Active { get; internal set; } = false;
+    public readonly CompositeBackground Background;
 
     public Level(LDtkLevelInstance level)
     {
@@ -24,6 +27,7 @@ public sealed class Level
         Width = level.PxWid;
         Height = level.PxHei;
         Iid = level.Iid;
+        Background = new CompositeBackground(level.BackgroundUid);
     }
     public Level(string name, int x, int y, int width, int height)
     {

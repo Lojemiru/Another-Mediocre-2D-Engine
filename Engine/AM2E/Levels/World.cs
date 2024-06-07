@@ -9,6 +9,10 @@ using Newtonsoft.Json;
 
 namespace AM2E.Levels;
 
+// TODO: Tilesets are never unloaded automatically.
+// This may sort of be okay but it'd be really nice to automagically unload them when they're no longer in use.
+// Or at least have some way to free up their loaded textures.
+
 public static class World
 {
     private static LDtkWorldInstance world;
@@ -16,6 +20,7 @@ public static class World
     private static readonly ConcurrentDictionary<string, LDtkLevelInstance> stagedLevels = new();
     private static readonly Dictionary<int, Tileset> Tilesets = new();
     private static readonly Dictionary<int, LDtkTilesetDefinition> LDtkTilesets = new();
+    private static readonly Dictionary<int, LDtkCompositeBackgroundDefinition> LDtkBackgrounds = new();
     public static Dictionary<string, Level> LoadedLevels = new();
     public static Dictionary<string, Level> ActiveLevels = new();
     private static bool inTick = false;
@@ -40,7 +45,12 @@ public static class World
         levelsToBeActivated.Clear();
         levelsToBeDeactivated.Clear();
         ldtkLevels.Clear();
+        LDtkTilesets.Clear();
+        LDtkBackgrounds.Clear();
         stagedLevels.Clear();
+        levelsToBeInstantiated.Clear();
+        levelsToBeUninstantiated.Clear();
+        stagedCallbacks.Clear();
         deferredLevelsToBeInstantiated.Clear();
 
         JsonSerializer serializer = new();
@@ -53,6 +63,12 @@ public static class World
         foreach (var tileset in world.Defs.Tilesets)
         {
             LDtkTilesets.Add(tileset.Uid, tileset);
+        }
+        
+        // Load background definitions.
+        foreach (var background in world.Defs.CompositeBackgrounds)
+        {
+            LDtkBackgrounds.Add(background.Uid, background);
         }
         
         currentPath = new FileInfo(path).Directory.FullName + "/";
@@ -312,6 +328,11 @@ public static class World
     public static Level GetLevelByIid(string iid)
     {
         return LoadedLevels[iid];
+    }
+
+    public static LDtkCompositeBackgroundDefinition GetCompositeBackground(int uid)
+    {
+        return LDtkBackgrounds[uid];
     }
 
     public static void RenderLevels()
