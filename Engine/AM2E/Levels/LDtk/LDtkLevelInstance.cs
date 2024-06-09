@@ -23,7 +23,7 @@ public struct LDtkLevelInstance
     /// UID for this Level's CompositeBackgroundDefinition.
     /// </summary>
     [JsonProperty("backgroundUid")]
-    public int BackgroundUid { get; set; }
+    public int? BackgroundUid { get; set; }
 
     /// <summary>
     /// An array containing this level custom field values.

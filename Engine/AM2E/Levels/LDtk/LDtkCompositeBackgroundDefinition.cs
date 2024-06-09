@@ -5,6 +5,12 @@ namespace AM2E.Levels;
 public struct LDtkCompositeBackgroundDefinition
 {
     /// <summary>
+    /// The Backgrounds contained by this CompositeBackground
+    /// </summary>
+    [JsonProperty("backgrounds")]
+    public LDtkBackgroundDefinition[] Backgrounds { get; set; }
+
+    /// <summary>
     /// User defined unique identifier
     /// </summary>
     [JsonProperty("identifier")]

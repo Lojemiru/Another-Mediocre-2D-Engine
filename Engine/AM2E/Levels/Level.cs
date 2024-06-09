@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using AM2E.Actors;
 using AM2E.Graphics;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Levels;
 
@@ -18,6 +19,8 @@ public sealed class Level
     public readonly string Iid;
     public bool Active { get; internal set; } = false;
     public readonly CompositeBackground Background;
+    private readonly SpriteBatch bgBatch;
+    private readonly bool hasBackground = false;
 
     public Level(LDtkLevelInstance level)
     {
@@ -27,7 +30,12 @@ public sealed class Level
         Width = level.PxWid;
         Height = level.PxHei;
         Iid = level.Iid;
-        Background = new CompositeBackground(level.BackgroundUid);
+        if (level.BackgroundUid is not null)
+        {
+            Background = new CompositeBackground((int)level.BackgroundUid, this);
+            bgBatch = new SpriteBatch(EngineCore._graphics.GraphicsDevice);
+            hasBackground = true;
+        }
     }
     public Level(string name, int x, int y, int width, int height)
     {
@@ -89,6 +97,16 @@ public sealed class Level
 
     internal void Draw()
     {
+        if (hasBackground)
+        {
+            bgBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp,
+                transformMatrix: Camera.Transform, blendState: BlendState.AlphaBlend);
+
+            Background.Draw(bgBatch, this);
+
+            bgBatch.End();
+        }
+
         foreach (var layer in Layers.Values)
         {
             //var s = new Stopwatch();
