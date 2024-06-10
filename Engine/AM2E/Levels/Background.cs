@@ -43,8 +43,11 @@ public sealed class Background
 
     public void Draw(SpriteBatch spriteBatch, Level level)
     {
-        var paraX = (Camera.BoundLeft - level.X) * parallaxX;
-        var paraY = (Camera.BoundBottom - level.Y) * parallaxY;
+        var xOff = Camera.X - (int)Camera.X;
+        var yOff = Camera.Y - (int)Camera.Y;
+        
+        var paraX = ((Camera.BoundLeft + xOff - level.X) * parallaxX);
+        var paraY = ((Camera.BoundBottom + yOff - level.Y) * parallaxY);
 
         var offsetX = (level.Width - sprite.Width) * pivotX;
         var offsetY = (level.Height - sprite.Height) * pivotY;
