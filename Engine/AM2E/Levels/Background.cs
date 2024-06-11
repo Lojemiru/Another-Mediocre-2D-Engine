@@ -41,7 +41,7 @@ public sealed class Background
             repeatCountY = level.Height / sprite.Height;
     }
 
-    public void Draw(SpriteBatch spriteBatch, Level level)
+    public void Draw(SpriteBatch spriteBatch, Level level, int layer)
     {
         var xOff = Camera.X - (int)Camera.X;
         var yOff = Camera.Y - (int)Camera.Y;
@@ -59,7 +59,7 @@ public sealed class Background
                 sprite.Draw(spriteBatch, 
                     offsetX + paraX + level.X + (i * sprite.Width), 
                     offsetY + paraY + level.Y + (j * sprite.Height), 
-                    0);
+                    0, layer:layer);
             }
         }
     }

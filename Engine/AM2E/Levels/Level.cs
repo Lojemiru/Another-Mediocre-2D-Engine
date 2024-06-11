@@ -6,8 +6,6 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Levels;
 
-// TODO: Support for swapping the background? Could do it with sprite layers pretty cheaply...
-
 public sealed class Level
 {
     public readonly string Name;

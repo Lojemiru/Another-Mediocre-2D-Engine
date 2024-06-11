@@ -1,4 +1,4 @@
-using AM2E.Graphics;
+using System;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Levels;
@@ -6,7 +6,14 @@ namespace AM2E.Levels;
 public sealed class CompositeBackground
 {
     private readonly Background[] backgrounds;
-    
+
+    private int layer = 0;
+    public int Layer
+    {
+        get => layer;
+        set => layer = Math.Max(0, value);
+    }
+
     public CompositeBackground(int uid, Level level)
     {
         var def = World.GetCompositeBackground(uid);
@@ -24,7 +31,7 @@ public sealed class CompositeBackground
     {
         foreach (var bg in backgrounds)
         {
-            bg.Draw(spriteBatch, level);
+            bg.Draw(spriteBatch, level, layer);
         }
     }
 }
