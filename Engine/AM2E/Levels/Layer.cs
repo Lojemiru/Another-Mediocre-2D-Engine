@@ -10,7 +10,6 @@ namespace AM2E.Levels;
 public sealed class Layer
 {
     public readonly string Name;
-    private readonly SpriteBatch spriteBatch = new(EngineCore._graphics.GraphicsDevice);
     public readonly List<IDrawable> Drawables = new();
     public readonly List<Actor> Actors = new();
     public readonly List<ColliderBase> Colliders = new();
@@ -28,8 +27,6 @@ public sealed class Layer
     public event Action<Layer> OnPreRender = layer => { };
 
     public event Action<Layer> OnPostRender = layer => { };
-
-    public Effect Effect { get; set; }
 
     public Layer(string name, Level level)
     {
@@ -215,15 +212,12 @@ public sealed class Layer
         genericLevelElement.Level = null;
     }
 
-    internal void Draw()
+    internal void Draw(SpriteBatch spriteBatch)
     {
         if (!Visible) return;
 
         OnPreRender(this);
 
-        spriteBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp,
-            transformMatrix: Camera.Transform, blendState: BlendState.AlphaBlend, effect:Effect);
-        
         foreach(var drawable in Drawables)
         {
             drawable.Draw(spriteBatch);
@@ -233,8 +227,6 @@ public sealed class Layer
             Renderer.DebugRender(spriteBatch);
 
         TileManager?.Draw(spriteBatch);
-        
-        spriteBatch.End();
 
         OnPostRender(this);
     }

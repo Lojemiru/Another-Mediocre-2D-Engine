@@ -21,6 +21,7 @@ public sealed class Level
     public readonly CompositeBackground Background;
     private readonly SpriteBatch bgBatch;
     private readonly bool hasBackground = false;
+    private readonly SpriteBatch spriteBatch = new(EngineCore._graphics.GraphicsDevice);
 
     public Level(LDtkLevelInstance level)
     {
@@ -106,15 +107,20 @@ public sealed class Level
 
             bgBatch.End();
         }
+        
+        spriteBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp,
+            transformMatrix: Camera.Transform, blendState: BlendState.AlphaBlend);
 
         foreach (var layer in Layers.Values)
         {
             //var s = new Stopwatch();
             //s.Start();
-            layer.Draw();
+            layer.Draw(spriteBatch);
             //s.Stop();
             //Console.WriteLine($"LayerName: {layer.Name}, Time to render: {s.ElapsedMilliseconds}, TTR (ticks): {s.ElapsedTicks}");
         }
+        
+        spriteBatch.End();
     }
 
     internal void PreTick(bool isFastForward)
