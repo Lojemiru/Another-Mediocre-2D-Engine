@@ -99,7 +99,12 @@ public static class World
         
         TextureManager.LoadPage(pageIndex, _ =>
         {
-            Tilesets.Add(tileset.Uid, new Tileset(TextureManager.GetSprite(pageIndex, tileset.Identifier), tileset));
+            if (!Tilesets.ContainsKey(tileset.Uid))
+            {
+                Tilesets.Add(tileset.Uid,
+                    new Tileset(TextureManager.GetSprite(pageIndex, tileset.Identifier), tileset));
+            }
+
             PlaceTiles(level, ldtkLayer);
         });
     }
