@@ -4,21 +4,39 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Levels;
 
-// TODO: Change rendering based on pos?
+#region Design Notes
 
-public sealed class Background
+/*
+ * Backgrounds are individual images that render with a set of repeat and parallax attributes. These two attributes also
+ *      happen to be the only complicated things happening here. This struct is internal because it would not expose any
+ *      useful API even if it was public; that API is presented by CompositeBackground instead.
+ *
+ * Parallax positioning is extremely fussy, mostly because I need it to 100% sync up with LDtk-AM2E. It mostly consists
+ *      of getting the current camera position and manipulating that with the parallax factor to determine the current
+ *      offset. The math is sort of self-explanatory, I'm not sure why I'm still typing here. The only people who will
+ *      read this are going to be those who wonder why I'm not supporting inherently stupid things like the stretching
+ *      display modes in LDtk. (The answer to that, of course, is that they look hideous and no serious game is going
+ *      to make use of them so I'm not going to the trouble of supporting them.)
+ *
+ * Repeat drawing here is kind of a neat trick. We figure out how many times our background has to repeat in order to
+ *      cover the camera area, then add one. From there, we draw that many copies of the background with an offset so
+ *      that it "infinitely" scrolls while making as few draw calls as possible.
+ */
+
+#endregion
+
+internal readonly struct Background
 {
     private readonly Sprite sprite;
 
-    private float parallaxX;
-    private float parallaxY;
-    private float pivotX;
-    private float pivotY;
-    private bool repeatX;
-    private bool repeatY;
-    private LDtkLevelBackgroundPosition pos;
+    private readonly float parallaxX;
+    private readonly float parallaxY;
+    private readonly float pivotX;
+    private readonly float pivotY;
+    private readonly bool repeatX;
+    private readonly bool repeatY;
 
-    public Background(LDtkBackgroundDefinition def, Level level)
+    public Background(LDtkBackgroundDefinition def)
     {
         var path = def.RelPath.Split('/');
         var name = path[^1].Split('.')[0];
@@ -28,7 +46,6 @@ public sealed class Background
         parallaxY = def.ParallaxY;
         pivotX = def.PivotX;
         pivotY = def.PivotY;
-        pos = def.Pos;
         repeatX = def.RepeatX;
         repeatY = def.RepeatY;
     }

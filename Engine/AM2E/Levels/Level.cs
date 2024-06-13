@@ -31,7 +31,7 @@ public sealed class Level
         Iid = level.Iid;
         if (level.BackgroundUid is not null)
         {
-            Background = new CompositeBackground((int)level.BackgroundUid, this);
+            Background = new CompositeBackground((int)level.BackgroundUid);
             bgBatch = new SpriteBatch(EngineCore._graphics.GraphicsDevice);
             hasBackground = true;
         }
