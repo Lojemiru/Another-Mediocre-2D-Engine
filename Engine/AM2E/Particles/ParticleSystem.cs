@@ -3,11 +3,18 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Particles;
 
-public class ParticleSystem
+public sealed class ParticleSystem
 {
     public readonly ParticleDefinition Definition;
     public readonly int Size;
 
+    public int Layer
+    {
+        get => layer;
+        set => layer = Math.Max(0, value);
+    }
+
+    private int layer = 0;
     private int index = 0;
     
     private readonly float[][] particles;
@@ -139,7 +146,7 @@ public class ParticleSystem
             if (p[P_LIFE] <= 0)
                 continue;
             
-            Definition.Sprite.Draw(spriteBatch, x + p[P_X], y + p[P_Y], (int)p[P_INDEX], p[P_ANGLE], SpriteEffects.None, p[P_ALPHA]);
+            Definition.Sprite.Draw(spriteBatch, x + p[P_X], y + p[P_Y], (int)p[P_INDEX], p[P_ANGLE], SpriteEffects.None, p[P_ALPHA], layer:layer);
         }
     }
 }
