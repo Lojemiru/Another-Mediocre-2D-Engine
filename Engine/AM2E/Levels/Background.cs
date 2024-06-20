@@ -52,6 +52,8 @@ internal readonly struct Background
 
     public void Draw(SpriteBatch spriteBatch, Level level, int layer)
     {
+        // TODO: Somewhere in here, everything still looks jittery. That's a problem.
+        
         // Fractional camera offset
         var xOff = Camera.X - (int)Camera.X;
         var yOff = Camera.Y - (int)Camera.Y;
