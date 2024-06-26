@@ -109,7 +109,7 @@ public sealed class ParticleSystem
 
             p[P_INDEX] += p[P_ANIMATE];
 
-            var len = Definition.Sprite.Length - 1;
+            var len = Definition.Sprite.Length ;
 
             // If people pass massive values into this it'll break.
             // But I don't care because that would look like crap anyway and this needs to be "fast".
