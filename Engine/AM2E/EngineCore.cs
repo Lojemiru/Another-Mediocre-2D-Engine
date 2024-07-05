@@ -26,6 +26,8 @@ public sealed class EngineCore : Game
     public static bool isServer;
     internal static int TileChunkSize;
 
+    public static bool WindowFocused => staticThis.IsActive;
+
     public const bool DEBUG = true;
 
     public EngineCore(string contentNamespace, AM2EConfig config, Action entryPointCallback)

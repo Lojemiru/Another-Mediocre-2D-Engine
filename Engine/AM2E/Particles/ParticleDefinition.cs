@@ -40,6 +40,9 @@ public class ParticleDefinition
     public float AlphaMax = 1;
     public float FadeMin = 0;
     public float FadeMax = 0;
+    
+    public float GravityDirection = 90;
+    public float Gravity = 0;
 
     public ParticleDefinition(Sprite sprite)
     {

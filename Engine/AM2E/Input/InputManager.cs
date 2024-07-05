@@ -98,12 +98,15 @@ public static class InputManager
         
         MouseX = Math.Clamp(Camera.BoundLeft + (int)((mouseState.X - Renderer.ApplicationSpace.X) * ((float)Renderer.GameWidth / Renderer.ApplicationSpace.Width)), Camera.BoundLeft, Camera.BoundRight);
         MouseY = Math.Clamp(Camera.BoundTop + (int)((mouseState.Y - Renderer.ApplicationSpace.Y) * ((float)Renderer.GameHeight / Renderer.ApplicationSpace.Height)), Camera.BoundTop, Camera.BoundBottom);
-        
-        foreach (var listener in MouseListeners.Values)
+
+        if (EngineCore.WindowFocused)
         {
-            listener.Update(mouseState);
+            foreach (var listener in MouseListeners.Values)
+            {
+                listener.Update(mouseState);
+            }
         }
-        
+
         // GamePad
         var gamePadState = GamePad.GetState(GamePadIndex);
         

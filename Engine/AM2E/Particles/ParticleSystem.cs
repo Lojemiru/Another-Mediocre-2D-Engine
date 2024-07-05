@@ -32,11 +32,12 @@ public sealed class ParticleSystem
     private const int P_ANIMATE = 10;
     private const int P_ALPHA = 11;
     private const int P_FADE = 12;
+    private const int P_GRAVITY = 13;
 
     private const float TO_RADIANS = (float)Math.PI / 180f;
 
     // lifetime, x, y, angle, rotation, speed, accel, direction, turn, index, animate, alpha, fade
-    private const int DATA_SCALE = 13; 
+    private const int DATA_SCALE = 14; 
     
     public ParticleSystem(string definition, int size) 
         : this(size)
@@ -75,7 +76,8 @@ public sealed class ParticleSystem
         particles[index][P_INDEX] = RNG.RandomRange(Definition.IndexMin, Definition.IndexMax);
         particles[index][P_ANIMATE] = RNG.RandomRange(Definition.AnimateMin, Definition.AnimateMax);
         particles[index][P_ALPHA] = RNG.RandomRange(Definition.AlphaMin, Definition.AlphaMax);
-        particles[index][P_FADE] = RNG.RandomRange(Definition.FadeMin, Definition.FadeMax);
+        particles[index][P_FADE] = RNG.RandomRange(Definition.FadeMin, Definition.FadeMax); ;
+        particles[index][P_GRAVITY] = 0;
         
         index = MathHelper.Wrap(index + 1, 0, Size);
     }
@@ -132,8 +134,15 @@ public sealed class ParticleSystem
                 p[P_INDEX] -= len;
             }
 
-            p[P_X] += MathHelper.LineComponentX(p[P_DIRECTION] * TO_RADIANS, p[P_SPEED]);
-            p[P_Y] += MathHelper.LineComponentY(p[P_DIRECTION] * TO_RADIANS, p[P_SPEED]);
+            p[P_GRAVITY] += Definition.Gravity;
+
+            var rads = p[P_DIRECTION] * TO_RADIANS;
+            p[P_X] += MathHelper.LineComponentX(rads, p[P_SPEED]);
+            p[P_Y] += MathHelper.LineComponentY(rads, p[P_SPEED]);
+            
+            rads = Definition.GravityDirection * TO_RADIANS;
+            p[P_X] += MathHelper.LineComponentX(rads, p[P_GRAVITY]);
+            p[P_Y] += MathHelper.LineComponentY(rads, p[P_GRAVITY]);
         }
     }
 
