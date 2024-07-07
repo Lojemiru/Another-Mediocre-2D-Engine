@@ -33,11 +33,12 @@ public sealed class ParticleSystem
     private const int P_ALPHA = 11;
     private const int P_FADE = 12;
     private const int P_GRAVITY = 13;
+    private const int P_FADE_DELAY = 14;
 
     private const float TO_RADIANS = (float)Math.PI / 180f;
 
-    // lifetime, x, y, angle, rotation, speed, accel, direction, turn, index, animate, alpha, fade
-    private const int DATA_SCALE = 14; 
+    // lifetime, x, y, angle, rotation, speed, accel, direction, turn, index, animate, alpha, fade, gravity, fade delay
+    private const int DATA_SCALE = 15;
     
     public ParticleSystem(string definition, int size) 
         : this(size)
@@ -76,8 +77,9 @@ public sealed class ParticleSystem
         particles[index][P_INDEX] = RNG.RandomRange(Definition.IndexMin, Definition.IndexMax);
         particles[index][P_ANIMATE] = RNG.RandomRange(Definition.AnimateMin, Definition.AnimateMax);
         particles[index][P_ALPHA] = RNG.RandomRange(Definition.AlphaMin, Definition.AlphaMax);
-        particles[index][P_FADE] = RNG.RandomRange(Definition.FadeMin, Definition.FadeMax); ;
+        particles[index][P_FADE] = RNG.RandomRange(Definition.FadeMin, Definition.FadeMax);
         particles[index][P_GRAVITY] = 0;
+        particles[index][P_FADE_DELAY] = Definition.FadeDelay;
         
         index = MathHelper.Wrap(index + 1, 0, Size);
     }
@@ -91,7 +93,8 @@ public sealed class ParticleSystem
             if (p[P_LIFE] <= 0)
                 continue;
             
-            p[P_ALPHA] -= p[P_FADE];
+            if (p[P_FADE_DELAY] <= 0)
+                p[P_ALPHA] -= p[P_FADE];
 
             if (p[P_ALPHA] < 0)
             {
@@ -100,6 +103,7 @@ public sealed class ParticleSystem
             }
 
             p[P_LIFE] -= 1;
+            p[P_FADE_DELAY] -= 1;
 
             p[P_ANGLE] += p[P_ROTATION];
             p[P_SPEED] += p[P_ACCEL];
