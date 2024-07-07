@@ -278,16 +278,18 @@ public sealed class Sprite
         layer = Math.Clamp(layer, 0, Layers - 1);
 
         // Copy data into array of our desired length.
-        var colorArray = new Color[Width * Height];
-        TexturePage.Texture.GetData(0, 0, Positions[layer][frame], colorArray, 0, Width * Height);
+        var w = Positions[layer][frame].Width;
+        var h = Positions[layer][frame].Height;
+        var colorArray = new Color[w * h];
+        TexturePage.Texture.GetData(0, 0, Positions[layer][frame], colorArray, 0, w * h);
         
-        var outputArray = new bool[Width, Height];
+        var outputArray = new bool[w, h];
         
         // Split 1D array into a 2D array based on alpha value.
         var pos = 0;
-        for (var i = 0; i < Height; i++)
+        for (var i = 0; i < h; i++)
         {
-            for (var j = 0; j < Width; j++)
+            for (var j = 0; j < w; j++)
             {
                 outputArray[j, i] = colorArray[pos].A > 0.1;
                 pos++;
