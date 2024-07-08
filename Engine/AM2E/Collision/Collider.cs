@@ -63,7 +63,7 @@ public sealed class Collider
     private readonly double[] subVel = { 0d, 0d };
     private readonly int[] vel = { 0, 0 };
 
-    private bool inMovement = false;
+    public bool InMovement { get; private set; } = false;
 
     private bool disposed = false;
     
@@ -228,7 +228,7 @@ public sealed class Collider
         subVel[x] -= vel[x];
         subVel[y] -= vel[y];
             
-        inMovement = true;
+        InMovement = true;
         
         // If we're not moving, do a static check and return.
         if (vel[x] == 0 && vel[y] == 0)
@@ -316,7 +316,7 @@ public sealed class Collider
         continueMovement[x] = true;
         continueMovement[y] = true;
 
-        inMovement = false;
+        InMovement = false;
     }
 
     // TODO: Should we provide the ability to stop all further processing of a specific collision event?
@@ -324,7 +324,7 @@ public sealed class Collider
     
     public void StopX()
     {
-        if (!inMovement)
+        if (!InMovement)
             throw new InvalidOperationException("Stop calls may only be called from a collision callback!");
 
         continueMovement[0] = false;
@@ -332,7 +332,7 @@ public sealed class Collider
 
     public void StopY()
     {
-        if (!inMovement)
+        if (!InMovement)
             throw new InvalidOperationException("Stop calls may only be called from a collision callback!");
 
         continueMovement[1] = false;
