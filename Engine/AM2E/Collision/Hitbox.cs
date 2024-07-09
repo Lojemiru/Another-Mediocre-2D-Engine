@@ -13,7 +13,6 @@ public abstract class Hitbox
     private protected static readonly Texture2D Pixel = new(EngineCore._graphics.GraphicsDevice, 1, 1);
     static Hitbox() 
         => Pixel.SetData(new[] { Color.White });
-    private class TypeContainer<T> where T : ICollider { }
     public int OffsetX { get; protected set; } = 0;
     public int OffsetY { get; protected set; } = 0;
     protected int InitialOffsetX = 0;
@@ -38,17 +37,17 @@ public abstract class Hitbox
         FlippedY = yFlip;
     }
         
-    private List<object> boundInterfaces;
-    private List<object> targetInterfaces;
+    private List<Type> boundInterfaces;
+    private List<Type> targetInterfaces;
 
     public bool IsBoundToInterface<T>() where T : ICollider
     {
         if (boundInterfaces == null)
             return true;
-            
+
         foreach (var x in boundInterfaces)
         {
-            if (x is TypeContainer<T>)
+            if (typeof(T).IsAssignableFrom(x))
                 return true;
         }
 
@@ -57,8 +56,15 @@ public abstract class Hitbox
 
     public void BindToInterface<T>() where T : ICollider
     {
-        boundInterfaces ??= new List<object>();
-        boundInterfaces.Add(new TypeContainer<T>());
+        boundInterfaces ??= new List<Type>();
+        boundInterfaces.Add(typeof(T));
+    }
+
+    public void BindToInterfaces(params Type[] types)
+    {
+        boundInterfaces ??= new List<Type>();
+        foreach (var type in types)
+            boundInterfaces.Add(type);
     }
 
     public bool IsTargetingInterface<T>() where T : ICollider
@@ -68,7 +74,7 @@ public abstract class Hitbox
             
         foreach (var x in targetInterfaces)
         {
-            if (x is TypeContainer<T>)
+            if (typeof(T).IsAssignableFrom(x))
                 return true;
         }
 
@@ -77,8 +83,15 @@ public abstract class Hitbox
         
     public void TargetInterface<T>() where T : ICollider
     {
-        targetInterfaces ??= new List<object>();
-        targetInterfaces.Add(new TypeContainer<T>());
+        targetInterfaces ??= new List<Type>();
+        targetInterfaces.Add(typeof(T));
+    }
+
+    public void TargetInterfaces(params Type[] types)
+    {
+        targetInterfaces ??= new List<Type>();
+        foreach (var type in types)
+            targetInterfaces.Add(type);
     }
 
     public abstract bool Intersects(RectangleHitbox hitbox);
