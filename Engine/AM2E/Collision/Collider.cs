@@ -39,8 +39,8 @@ public sealed class Collider
     
     public int VelX => vel[0];
     public int VelY => vel[1];
-
-    private readonly ArrayList events = new();
+    
+    private readonly Dictionary<Type, object> events = new();
 
     private int checkX = 0;
     private int checkY = 0;
@@ -48,7 +48,7 @@ public sealed class Collider
     private static readonly CollisionDirection[] DirsH = { CollisionDirection.Left, CollisionDirection.None, CollisionDirection.Right };
     private static readonly CollisionDirection[] DirsV = { CollisionDirection.Up, CollisionDirection.None, CollisionDirection.Down };
 
-    private bool[] continueMovement = { true, true };
+    private readonly bool[] continueMovement = { true, true };
     public double SubVelX
     {
         get => subVel[0];
@@ -95,13 +95,14 @@ public sealed class Collider
         hitboxes.Remove(hitbox);
     }
         
-    public bool FlippedX { get; protected set; } = false;
-    public bool FlippedY { get; protected set; } = false;
+    public bool FlippedX { get; private set; } = false;
+    public bool FlippedY { get; private set; } = false;
 
     public void ApplyFlipsFromBits(int bits)
     {
         ApplyFlips((bits & 1) != 0, (bits & 2) != 0);
     }
+    
     public void ApplyFlips(bool xFlip, bool yFlip)
     {
         if (disposed)
@@ -140,7 +141,7 @@ public sealed class Collider
         first = false;
     }
 
-    private ColliderBase parent;
+    private readonly ColliderBase parent;
     private bool first = true;
     
     private void SyncHitboxPositions()
@@ -206,10 +207,10 @@ public sealed class Collider
 
     public void Add<T>(Action<T> callback) where T : ICollider
     {
-        events.Add(callback);
+        events.Add(typeof(T), callback);
     }
 
-    private static int[] Sign = { 0, 0 };
+    private static readonly int[] sign = { 0, 0 };
     
     public void MoveAndCollide(double xVel, double yVel)
     {
@@ -258,8 +259,8 @@ public sealed class Collider
         var domCurrent = 0;
         var subCurrent = 0;
         
-        Sign[0] = Math.Sign(vel[x]);
-        Sign[1] = Math.Sign(vel[y]);
+        sign[0] = Math.Sign(vel[x]);
+        sign[1] = Math.Sign(vel[y]);
         
         var domAbs = Math.Abs(vel[domAxis]);
 
@@ -267,12 +268,12 @@ public sealed class Collider
         {
             if (continueMovement[domAxis] && (domCurrent != vel[domAxis]))
             {
-                Direction = (domAxis == x) ? DirsH[Sign[x] + 1] : DirsV[Sign[y] + 1];
+                Direction = (domAxis == x) ? DirsH[sign[x] + 1] : DirsV[sign[y] + 1];
 
-                CheckAndRunAll((domAxis == x) ? Sign[x] : 0, (domAxis == y) ? Sign[y] : 0);
+                CheckAndRunAll((domAxis == x) ? sign[x] : 0, (domAxis == y) ? sign[y] : 0);
 
                 // Process position
-                var domMult = continueMovement[domAxis] ? Sign[domAxis] : 0;
+                var domMult = continueMovement[domAxis] ? sign[domAxis] : 0;
                 domCurrent += domMult;
 
                 if (domAxis == x)
@@ -290,12 +291,12 @@ public sealed class Collider
 
             if ((subIncrement || !continueMovement[domAxis]) && continueMovement[subAxis] && (subCurrent != vel[subAxis]))
             {
-                Direction = (subAxis == x) ? DirsH[Sign[x] + 1] : DirsV[Sign[y] + 1];
+                Direction = (subAxis == x) ? DirsH[sign[x] + 1] : DirsV[sign[y] + 1];
 
-                CheckAndRunAll((subAxis == x) ? Sign[x] : 0, (subAxis == y) ? Sign[y] : 0);
+                CheckAndRunAll((subAxis == x) ? sign[x] : 0, (subAxis == y) ? sign[y] : 0);
 
                 // Process position
-                var subMult = continueMovement[subAxis] ? Sign[subAxis] : 0;
+                var subMult = continueMovement[subAxis] ? sign[subAxis] : 0;
                 subCurrent += subMult;
 
                 if (subAxis == x)
@@ -369,15 +370,11 @@ public sealed class Collider
         if (colliders.Length() == 0)
             return;
 
-        foreach (var ob in events)
+        var ev = (Action<T>)events[typeof(T)];
+
+        foreach (var col in colliders)
         {
-            if (ob is not Action<T> ev)
-                continue;
-            
-            foreach (var col in colliders)
-            {
-                ev(col);
-            }
+            ev(col);
         }
     }
         
