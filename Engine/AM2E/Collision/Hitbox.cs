@@ -27,6 +27,8 @@ public abstract class Hitbox
 
     public bool FlippedX { get; private set; } = false;
     public bool FlippedY { get; private set; } = false;
+
+    public string Tag = "";
     
     // This SHOULD disallow publicly inheriting from this class. I think. Sorry guys, no custom Hitboxes :P
     private protected Hitbox() { }

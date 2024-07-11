@@ -71,6 +71,13 @@ public sealed class Collider
     public Action AfterSubstep { get; set; } = () => { };
 
     public CollisionDirection Direction { get; private set; } = CollisionDirection.None;
+    
+    /// <summary>
+    /// Records the hitbox that was last matched in a normal collision substep. Useful for filtering behavior based on
+    /// which hitbox was matched.
+    /// </summary>
+    public Hitbox CollidingHitbox = null;
+    
     private readonly List<Hitbox> hitboxes = new();
         
     public Hitbox GetHitbox(int id)
@@ -426,7 +433,10 @@ public sealed class Collider
             foreach (var hitbox in col.hitboxes)
             {
                 if (hitbox.IsBoundToInterface<T>() && myHitbox.Intersects(hitbox))
+                {
+                    col.CollidingHitbox = hitbox;
                     return true;
+                }
             }
         }
 
