@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using RTree;
 
 // We do NOT want to use LINQ in the collision engine. This class is a bottleneck and we need it to run efficiently.
 // ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
+// ReSharper disable ForeachCanBePartlyConvertedToQueryUsingAnotherGetEnumerator
 
 namespace AM2E.Collision;
 
