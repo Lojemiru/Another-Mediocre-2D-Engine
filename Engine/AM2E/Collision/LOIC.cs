@@ -20,8 +20,7 @@ public static class LOIC
 
     public static T ColliderAtPoint<T>(int x, int y) where T : ICollider
     {
-        // TODO: Modify RTree to allow for checking points directly
-        var check = RTree.Intersects(new Rectangle(x - 1, y - 1, x + 1, y + 1));
+        var check = RTree.Intersects(new Rectangle(x, y, x, y));
         foreach (var collider in check)
         {
             if (InternalCheckPoint<T>(collider, x, y))
@@ -79,12 +78,12 @@ public static class LOIC
         return output;
     }
 
-    public static bool CheckLine<T>(int x1, int y1, int x2, int y2) where T : ICollider
+    public static bool CheckLine<T>(int x1, int y1, int x2, int y2) where T : class, ICollider
     {
         return ColliderAtLine<T>(x1, y1, x2, y2) is not null;
     }
     
-    public static T ColliderAtLine<T>(int x1, int y1, int x2, int y2) where T : ICollider
+    public static T ColliderAtLine<T>(int x1, int y1, int x2, int y2) where T : class, ICollider
     {
         // TODO: Write custom method for checking a line within the tree??? This is going to hit a LOT of things we don't need to consider...
         var check = RTree.Intersects(new Rectangle(x1, y1, x2, y2));
@@ -94,7 +93,7 @@ public static class LOIC
                 return (T)collider;
         }
 
-        return default;
+        return null;
     }
 
     private static bool InternalCheckLine<T>(ICollider collider, int x1, int y1, int x2, int y2) where T : ICollider
@@ -120,17 +119,25 @@ public static class LOIC
         return collider.Collider.IsIntersectedBy<T>(RectCheckHitbox);
     }
 
-    public static ICollider CheckCollider<T>(Collider self) where T : ICollider
+    public static T CheckCollider<T>(Collider self) where T : class, ICollider
     {
         // Return first (or null) Collider that matches interface and is intersected by input Collider.
         var check = RTree.Intersects(self.Bounds);
         foreach (var collider in check)
         {
             if (InternalCheckCollider<T>(collider, self))
-                return collider;
+                return (T)collider;
         }
 
         return null;
+    }
+    
+    private static bool InternalCheckCollider<T>(ICollider collider, Collider self) where T : ICollider
+    {
+        if (!collider.CollisionActive || collider is not T || collider.Collider == self)
+            return false;
+
+        return self.Intersects<T>(collider.Collider);
     }
 
     public static IEnumerable<T> CheckAllColliders<T>(Collider self) where T : ICollider
@@ -147,13 +154,5 @@ public static class LOIC
         }
 
         return output;
-    }
-
-    private static bool InternalCheckCollider<T>(ICollider collider, Collider self) where T : ICollider
-    {
-        if (!collider.CollisionActive || collider is not T || collider.Collider == self)
-            return false;
-
-        return self.Intersects<T>(collider.Collider);
     }
 }

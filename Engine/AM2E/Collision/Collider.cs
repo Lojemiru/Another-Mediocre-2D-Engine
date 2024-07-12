@@ -385,14 +385,14 @@ public sealed class Collider
         }
     }
         
-    public T IntersectsAt<T>(int x, int y) where T : ICollider
+    public T IntersectsAt<T>(int x, int y) where T : class, ICollider
     {
         var prevX = X;
         var prevY = Y;
         X = x;
         Y = y;
 
-        var output = (T)LOIC.CheckCollider<T>(this);
+        var output = LOIC.CheckCollider<T>(this);
 
         X = prevX;
         Y = prevY;
@@ -415,7 +415,7 @@ public sealed class Collider
         return output;
     }
 
-    public bool IntersectingAt<T>(int x, int y) where T : ICollider
+    public bool IntersectingAt<T>(int x, int y) where T : class, ICollider
     {
         return IntersectsAt<T>(x, y) != null;
     }
