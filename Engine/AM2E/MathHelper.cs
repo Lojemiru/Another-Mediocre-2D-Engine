@@ -73,33 +73,33 @@ public static class MathHelper
     {
         var x = x2 - x1;
         var y = y2 - y1;
-        return (float)Math.Sqrt((x * x) + (y * y));
+        return MathF.Sqrt((x * x) + (y * y));
     }
 
-    private static double pointAngleSubtractor = Math.Atan2(0, 0);
+    private static float pointAngleSubtractor = MathF.Atan2(0, 0);
     public static float PointAngle(float x1, float y1, float x2, float y2)
     {
-        return (float)(Math.Atan2(y2 - y1, x2 - x1) - pointAngleSubtractor);
+        return (MathF.Atan2(y2 - y1, x2 - x1) - pointAngleSubtractor);
     }
 
     public static float ToRadians(float degrees)
     {
-        return (float)(degrees * Math.PI / 180);
+        return degrees * MathF.PI / 180;
     }
 
     public static float ToDegrees(float radians)
     {
-        return (float)(radians * 180 / Math.PI);
+        return radians * 180 / MathF.PI;
     }
     
     public static float LineComponentX(float radians, float length)
     {
-        return length * (float)Math.Cos(radians);
+        return length * MathF.Cos(radians);
     }
 
     public static float LineComponentY(float radians, float length)
     {
-        return length * (float)Math.Sin(radians);
+        return length * MathF.Sin(radians);
     }
 
     public static bool DoLinesIntersect(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4)
