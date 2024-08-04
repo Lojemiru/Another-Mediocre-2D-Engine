@@ -55,6 +55,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Tiles\TileChunk.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Tiles\TileManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Tiles\Tileset.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ImGui\DrawVertDeclaration.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ImGui\ImGuiRenderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\GamePadInput.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\InputBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\InputManager.cs" />
@@ -111,5 +113,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)RNG.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StateMachine.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)ImGui\LICENSE.txt" />
   </ItemGroup>
 </Project>

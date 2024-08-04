@@ -5,6 +5,7 @@
     <RollForward>Major</RollForward>
     <PublishReadyToRun>false</PublishReadyToRun>
     <TieredCompilation>false</TieredCompilation>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -21,6 +22,7 @@
   <ItemGroup>
     <PackageReference Include="2D-RTree" Version="1.0.1" />
     <PackageReference Include="FontStashSharp.MonoGame" Version="1.3.6" />
+    <PackageReference Include="ImGui.NET" Version="1.91.0.1" />
     <PackageReference Include="LanguageExt.Core" Version="4.2.9" />
     <PackageReference Include="LiteNetLib" Version="1.1.0" />
     <PackageReference Include="MonoGame.Extended" Version="3.8.0" />

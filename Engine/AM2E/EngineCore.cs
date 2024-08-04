@@ -5,6 +5,9 @@ using AM2E.Control;
 using System;
 using AM2E.Graphics;
 using AM2E.Networking;
+using ImGuiNET;
+using System = FMOD.Studio.System;
+using Vector2 = System.Numerics.Vector2;
 
 namespace AM2E;
 
@@ -29,6 +32,8 @@ public sealed class EngineCore : Game
     public static bool WindowFocused => staticThis.IsActive;
 
     public const bool DEBUG = true;
+    public static bool ImGuiActive = false;
+    private ImGuiRenderer imGuiRenderer;
 
     public EngineCore(string contentNamespace, AM2EConfig config, Action entryPointCallback)
     {
@@ -69,6 +74,10 @@ public sealed class EngineCore : Game
 
     protected override void Initialize()
     {
+        
+        imGuiRenderer = new ImGuiRenderer(this);
+        imGuiRenderer.RebuildFontAtlas();
+
         ShaderManager.LoadAll();
         Audio.Init();
 
@@ -155,18 +164,22 @@ public sealed class EngineCore : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        /*
-        var s = $"Frametime: {gameTime.ElapsedGameTime}";
-
-        Console.WriteLine(s);
-
-        if (gameTime.ElapsedGameTime.Milliseconds > 16) {
-            Console.WriteLine($"{gameTime.TotalGameTime} {gameTime.ElapsedGameTime} Lag!");
-        }
-        */
-        
         Renderer.Render();
+        
+        if (ImGuiActive)
+        {
+            imGuiRenderer.BeforeLayout(gameTime);
+
+            OnImGuiRender();
+            
+            imGuiRenderer.AfterLayout();
+        }
     }
+
+    public static event Action OnImGuiRender = () =>
+    {
+        
+    };
 
     // Call after doing heavy loading routines to prevent attempts to catch up on missed frames.
     public static void ResetDeltaTime()
@@ -211,6 +224,11 @@ public sealed class EngineCore : Game
         _graphics.ApplyChanges();
     }
 
+    public static bool GetFullscreen()
+    {
+        return _graphics.IsFullScreen;
+    }
+    
     public static void SetFullscreen(bool status)
     {
         if (_graphics.IsFullScreen == status)

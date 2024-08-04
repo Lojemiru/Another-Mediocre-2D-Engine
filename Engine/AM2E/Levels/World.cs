@@ -16,7 +16,7 @@ namespace AM2E.Levels;
 public static class World
 {
     private static LDtkWorldInstance world;
-    private static readonly Dictionary<string, LDtkLightweightLevelInstance> ldtkLevels = new();
+    public static readonly Dictionary<string, LDtkLightweightLevelInstance> LdtkLevels = new();
     private static readonly ConcurrentDictionary<string, LDtkLevelInstance> stagedLevels = new();
     private static readonly Dictionary<int, Tileset> Tilesets = new();
     private static readonly Dictionary<int, LDtkTilesetDefinition> LDtkTilesets = new();
@@ -30,7 +30,7 @@ public static class World
     private static readonly List<LDtkLevelInstance> deferredLevelsToBeInstantiated = new();
     private static bool inInstantiation = false;
     private static readonly List<Level> levelsToBeUninstantiated = new();
-    private static readonly ConcurrentDictionary<string, Action> stagedCallbacks = new();
+    private static readonly ConcurrentDictionary<string, Action<Level>> stagedCallbacks = new();
 
     private static string currentPath;
 
@@ -44,7 +44,7 @@ public static class World
         ActiveLevels.Clear();
         levelsToBeActivated.Clear();
         levelsToBeDeactivated.Clear();
-        ldtkLevels.Clear();
+        LdtkLevels.Clear();
         LDtkTilesets.Clear();
         LDtkBackgrounds.Clear();
         stagedLevels.Clear();
@@ -76,7 +76,7 @@ public static class World
         // Cache the IID of each lightweight level for faster grabbing later.
         foreach (var level in world.Levels)
         {
-            ldtkLevels.Add(level.Iid, level);
+            LdtkLevels.Add(level.Iid, level);
         }
     }
 
@@ -129,16 +129,19 @@ public static class World
         QueueLevelForInstantiation(levelInstance);
     }
 
-    public static void InstantiateLevel(string id, Action callback = null)
+    public static void InstantiateLevel(string id, Action<Level> callback = null)
     {
         if (LoadedLevels.ContainsKey(id))
+        {
+            callback?.Invoke(LoadedLevels[id]);
             return;
+        }
 
         if (inTick || !stagedLevels.ContainsKey(id))
         {
             stagedCallbacks.TryAdd(id, callback);
             
-            var t = new Thread(() => LoadLevelFromFile(ldtkLevels[id]))
+            var t = new Thread(() => LoadLevelFromFile(LdtkLevels[id]))
             {
                 IsBackground = true
             };
@@ -185,14 +188,14 @@ public static class World
         LoadedLevels[level.Iid].PostLoad();
 
         stagedLevels.TryRemove(id, out _);
-        stagedCallbacks[id]?.Invoke();
+        stagedCallbacks[id]?.Invoke(LoadedLevels[level.Iid]);
 
         stagedCallbacks.TryRemove(id, out _);
     }
 
-    public static void InstantiateLevelByName(string name, Action callback = null)
+    public static void InstantiateLevelByName(string name, Action<Level> callback = null)
     {
-        foreach (var level in ldtkLevels.Values)
+        foreach (var level in LdtkLevels.Values)
         {
             if (level.Identifier != name) 
                 continue;
@@ -204,7 +207,7 @@ public static class World
 
     public static void InstantiateAll()
     {
-        foreach (var level in ldtkLevels.Values)
+        foreach (var level in LdtkLevels.Values)
             InstantiateLevel(level.Iid);
     }
 
