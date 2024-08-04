@@ -5,9 +5,6 @@ using AM2E.Control;
 using System;
 using AM2E.Graphics;
 using AM2E.Networking;
-using ImGuiNET;
-using System = FMOD.Studio.System;
-using Vector2 = System.Numerics.Vector2;
 
 namespace AM2E;
 
@@ -18,7 +15,6 @@ public sealed class EngineCore : Game
     public static GraphicsDeviceManager _graphics;
     private double updateAccumulator = 0d;
     private const double FRAME_ERROR_MARGIN = .0002;
-    private const double MAX_ACCUMULATOR_VALUE = 8.0 / 60.0;
     private bool resetDeltaTime = false;
     private static EngineCore staticThis;
     internal static GameWindow StaticWindow;
@@ -28,6 +24,13 @@ public sealed class EngineCore : Game
     public static bool isNetworked = false;
     public static bool isServer;
     internal static int TileChunkSize;
+
+    private static int gameSpeed = 60;
+    public static int GameSpeed
+    {
+        get => gameSpeed;
+        set => gameSpeed = Math.Max(1, value);
+    }
 
     public static bool WindowFocused => staticThis.IsActive;
 
@@ -95,15 +98,13 @@ public sealed class EngineCore : Game
     protected override void Update(GameTime gameTime)
     {
         var printDeltaTime = gameTime.ElapsedGameTime.TotalSeconds;
-
-        const int GAME_SPEED = 60;
-        const double oneOneTwentieth = 1.0 / GAME_SPEED * 2;
-        const double oneSixtieth = 1.0 / GAME_SPEED;
-        const double oneThirtieth = 1.0 / GAME_SPEED / 2;
+        
+        var oneOneTwentieth = 1.0 / (GameSpeed * 2);
+        var oneSixtieth = 1.0 / GameSpeed;
+        var oneThirtieth = 1.0 / (GameSpeed / 2f);
         
         // https://medium.com/@tglaiel/how-to-make-your-game-run-at-60fps-24c61210fe75
         var deltaTime = gameTime.ElapsedGameTime.TotalSeconds;
-       
 
         if (resetDeltaTime)
         {
@@ -126,7 +127,7 @@ public sealed class EngineCore : Game
         }
 
         updateAccumulator += deltaTime;
-        updateAccumulator = Math.Clamp(updateAccumulator, 0.0, MAX_ACCUMULATOR_VALUE);
+        updateAccumulator = Math.Clamp(updateAccumulator, 0.0, 8.0 / GameSpeed);
 
         while (updateAccumulator >= oneSixtieth)
         {
@@ -143,8 +144,6 @@ public sealed class EngineCore : Game
     {
         InputManager.Update();
         ActorManager.UpdateActors(false);
-        
-        CommandConsole.ExecuteDeferredCommand();
     }
 
     private static void NetworkUpdate()
