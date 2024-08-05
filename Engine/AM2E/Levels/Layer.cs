@@ -79,8 +79,14 @@ public sealed class Layer
 
     public void Add(ColliderBase collider)
     {
-        SwapLayer(collider);
+        if (inTick)
+        {
+            QueueForAddition(collider);
+            return;
+        }
         
+        SwapLayer(collider);
+
         GenericLevelElements.Add(collider);
         Colliders.Add(collider);
     }
@@ -184,6 +190,12 @@ public sealed class Layer
 
     internal void Remove(ColliderBase collider)
     {
+        if (inTick)
+        {
+            QueueForRemoval(collider);
+            return;
+        }
+
         DisconnectLayer(collider);
         
         GenericLevelElements.Remove(collider);
