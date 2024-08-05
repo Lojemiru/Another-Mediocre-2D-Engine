@@ -15,8 +15,8 @@ public static class Logger
     public static LoggingLevel Level = LoggingLevel.Engine;
     public static bool WriteToConsole = false;
     public static bool TracePath = false;
-    public static int BufferSize = 10;
-    public static Queue<string> Buffer = new();
+    public static int CacheSize = 10;
+    public static Queue<string> Cache = new();
 
     public static string[] CrashMessages =
     {
@@ -72,9 +72,9 @@ public static class Logger
             log += " | " + path + ":" + lineNumber;
 
         Events.Enqueue(log);
-        Buffer.Enqueue(log);
-        while (Buffer.Count > BufferSize)
-            Buffer.Dequeue();
+        Cache.Enqueue(log);
+        while (Cache.Count > CacheSize)
+            Cache.Dequeue();
     }
 
     internal static void WriteException(Exception e)
