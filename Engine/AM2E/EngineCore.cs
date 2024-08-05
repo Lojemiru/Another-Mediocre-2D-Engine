@@ -77,6 +77,7 @@ public sealed class EngineCore : Game
 
     protected override void Initialize()
     {
+        Logger.Init();
         
         imGuiRenderer = new ImGuiRenderer(this);
         imGuiRenderer.RebuildFontAtlas();
@@ -97,48 +98,60 @@ public sealed class EngineCore : Game
 
     protected override void Update(GameTime gameTime)
     {
-        var printDeltaTime = gameTime.ElapsedGameTime.TotalSeconds;
-        
-        var oneOneTwentieth = 1.0 / (GameSpeed * 2);
-        var oneSixtieth = 1.0 / GameSpeed;
-        var oneThirtieth = 1.0 / (GameSpeed / 2f);
-        
-        // https://medium.com/@tglaiel/how-to-make-your-game-run-at-60fps-24c61210fe75
-        var deltaTime = gameTime.ElapsedGameTime.TotalSeconds;
-
-        if (resetDeltaTime)
+        try
         {
-            deltaTime = oneSixtieth;
-            updateAccumulator = 0;
-            resetDeltaTime = false;
-        }
+            var printDeltaTime = gameTime.ElapsedGameTime.TotalSeconds;
 
-        if (Math.Abs(deltaTime - oneOneTwentieth) < FRAME_ERROR_MARGIN)
-        {
-            deltaTime = oneOneTwentieth;
-        }
-        if (Math.Abs(deltaTime - oneSixtieth) < FRAME_ERROR_MARGIN)
-        {
-            deltaTime = oneSixtieth;
-        }
-        if (Math.Abs(deltaTime - oneThirtieth) < FRAME_ERROR_MARGIN)
-        {
-            deltaTime = oneThirtieth;
-        }
+            var oneOneTwentieth = 1.0 / (GameSpeed * 2);
+            var oneSixtieth = 1.0 / GameSpeed;
+            var oneThirtieth = 1.0 / (GameSpeed / 2f);
 
-        updateAccumulator += deltaTime;
-        updateAccumulator = Math.Clamp(updateAccumulator, 0.0, 8.0 / GameSpeed);
+            // https://medium.com/@tglaiel/how-to-make-your-game-run-at-60fps-24c61210fe75
+            var deltaTime = gameTime.ElapsedGameTime.TotalSeconds;
 
-        while (updateAccumulator >= oneSixtieth)
-        {
-            NetworkUpdate();
-            FixedUpdate();
-            updateAccumulator -= oneSixtieth;
+            if (resetDeltaTime)
+            {
+                deltaTime = oneSixtieth;
+                updateAccumulator = 0;
+                resetDeltaTime = false;
+            }
+
+            if (Math.Abs(deltaTime - oneOneTwentieth) < FRAME_ERROR_MARGIN)
+            {
+                deltaTime = oneOneTwentieth;
+            }
+
+            if (Math.Abs(deltaTime - oneSixtieth) < FRAME_ERROR_MARGIN)
+            {
+                deltaTime = oneSixtieth;
+            }
+
+            if (Math.Abs(deltaTime - oneThirtieth) < FRAME_ERROR_MARGIN)
+            {
+                deltaTime = oneThirtieth;
+            }
+
+            updateAccumulator += deltaTime;
+            updateAccumulator = Math.Clamp(updateAccumulator, 0.0, 8.0 / GameSpeed);
+
+            while (updateAccumulator >= oneSixtieth)
+            {
+                NetworkUpdate();
+                FixedUpdate();
+                updateAccumulator -= oneSixtieth;
+            }
+
+            Audio.Update();
+
+            base.Update(gameTime);
+            
+            Logger.WriteAll();
         }
-        
-        Audio.Update();
-
-        base.Update(gameTime);
+        catch (Exception e)
+        {
+            Logger.WriteException(e);
+            throw;
+        }
     }
     private static void FixedUpdate()
     {
@@ -163,15 +176,21 @@ public sealed class EngineCore : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        Renderer.Render();
-        
-        if (ImGuiActive)
+        try
         {
-            imGuiRenderer.BeforeLayout(gameTime);
+            Renderer.Render();
 
-            OnImGuiRender();
+            if (!ImGuiActive) 
+                return;
             
+            imGuiRenderer.BeforeLayout(gameTime);
+            OnImGuiRender();
             imGuiRenderer.AfterLayout();
+        }
+        catch (Exception e)
+        {
+            Logger.WriteException(e);
+            throw;
         }
     }
 

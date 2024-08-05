@@ -89,6 +89,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Levels\LDtk\LDtkWorldInstance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\Level.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\World.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Logging\Logger.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Logging\LoggingLevel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MathHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IO\AssetManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Networking\BitPackedData.cs" />
