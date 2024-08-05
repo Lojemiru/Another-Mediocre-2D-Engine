@@ -43,17 +43,17 @@ public sealed class Layer
 
     public Tile GetTile(int x, int y)
     {
-        return TileManager.GetTile(x, y);
+        return TileManager?.GetTile(x, y);
     }
 
     public void DeleteTile(int x, int y)
     {
-        TileManager.DeleteTile(x, y);
+        TileManager?.DeleteTile(x, y);
     }
 
     public void DeleteTiles(int x, int y, int numX, int numY)
     {
-        TileManager.DeleteTiles(x, y, numX, numY);
+        TileManager?.DeleteTiles(x, y, numX, numY);
     }
 
     public void Add(IDrawable drawable)
