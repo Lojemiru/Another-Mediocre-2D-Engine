@@ -59,9 +59,24 @@ public static class Logger
             fileInfos.RemoveAt(0);
         }
     }
-    
-    public static void Log(LoggingLevel level, string message, [CallerFilePath] string path = "no path", 
+
+    internal static void Engine(string message, [CallerFilePath] string path = "no path",
         [CallerLineNumber] int lineNumber = 0)
+        => Log(LoggingLevel.Engine, message, path, lineNumber);
+    
+    public static void Debug(string message, [CallerFilePath] string path = "no path",
+        [CallerLineNumber] int lineNumber = 0)
+        => Log(LoggingLevel.Debug, message, path, lineNumber);
+    
+    public static void Info(string message, [CallerFilePath] string path = "no path",
+        [CallerLineNumber] int lineNumber = 0)
+        => Log(LoggingLevel.Info, message, path, lineNumber);
+    
+    public static void Warn(string message, [CallerFilePath] string path = "no path",
+        [CallerLineNumber] int lineNumber = 0)
+        => Log(LoggingLevel.Warn, message, path, lineNumber);
+    
+    private static void Log(LoggingLevel level, string message, string path, int lineNumber)
     {
         if (level < Level)
             return;
