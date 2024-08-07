@@ -1,22 +1,26 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace AM2E;
 
 public static class Logger
 {
-    private static readonly Queue<string> Events = new();
+    private static readonly ConcurrentQueue<string> Events = new();
     private static string[] Prefixes = { "Engine", "DEBUG", "INFO", "WARN" };
     private static StreamWriter streamWriter;
+    private static Thread thread;
+    private static bool stopLoop = false;
 
     public static LoggingLevel Level = LoggingLevel.Engine;
     public static bool WriteToConsole = false;
     public static bool TracePath = false;
     public static int CacheSize = 10;
-    public static Queue<string> Cache = new();
+    public static readonly Queue<string> Cache = new();
 
     public static string[] CrashMessages =
     {
@@ -58,6 +62,25 @@ public static class Logger
             File.Delete(fileInfos[0].FullName);
             fileInfos.RemoveAt(0);
         }
+        
+        streamWriter.WriteLine(@"  ___                        _   _                  __  __          _ _                        ___  _____     ______             _              ___ 
+ |  _|     /\               | | | |                |  \/  |        | (_)                      |__ \|  __ \   |  ____|           (_)            |_  |
+ | |      /  \   _ __   ___ | |_| |__   ___ _ __   | \  / | ___  __| |_  ___   ___ _ __ ___      ) | |  | |  | |__   _ __   __ _ _ _ __   ___    | |
+ | |     / /\ \ | '_ \ / _ \| __| '_ \ / _ \ '__|  | |\/| |/ _ \/ _` | |/ _ \ / __| '__/ _ \    / /| |  | |  |  __| | '_ \ / _` | | '_ \ / _ \   | |
+ | |    / ____ \| | | | (_) | |_| | | |  __/ |     | |  | |  __/ (_| | | (_) | (__| | |  __/   / /_| |__| |  | |____| | | | (_| | | | | |  __/   | |
+ | |_  /_/    \_\_| |_|\___/ \__|_| |_|\___|_|     |_|  |_|\___|\__,_|_|\___/ \___|_|  \___|  |____|_____/   |______|_| |_|\__, |_|_| |_|\___|  _| |
+ |___|                                                                                                                      __/ |              |___|
+                                                                                                                           |___/                    
+v." + EngineCore.Version + "\n\nLogging started.");
+        
+        streamWriter.Flush();
+
+        thread = new Thread(MainLoop)
+        {
+            IsBackground = true
+        };
+        
+        thread.Start();
     }
 
     internal static void Engine(string message, [CallerFilePath] string path = "no path",
@@ -75,7 +98,7 @@ public static class Logger
     public static void Warn(string message, [CallerFilePath] string path = "no path",
         [CallerLineNumber] int lineNumber = 0)
         => Log(LoggingLevel.Warn, message, path, lineNumber);
-    
+
     private static void Log(LoggingLevel level, string message, string path, int lineNumber)
     {
         if (level < Level)
@@ -94,7 +117,8 @@ public static class Logger
 
     internal static void WriteException(Exception e)
     {
-        WriteAll();
+        stopLoop = true;
+        thread.Join();
         
         streamWriter.WriteLine("[----------GAME CRASHED----------]");
         streamWriter.WriteLine(CrashMessages[RNG.Random(CrashMessages.Length() - 1)]);
@@ -106,16 +130,27 @@ public static class Logger
         streamWriter.Flush();
     }
 
-    internal static void WriteAll()
+    private static void MainLoop()
     {
-        foreach (var ev in Events)
+        while (!stopLoop)
         {
-            if (WriteToConsole)
-                Console.WriteLine(ev);
+            var size = Events.Count;
+            var str = "";
+            for (var i = 0; i < size; i++)
+            {
+                Events.TryDequeue(out var ev);
+
+                if (WriteToConsole)
+                    Console.WriteLine(ev);
+
+                str += ev + "\n";
+            }
+
+            if (str == "")
+                continue;
             
-            streamWriter.WriteLine(ev);
+            streamWriter.Write(str);
+            streamWriter.Flush();
         }
-        
-        Events.Clear();
     }
 }

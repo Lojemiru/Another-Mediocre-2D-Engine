@@ -144,8 +144,6 @@ public sealed class EngineCore : Game
             Audio.Update();
 
             base.Update(gameTime);
-            
-            Logger.WriteAll();
         }
         catch (Exception e)
         {
