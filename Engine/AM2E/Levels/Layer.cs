@@ -17,7 +17,7 @@ public sealed class Layer
     private readonly List<GenericLevelElement> genericLevelElementsForRemoval = new();
     private readonly List<GenericLevelElement> genericLevelElementsForAddition = new();
 
-    public TileManager TileManager;
+    private TileManager tileManager;
 
     private bool inTick = false;
 
@@ -36,24 +36,24 @@ public sealed class Layer
 
     public void AddTile(int x, int y, Tile tile)
     {
-        TileManager ??= new TileManager(Level, tile.Size);
+        tileManager ??= new TileManager(Level, tile.Size);
         
-        TileManager.AddTile(x, y, tile);
+        tileManager.AddTile(x, y, tile);
     }
 
     public Tile GetTile(int x, int y)
     {
-        return TileManager?.GetTile(x, y);
+        return tileManager?.GetTile(x, y);
     }
 
     public void DeleteTile(int x, int y)
     {
-        TileManager?.DeleteTile(x, y);
+        tileManager?.DeleteTile(x, y);
     }
 
     public void DeleteTiles(int x, int y, int numX, int numY)
     {
-        TileManager?.DeleteTiles(x, y, numX, numY);
+        tileManager?.DeleteTiles(x, y, numX, numY);
     }
 
     public void Add(IDrawable drawable)
@@ -238,7 +238,7 @@ public sealed class Layer
         if (EngineCore.DEBUG)
             Renderer.DebugRender(spriteBatch);
 
-        TileManager?.Draw(spriteBatch);
+        tileManager?.Draw(spriteBatch);
 
         OnPostRender(this);
     }
@@ -293,7 +293,7 @@ public sealed class Layer
         
         genericLevelElementsForAddition.Clear();
 
-        TileManager?.Step();
+        tileManager?.Step();
     }
 
     internal void Activate()
