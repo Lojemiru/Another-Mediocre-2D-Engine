@@ -14,7 +14,6 @@ public static class Logger
     private static string[] Prefixes = { "Engine", "DEBUG", "INFO", "WARN" };
     private static StreamWriter streamWriter;
     private static Thread thread;
-    private static bool stopLoop = false;
 
     public static LoggingLevel Level = LoggingLevel.Engine;
     public static bool WriteToConsole = false;
@@ -74,7 +73,7 @@ public static class Logger
 v." + EngineCore.Version + "\n\nLogging started.");
         
         streamWriter.Flush();
-
+        
         thread = new Thread(MainLoop)
         {
             IsBackground = true
@@ -117,7 +116,7 @@ v." + EngineCore.Version + "\n\nLogging started.");
 
     internal static void WriteException(Exception e)
     {
-        stopLoop = true;
+        DispatchWrite();
         thread.Join();
         
         streamWriter.WriteLine("[----------GAME CRASHED----------]");
@@ -130,27 +129,37 @@ v." + EngineCore.Version + "\n\nLogging started.");
         streamWriter.Flush();
     }
 
+    internal static void DispatchWrite()
+    {
+        if (thread.IsAlive)
+            return;
+        
+        thread = new Thread(MainLoop)
+        {
+            IsBackground = true
+        };
+        
+        thread.Start();
+    }
+
     private static void MainLoop()
     {
-        while (!stopLoop)
+        var size = Events.Count;
+        var str = "";
+        for (var i = 0; i < size; i++)
         {
-            var size = Events.Count;
-            var str = "";
-            for (var i = 0; i < size; i++)
-            {
-                Events.TryDequeue(out var ev);
+            Events.TryDequeue(out var ev);
 
-                if (WriteToConsole)
-                    Console.WriteLine(ev);
+            if (WriteToConsole)
+                Console.WriteLine(ev);
 
-                str += ev + "\n";
-            }
-
-            if (str == "")
-                continue;
-            
-            streamWriter.Write(str);
-            streamWriter.Flush();
+            str += ev + "\n";
         }
+
+        if (str == "")
+            return;
+        
+        streamWriter.Write(str);
+        streamWriter.Flush();
     }
 }
