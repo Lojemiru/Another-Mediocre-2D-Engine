@@ -247,15 +247,36 @@ public sealed class EngineCore : Game
         return _graphics.IsFullScreen;
     }
     
-    public static void SetFullscreen(bool status)
+    public static void SetFullscreen(bool status, int width = 0, int height = 0)
     {
         if (_graphics.IsFullScreen == status)
             return;
+        
+        // Disable OnResize event.
+        StaticWindow.ClientSizeChanged -= Renderer.OnResize;
+        
+        // Set backbuffer size.
+        if (status)
+        {
+            _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+        }
+        else
+        {
+            _graphics.PreferredBackBufferWidth =
+                width > 0 ? width : GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+            _graphics.PreferredBackBufferHeight =
+                height > 0 ? height : GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+        }
 
-        _graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
-        _graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
         _graphics.IsFullScreen = status;
         _graphics.ApplyChanges();
+        
+        // Re-enable OnResize event.
+        StaticWindow.ClientSizeChanged += Renderer.OnResize;
+
+        // Run the OnResize event manually to update the draw space and scale.
+        Renderer.OnResizeInternal(StaticWindow, true);
     }
 
     public static void StartServer(int port)
