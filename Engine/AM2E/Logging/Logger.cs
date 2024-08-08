@@ -131,7 +131,7 @@ v." + EngineCore.Version + "\n\nLogging started.");
 
     internal static void DispatchWrite()
     {
-        if (thread.IsAlive)
+        if (thread.IsAlive || Events.Count <= 0)
             return;
         
         thread = new Thread(MainLoop)
@@ -145,6 +145,10 @@ v." + EngineCore.Version + "\n\nLogging started.");
     private static void MainLoop()
     {
         var size = Events.Count;
+
+        if (size <= 0)
+            return;
+        
         var str = "";
         for (var i = 0; i < size; i++)
         {
@@ -156,9 +160,6 @@ v." + EngineCore.Version + "\n\nLogging started.");
             str += ev + "\n";
         }
 
-        if (str == "")
-            return;
-        
         streamWriter.Write(str);
         streamWriter.Flush();
     }
