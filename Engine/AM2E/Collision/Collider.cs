@@ -148,6 +148,15 @@ public sealed class Collider
         first = false;
     }
 
+    public void ApplyRotation(float angle)
+    {
+        foreach (var hitbox in hitboxes)
+        {
+            if (hitbox is PolygonHitbox p)
+                p.ApplyRotation(angle);
+        }
+    }
+
     private readonly ColliderBase parent;
     private bool first = true;
     
@@ -377,11 +386,18 @@ public sealed class Collider
         if (colliders.Length() == 0)
             return;
 
-        var ev = (Action<T>)events[typeof(T)];
-
-        foreach (var col in colliders)
+        try
         {
-            ev(col);
+            var ev = (Action<T>)events[typeof(T)];
+
+            foreach (var col in colliders)
+            {
+                ev(col);
+            }
+        }
+        catch (KeyNotFoundException _)
+        {
+            throw new KeyNotFoundException("No collision event registered for '" + typeof(T) + "'. Ensure that you are using Collider.Add() to register a collision event before running Collider.CheckAndRun<T>().");
         }
     }
         

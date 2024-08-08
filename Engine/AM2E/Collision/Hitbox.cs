@@ -43,8 +43,14 @@ public abstract class Hitbox
     private List<Type> boundInterfaces;
     private List<Type> targetInterfaces;
 
+    private bool isBound = true;
+    private bool doTarget = true;
+
     public bool IsBoundToInterface<T>() where T : ICollider
     {
+        if (!isBound)
+            return false;
+        
         if (boundInterfaces == null)
             return true;
 
@@ -57,14 +63,21 @@ public abstract class Hitbox
         return false;
     }
 
+    public void BindToNothing()
+    {
+        isBound = false;
+    }
+    
     public void BindToInterface<T>() where T : ICollider
     {
+        isBound = true;
         boundInterfaces ??= new List<Type>();
         boundInterfaces.Add(typeof(T));
     }
 
     public void BindToInterfaces(params Type[] types)
     {
+        isBound = true;
         boundInterfaces ??= new List<Type>();
         foreach (var type in types)
             boundInterfaces.Add(type);
@@ -72,6 +85,9 @@ public abstract class Hitbox
 
     public bool IsTargetingInterface<T>() where T : ICollider
     {
+        if (!doTarget)
+            return false;
+        
         if (targetInterfaces == null) 
             return true;
             
@@ -83,15 +99,22 @@ public abstract class Hitbox
 
         return false;
     }
+
+    public void TargetNothing()
+    {
+        doTarget = false;
+    }
         
     public void TargetInterface<T>() where T : ICollider
     {
+        doTarget = true;
         targetInterfaces ??= new List<Type>();
         targetInterfaces.Add(typeof(T));
     }
 
     public void TargetInterfaces(params Type[] types)
     {
+        doTarget = true;
         targetInterfaces ??= new List<Type>();
         foreach (var type in types)
             targetInterfaces.Add(type);
