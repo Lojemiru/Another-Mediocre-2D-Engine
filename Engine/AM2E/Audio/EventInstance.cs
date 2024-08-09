@@ -1,4 +1,5 @@
-﻿using FMOD.Studio;
+﻿using System;
+using FMOD.Studio;
 
 namespace AM2E;
 
@@ -48,6 +49,13 @@ public class EventInstance
         var stopMode = immediate ? STOP_MODE.IMMEDIATE : STOP_MODE.ALLOWFADEOUT;
         myEvent.stop(stopMode);
     }
+    
+    public void HardStop() {
+        Stop(true);
+        myEvent.setUserData(IntPtr.Zero);
+        myEvent.release();
+        // myEvent.setCallback(null); hmm, something still funky here
+    }
 
     /// <summary>
     /// Pauses the event
@@ -56,16 +64,28 @@ public class EventInstance
     {
         myEvent.setPaused(true);
     }
+    
+    public void Resume() {
+        myEvent.setPaused(false);
+    }
 
     public void SetParameter(string parameterName, float value) 
     {
-        Audio.FMODCall(myEvent.setParameterByName(parameterName, value), "Param set: ");
+        Audio.FMODCall(myEvent.setParameterByName(parameterName, value));
     }
 
     public void SetParameter(string parameterName, string value) 
     {
-        Audio.FMODCall(myEvent.setParameterByNameWithLabel(parameterName, value), "Param set str: ");
+        Audio.FMODCall(myEvent.setParameterByNameWithLabel(parameterName, value));
     }
+    
+    // Callback function expects signature of type
+    // BeatEventCallback(FMOD.Studio.EVENT_CALLBACK_TYPE type, IntPtr instancePointer,
+    // IntPtr parameterPtr)
+    public void SetCallback(EVENT_CALLBACK callback, EVENT_CALLBACK_TYPE callbackType) {
+        myEvent.setCallback(callback, callbackType);
+    }
+    
     #endregion
 
 
@@ -89,6 +109,12 @@ public class EventInstance
         myEvent.getPlaybackState(out var currentState);
 
         return currentState is PLAYBACK_STATE.STOPPED or PLAYBACK_STATE.STOPPING;
+    }
+    
+    public int GetPosition() {
+        myEvent.getTimelinePosition(out var timelinePosition);
+            
+        return timelinePosition;
     }
 
     /// <summary>
@@ -120,6 +146,12 @@ public class EventInstance
         
         // aaaah
         return path.Split(":/")[1];
+    }
+    
+    public LOADING_STATE GetLoadingState() {
+        myEvent.getDescription(out var description);
+        description.getSampleLoadingState(out var l);
+        return l;
     }
 
     #endregion
