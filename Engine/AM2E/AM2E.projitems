@@ -63,6 +63,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Renderer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\MouseButtons.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Input\MouseInput.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IO\LocalStorage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\Background.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\ColliderBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Levels\CompositeBackground.cs" />

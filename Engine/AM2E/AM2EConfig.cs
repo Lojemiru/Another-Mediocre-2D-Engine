@@ -15,9 +15,11 @@ public sealed class AM2EConfig
     public int TileChunkSize = 8;
     public GraphicsProfile GraphicsProfile = GraphicsProfile.HiDef;
     public Type InputEnum;
+    public string LocalStorageName;
 
-    public AM2EConfig(Type inputEnum)
+    public AM2EConfig(Type inputEnum, string localStorageName)
     {
         InputEnum = inputEnum;
+        LocalStorageName = localStorageName;
     }
 }

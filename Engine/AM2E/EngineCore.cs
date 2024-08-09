@@ -4,6 +4,7 @@ using AM2E.Actors;
 using AM2E.Control;
 using System;
 using AM2E.Graphics;
+using AM2E.IO;
 using AM2E.Networking;
 
 namespace AM2E;
@@ -24,6 +25,7 @@ public sealed class EngineCore : Game
     public static bool isNetworked = false;
     public static bool isServer;
     internal static int TileChunkSize;
+    internal static string LocalStorageName;
 
     private static int gameSpeed = 60;
     public static int GameSpeed
@@ -45,6 +47,7 @@ public sealed class EngineCore : Game
         staticThis = this;
         StaticWindow = Window;
         TileChunkSize = config.TileChunkSize;
+        LocalStorageName = config.LocalStorageName;
         
         SetTitle("Built in Another Mediocre 2D Engine");
         
@@ -84,6 +87,7 @@ public sealed class EngineCore : Game
 
         ShaderManager.LoadAll();
         Audio.Init();
+        LocalStorage.Initialize();
 
         // Run supplied entrypoint callback.
         entryPointCallback();
