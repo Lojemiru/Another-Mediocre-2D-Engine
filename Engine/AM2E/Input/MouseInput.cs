@@ -1,11 +1,17 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework.Input;
+using Newtonsoft.Json;
 
 namespace AM2E.Control;
 
 internal sealed class MouseInput : InputBase<MouseButtons, MouseState>
 {
     internal MouseInput(MouseButtons input) : base(input) { }
+    
+    [JsonConstructor]
+    public MouseInput(List<MouseButtons> inputs) : base(inputs) { }
+    
     private int wheelLast;
 
     internal override void Update(MouseState state)

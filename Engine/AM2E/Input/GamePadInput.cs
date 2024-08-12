@@ -1,11 +1,16 @@
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Newtonsoft.Json;
 
 namespace AM2E.Control;
 
 internal sealed class GamePadInput : InputBase<Buttons, GamePadState>
 {
     internal GamePadInput(Buttons input) : base(input) { }
+    
+    [JsonConstructor]
+    public GamePadInput(List<Buttons> inputs) : base(inputs) { }
 
     protected override void Poll(GamePadState state, Buttons input)
     {

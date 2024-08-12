@@ -1,11 +1,18 @@
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace AM2E.Control;
 
 internal abstract class InputBase<TInput, TState>
 {
-    internal readonly List<TInput> Inputs = new();
+    [JsonProperty("i")]
+    public readonly List<TInput> Inputs = new();
     
+    protected InputBase(List<TInput> inputs)
+    {
+        Inputs = inputs;
+    }
+
     protected InputBase(TInput input)
     {
         Inputs.Add(input);

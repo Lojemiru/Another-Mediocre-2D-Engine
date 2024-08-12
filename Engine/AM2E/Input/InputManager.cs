@@ -1,7 +1,9 @@
 ﻿using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AM2E.Graphics;
+using AM2E.IO;
 using Microsoft.Xna.Framework;
 
 namespace AM2E.Control;
@@ -47,10 +49,10 @@ namespace AM2E.Control;
 
 public static class InputManager
 {
-    private static readonly Dictionary<string, KeyboardInput> KeyboardListeners = new();
-    private static readonly Dictionary<string, MouseInput> MouseListeners = new();
-    private static readonly Dictionary<string, GamePadInput> GamePadListeners = new();
-    private static readonly Dictionary<string, string> RebindGroupMappings = new();
+    internal static readonly Dictionary<string, KeyboardInput> KeyboardListeners = new();
+    internal static readonly Dictionary<string, MouseInput> MouseListeners = new();
+    internal static readonly Dictionary<string, GamePadInput> GamePadListeners = new();
+    internal static readonly Dictionary<string, string> RebindGroupMappings = new();
     
     private const double PI_HALVES = Math.PI / 2;
     private const double PI_FOURTHS = Math.PI / 4;
@@ -82,6 +84,43 @@ public static class InputManager
             GamePadListeners.Add(input, new GamePadInput(Buttons.None));
             RebindGroupMappings[input] = "";
         }
+    }
+
+    private static InputSerialization Serialize()
+    {
+        return new InputSerialization(KeyboardListeners, MouseListeners, GamePadListeners, RightCenterDeadZone, 
+            LeftCenterDeadZone, AngularAxisDeadZone);
+    }
+    
+    public static void Write(string name)
+    {
+        LocalStorage.Write(name, Serialize());
+    }
+    
+    public static void WriteAsync(string name, Action callback = null)
+    {
+        LocalStorage.WriteAsync(name, Serialize(), callback);
+    }
+
+    public static void LoadFrom(string name)
+    {
+        if (!LocalStorage.Exists(name))
+            Write(name);
+        
+        LocalStorage.Read(name, out InputSerialization s);
+        
+        foreach (var pair in s.KeyboardListeners.Where(pair => KeyboardListeners.ContainsKey(pair.Key)))
+            KeyboardListeners[pair.Key] = pair.Value;
+        
+        foreach (var pair in s.MouseListeners.Where(pair => MouseListeners.ContainsKey(pair.Key)))
+            MouseListeners[pair.Key] = pair.Value;
+        
+        foreach (var pair in s.GamePadListeners.Where(pair => GamePadListeners.ContainsKey(pair.Key)))
+            GamePadListeners[pair.Key] = pair.Value;
+
+        RightCenterDeadZone = s.RightCenterDeadZone;
+        LeftCenterDeadZone = s.LeftCenterDeadZone;
+        AngularAxisDeadZone = s.AngularAxisDeadZone;
     }
 
     internal static void Update()

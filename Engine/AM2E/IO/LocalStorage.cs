@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
+using System.Threading;
 
 namespace AM2E.IO;
 
@@ -36,6 +37,17 @@ public static class LocalStorage
         using var writer = File.CreateText(GetPath() + "/" + name);
         var serializer = new JsonSerializer();
         serializer.Serialize(writer, data);
+    }
+
+    public static void WriteAsync(string name, object data, Action callback = null)
+    {
+        var t = new Thread(() =>
+        {
+            Write(name, data);
+            callback?.Invoke();
+        });
+        t.IsBackground = true;
+        t.Start();
     }
 
     public static void Read<T>(string name, out T data)
