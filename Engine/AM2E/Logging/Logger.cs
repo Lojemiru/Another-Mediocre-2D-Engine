@@ -20,6 +20,7 @@ public static class Logger
     public static bool TracePath = false;
     public static int CacheSize = 10;
     public static readonly Queue<string> Cache = new();
+    private static readonly Queue<string> stagingCache = new();
 
     public static string[] CrashMessages =
     {
@@ -109,9 +110,16 @@ v." + EngineCore.Version + "\n\nLogging started.");
             log += " | " + path + ":" + lineNumber;
 
         Events.Enqueue(log);
-        Cache.Enqueue(log);
-        while (Cache.Count > CacheSize)
-            Cache.Dequeue();
+        stagingCache.Enqueue(log);
+        while (stagingCache.Count > CacheSize)
+            stagingCache.Dequeue();
+    }
+
+    internal static void UpdateCache()
+    {
+        Cache.Clear();
+        foreach (var e in stagingCache)
+            Cache.Enqueue(e);
     }
 
     internal static void WriteException(Exception e)

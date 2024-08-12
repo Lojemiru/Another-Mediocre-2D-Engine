@@ -127,8 +127,14 @@ public static class World
         var levelInstance = (LDtkLevelInstance)serializer.Deserialize(reader, typeof(LDtkLevelInstance));
         stagedLevels[level.Iid] = levelInstance;
         // This check should prevent any issues if we've run another level instantiation request that's finished for this IID. 
-        if (!LoadedLevels.ContainsKey(level.Iid))
-            QueueLevelForInstantiation(levelInstance);
+        if (LoadedLevels.ContainsKey(level.Iid))
+        {
+            Logger.Warn($"Aborting background load for level {level.Identifier} ({level.Iid}) - load already completed!");
+            return;
+        }
+        
+        Logger.Engine($"Background load completed for level {level.Identifier} ({level.Iid}). Queueing for instantiation...");
+        QueueLevelForInstantiation(levelInstance);
     }
 
     public static void InstantiateLevel(string id, Action<Level> callback = null, bool blocking = false)
@@ -145,6 +151,7 @@ public static class World
 
             if (!blocking)
             {
+                Logger.Engine($"Initiating background load for level {LdtkLevels[id].Identifier} ({id})");
                 var t = new Thread(() => LoadLevelFromFile(LdtkLevels[id]))
                 {
                     IsBackground = true
@@ -153,11 +160,16 @@ public static class World
             }
             else
             {
+                // TODO: Might be nice to keep a collection of threads and join if a load is in progress rather than duplicating the work.
+                // Could be more efficient for panic situations.
+                Logger.Engine($"Initiating blocking load for level {LdtkLevels[id].Identifier} ({id})");
                 LoadLevelFromFile(LdtkLevels[id]);
             }
 
             return;
         }
+        
+        Logger.Engine($"Instantiating level {LdtkLevels[id].Identifier} ({id})");
 
         var level = stagedLevels[id];
         

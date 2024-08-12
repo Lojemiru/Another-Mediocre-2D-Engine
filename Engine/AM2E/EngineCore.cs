@@ -150,6 +150,7 @@ public sealed class EngineCore : Game
             base.Update(gameTime);
             
             Logger.DispatchWrite();
+            Logger.UpdateCache();
         }
         catch (Exception e)
         {
