@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using GameContent;
 
 namespace AM2E.Graphics;
 
@@ -207,16 +208,40 @@ public sealed class Sprite
         var pos = Positions[layer][frame];
 
         // Figure out the bounds of our sub-rectangle.
-        subPos.X = Math.Clamp(pos.X + subRectangle.X, pos.X, pos.X + pos.Width);
-        subPos.Y = Math.Clamp(pos.Y + subRectangle.Y, pos.Y, pos.Y + pos.Height);
-        subPos.Width = Math.Clamp(subRectangle.Width, 1, pos.Width - subRectangle.X);
-        subPos.Height = Math.Clamp(subRectangle.Height, 1, pos.Height - subRectangle.Y);
+        subPos.X = Positions[layer][frame].X + subRectangle.X;
+        subPos.Y = Positions[layer][frame].Y + subRectangle.Y;
+        subPos.Width = subRectangle.Width;
+        subPos.Height = subRectangle.Height;
 
         if (cropsAreNotNull)
         {
             subPos.X -= cropOffsets![layer][frame][0];
             subPos.Y -= cropOffsets![layer][frame][1];
         }
+
+        if (subPos.X < pos.X)
+        {
+            var diff = (pos.X - subPos.X);
+            subPos.Width -= diff;
+            drawPos.X += diff;
+            subPos.X = pos.X;
+        }
+        
+        var sub = (subPos.X + subPos.Width) - (pos.X + pos.Width);
+        if (sub > 0)
+            subPos.Width -= sub;
+
+        if (subPos.Y < pos.Y)
+        {
+            var diff = (pos.Y - subPos.Y);
+            subPos.Height -= diff;
+            drawPos.Y += diff;
+            subPos.Y = pos.Y;
+        }
+
+        sub = (subPos.Y + subPos.Height) - (pos.Y + pos.Height);
+        if (sub > 0)
+            subPos.Height -= sub;
 
         scale.X = scaleX;
         scale.Y = scaleY;
