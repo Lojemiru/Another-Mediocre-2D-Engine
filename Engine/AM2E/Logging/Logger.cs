@@ -122,6 +122,8 @@ v." + EngineCore.Version + "\n\nLogging started.");
         streamWriter.WriteLine("[----------GAME CRASHED----------]");
         streamWriter.WriteLine(CrashMessages[RNG.Random(CrashMessages.Length() - 1)]);
         streamWriter.WriteLine();
+        streamWriter.WriteLine("Crash occurred at " + DateTime.Now.ToString("HH:mm:ss.ffff"));
+        streamWriter.WriteLine();
         streamWriter.WriteLine(e);
         streamWriter.WriteLine();
         streamWriter.WriteLine("Thank you for using Another Mediocre 2D Engine. Good luck debugging.");

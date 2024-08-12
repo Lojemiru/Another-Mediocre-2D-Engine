@@ -385,19 +385,15 @@ public sealed class Collider
         
         if (colliders.Length() == 0)
             return;
-
-        try
-        {
-            var ev = (Action<T>)events[typeof(T)];
-
-            foreach (var col in colliders)
-            {
-                ev(col);
-            }
-        }
-        catch (KeyNotFoundException _)
-        {
+        
+        if (!events.ContainsKey(typeof(T)))
             throw new KeyNotFoundException("No collision event registered for '" + typeof(T) + "'. Ensure that you are using Collider.Add() to register a collision event before running Collider.CheckAndRun<T>().");
+        
+        var ev = (Action<T>)events[typeof(T)];
+
+        foreach (var col in colliders)
+        {
+            ev(col);
         }
     }
         

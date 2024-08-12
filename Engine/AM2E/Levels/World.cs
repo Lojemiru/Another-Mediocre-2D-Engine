@@ -126,10 +126,12 @@ public static class World
         using var reader = File.OpenText(currentPath + level.ExternalRelPath);
         var levelInstance = (LDtkLevelInstance)serializer.Deserialize(reader, typeof(LDtkLevelInstance));
         stagedLevels[level.Iid] = levelInstance;
-        QueueLevelForInstantiation(levelInstance);
+        // This check should prevent any issues if we've run another level instantiation request that's finished for this IID. 
+        if (!LoadedLevels.ContainsKey(level.Iid))
+            QueueLevelForInstantiation(levelInstance);
     }
 
-    public static void InstantiateLevel(string id, Action<Level> callback = null)
+    public static void InstantiateLevel(string id, Action<Level> callback = null, bool blocking = false)
     {
         if (LoadedLevels.ContainsKey(id))
         {
@@ -140,12 +142,19 @@ public static class World
         if (inTick || !stagedLevels.ContainsKey(id))
         {
             stagedCallbacks.TryAdd(id, callback);
-            
-            var t = new Thread(() => LoadLevelFromFile(LdtkLevels[id]))
+
+            if (!blocking)
             {
-                IsBackground = true
-            };
-            t.Start();
+                var t = new Thread(() => LoadLevelFromFile(LdtkLevels[id]))
+                {
+                    IsBackground = true
+                };
+                t.Start();
+            }
+            else
+            {
+                LoadLevelFromFile(LdtkLevels[id]);
+            }
 
             return;
         }
@@ -336,7 +345,15 @@ public static class World
 
     public static Level GetLevelByIid(string iid)
     {
+        if (!IsLevelLoaded(iid))
+            throw new KeyNotFoundException($"Level {iid} is not loaded!");
+        
         return LoadedLevels[iid];
+    }
+
+    public static bool IsLevelLoaded(string iid)
+    {
+        return LoadedLevels.ContainsKey(iid);
     }
 
     public static LDtkCompositeBackgroundDefinition GetCompositeBackground(int uid)
