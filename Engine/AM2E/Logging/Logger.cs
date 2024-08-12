@@ -117,7 +117,7 @@ v." + EngineCore.Version + "\n\nLogging started.");
 
     internal static void UpdateCache()
     {
-        var size = Cache.Count;
+        var size = stagingCache.Count;
         for (var i = 0; i < size; i++)
         {
             stagingCache.TryDequeue(out var ev);
