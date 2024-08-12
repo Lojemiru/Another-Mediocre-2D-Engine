@@ -204,19 +204,20 @@ public sealed class Sprite
 
         PrepareDraw(x, y, scaleX, scaleY);
 
+        var pos = Positions[layer][frame];
+
         // Figure out the bounds of our sub-rectangle.
-        subPos.X = Positions[layer][frame].X + subRectangle.X;
-        subPos.Y = Positions[layer][frame].Y + subRectangle.Y;
+        subPos.X = Math.Clamp(pos.X + subRectangle.X, pos.X, pos.X + pos.Width);
+        subPos.Y = Math.Clamp(pos.Y + subRectangle.Y, pos.Y, pos.Y + pos.Height);
+        subPos.Width = Math.Clamp(subRectangle.Width, 1, pos.Width - subRectangle.X);
+        subPos.Height = Math.Clamp(subRectangle.Height, 1, pos.Height - subRectangle.Y);
 
         if (cropsAreNotNull)
         {
             subPos.X -= cropOffsets![layer][frame][0];
             subPos.Y -= cropOffsets![layer][frame][1];
         }
-        
-        subPos.Width = subRectangle.Width;
-        subPos.Height = subRectangle.Height;
-        
+
         scale.X = scaleX;
         scale.Y = scaleY;
         
