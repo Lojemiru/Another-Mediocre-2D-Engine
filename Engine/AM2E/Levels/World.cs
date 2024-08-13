@@ -31,6 +31,7 @@ public static class World
     private static bool inInstantiation = false;
     private static readonly List<Level> levelsToBeUninstantiated = new();
     private static readonly ConcurrentDictionary<string, Action<Level>> stagedCallbacks = new();
+    private static readonly Dictionary<string, Thread> Threads = new();
 
     private static string currentPath;
 
@@ -39,6 +40,13 @@ public static class World
 
     public static void LoadWorld(string path)
     {
+        // Yeah, this is kinda crappy... but it's the best I've got to forcibly shut down all current loads. I think.
+        foreach (var thread in Threads.Values)
+        {
+            thread.Join();
+        }
+        Threads.Clear();
+        
         Tilesets.Clear();
         LoadedLevels.Clear();
         ActiveLevels.Clear();
@@ -126,17 +134,19 @@ public static class World
         using var reader = File.OpenText(currentPath + level.ExternalRelPath);
         var levelInstance = (LDtkLevelInstance)serializer.Deserialize(reader, typeof(LDtkLevelInstance));
         stagedLevels[level.Iid] = levelInstance;
-        // This check should prevent any issues if we've run another level instantiation request that's finished for this IID. 
-        if (LoadedLevels.ContainsKey(level.Iid))
-        {
-            Logger.Warn($"Aborting background load for level {level.Identifier} ({level.Iid}) - load already completed!");
-            return;
-        }
-        
-        Logger.Engine($"Background load completed for level {level.Identifier} ({level.Iid}). Queueing for instantiation...");
+
         QueueLevelForInstantiation(levelInstance);
+        Threads.Remove(level.Iid);
     }
 
+    /// <summary>
+    /// Instantiates the level that corresponds to the supplied ID.
+    /// </summary>
+    /// <param name="id">The ID of the level to instantiate.</param>
+    /// <param name="callback">A callback to run when instantiation is finished.
+    /// <br></br>WARNING: If multiple load calls are used, only the first defined callback will be used!</param>
+    /// <param name="blocking">Whether to instantiate the level in a blocking fashion rather than asynchronously.</param>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     public static void InstantiateLevel(string id, Action<Level> callback = null, bool blocking = false)
     {
         if (LoadedLevels.ContainsKey(id))
@@ -147,23 +157,33 @@ public static class World
 
         if (inTick || !stagedLevels.ContainsKey(id))
         {
-            stagedCallbacks.TryAdd(id, callback);
-
+            if (callback is not null)
+                stagedCallbacks.TryAdd(id, callback);
+            
             if (!blocking)
             {
+                if (Threads.ContainsKey(id))
+                    return;
+                
                 Logger.Engine($"Initiating background load for level {LdtkLevels[id].Identifier} ({id})");
-                var t = new Thread(() => LoadLevelFromFile(LdtkLevels[id]))
+                Threads.Add(id, new Thread(() => LoadLevelFromFile(LdtkLevels[id]))
                 {
                     IsBackground = true
-                };
-                t.Start();
+                });
+                Threads[id].Start();
             }
             else
             {
-                // TODO: Might be nice to keep a collection of threads and join if a load is in progress rather than duplicating the work.
-                // Could be more efficient for panic situations.
-                Logger.Engine($"Initiating blocking load for level {LdtkLevels[id].Identifier} ({id})");
-                LoadLevelFromFile(LdtkLevels[id]);
+                if (Threads.TryGetValue(id, out var value))
+                {
+                    Logger.Engine($"Joining existing instantiation thread for level {LdtkLevels[id].Identifier} ({id})");
+                    value.Join();
+                }
+                else
+                {
+                    Logger.Engine($"Initiating blocking load for level {LdtkLevels[id].Identifier} ({id})");
+                    LoadLevelFromFile(LdtkLevels[id]);
+                }
             }
 
             return;
@@ -210,9 +230,11 @@ public static class World
         LoadedLevels[level.Iid].PostLoad();
 
         stagedLevels.TryRemove(id, out _);
-        stagedCallbacks[id]?.Invoke(LoadedLevels[level.Iid]);
-
-        stagedCallbacks.TryRemove(id, out _);
+        if (stagedCallbacks.TryGetValue(id, out var finalCallback))
+        {
+            finalCallback?.Invoke(LoadedLevels[level.Iid]);
+            stagedCallbacks.TryRemove(id, out _);
+        }
     }
 
     public static void InstantiateLevelByName(string name, Action<Level> callback = null)
