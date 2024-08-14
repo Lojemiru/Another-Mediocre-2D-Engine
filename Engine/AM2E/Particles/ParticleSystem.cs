@@ -1,4 +1,5 @@
 using System;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Particles;
@@ -150,7 +151,7 @@ public sealed class ParticleSystem
         }
     }
 
-    public void Draw(SpriteBatch spriteBatch, float x, float y)
+    public void Draw(SpriteBatch spriteBatch, float x, float y, Color color = default)
     {
         for (var i = 0; i < Size; i++)
         {
@@ -159,7 +160,7 @@ public sealed class ParticleSystem
             if (p[P_LIFE] <= 0)
                 continue;
             
-            Definition.Sprite.Draw(spriteBatch, x + p[P_X], y + p[P_Y], (int)p[P_INDEX], p[P_ANGLE], SpriteEffects.None, p[P_ALPHA], layer:layer);
+            Definition.Sprite.Draw(spriteBatch, x + p[P_X], y + p[P_Y], (int)p[P_INDEX], p[P_ANGLE], SpriteEffects.None, p[P_ALPHA], layer:layer, color:color);
         }
     }
 }
