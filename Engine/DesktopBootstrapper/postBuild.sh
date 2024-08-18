@@ -27,7 +27,7 @@ then
 
     export MGFXC_WINE_PATH=/home/$username/.winemonogame
 
-    dotnet tool install -g dotnet-mgfxc
+    dotnet tool install -g dotnet-mgfxc --version 3.8.1.303
 
     for f in ../../GameContent/GameContent/Shaders/*.fx
     do
