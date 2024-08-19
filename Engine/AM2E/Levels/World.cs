@@ -43,7 +43,7 @@ public static class World
         // Yeah, this is kinda crappy... but it's the best I've got to forcibly shut down all current loads. I think.
         foreach (var thread in Threads.Values)
         {
-            thread.Join();
+            thread?.Join();
         }
         Threads.Clear();
 
