@@ -46,7 +46,7 @@ public static class World
             thread.Join();
         }
         Threads.Clear();
-        
+
         Tilesets.Clear();
         LoadedLevels.Clear();
         ActiveLevels.Clear();
@@ -85,6 +85,7 @@ public static class World
         foreach (var level in world.Levels)
         {
             LdtkLevels.Add(level.Iid, level);
+            Threads.Add(level.Iid, null);
         }
     }
 
@@ -136,7 +137,7 @@ public static class World
         stagedLevels[level.Iid] = levelInstance;
 
         QueueLevelForInstantiation(levelInstance);
-        Threads.Remove(level.Iid);
+        Threads[level.Iid] = null;
     }
 
     /// <summary>
@@ -162,22 +163,22 @@ public static class World
             
             if (!blocking)
             {
-                if (Threads.ContainsKey(id))
+                if (Threads[id] != null)
                     return;
                 
                 Logger.Engine($"Initiating background load for level {LdtkLevels[id].Identifier} ({id})");
-                Threads.Add(id, new Thread(() => LoadLevelFromFile(LdtkLevels[id]))
+                Threads[id] = new Thread(() => LoadLevelFromFile(LdtkLevels[id]))
                 {
                     IsBackground = true
-                });
+                };
                 Threads[id].Start();
             }
             else
             {
-                if (Threads.TryGetValue(id, out var value))
+                if (Threads[id] != null)
                 {
                     Logger.Engine($"Joining existing instantiation thread for level {LdtkLevels[id].Identifier} ({id})");
-                    value.Join();
+                    Threads[id].Join();
                 }
                 else
                 {
