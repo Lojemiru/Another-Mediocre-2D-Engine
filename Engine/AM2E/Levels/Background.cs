@@ -72,8 +72,8 @@ internal readonly struct Background
 
         // Adjust position for repeat drawing
         // TODO: As far as I can determine, THIS is what causes the jitter.
-        posX += repeatX ? sprite.Width * ((Camera.BoundLeft - (int)posX) / sprite.Width) : 0;
-        posY += repeatY ? sprite.Height * ((Camera.BoundTop - (int)posY) / sprite.Height) : 0;
+        posX += repeatX ? sprite.Width * MathF.Floor((Camera.BoundLeft - posX) / sprite.Width) : 0;
+        posY += repeatY ? sprite.Height * MathF.Floor((Camera.BoundTop - posY) / sprite.Height) : 0;
 
         // Determine repeat counts
         var repeatCountX = repeatX ? Math.Max(MathF.Ceiling(Camera.Width / (float)sprite.Width), 1) + 1 : 1;
