@@ -7,6 +7,6 @@ public struct LDtkTableOfContentEntry
     [JsonProperty("identifier")]
     public string Identifier { get; set; }
 
-    [JsonProperty("instances")]
+    [JsonProperty("instancesData")]
     public LDtkReferenceToAnEntityInstance[] Instances { get; set; }
 }
