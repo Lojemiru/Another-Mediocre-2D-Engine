@@ -16,8 +16,8 @@
 #cp -r ../../GameContent/Audio/Build $1audio
 
 # Build shaders, copy in new
-rm -r $1shaders
-mkdir $1shaders
+rm -r $1Shaders
+mkdir $1Shaders
 
 DIR=../../GameContent/GameContent/Shaders
 
@@ -32,7 +32,7 @@ then
     for f in ../../GameContent/GameContent/Shaders/*.fx
     do
         fullname="${f##*/}"
-        mgfxc $f $1shaders/"${fullname%.*}"
+        mgfxc $f $1Shaders/"${fullname%.*}"
     done
 fi
 
