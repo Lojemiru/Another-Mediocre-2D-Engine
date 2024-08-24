@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using AM2E.IO;
 using FontStashSharp;
 
 namespace AM2E.Graphics;
@@ -9,22 +10,32 @@ public static class FontManager
 {
     private static readonly Dictionary<string, FontSystem> fontSystems = new();
 
-    public static FontSystem CreateFontSystem(string name, string pathToTTF)
+    public static FontSystem CreateFontSystem(string name, string fileName)
     {
         var system = new FontSystem();
-        system.AddFont(File.ReadAllBytes(pathToTTF));
+        system.AddFont(File.ReadAllBytes(AssetManager.GetFontPath(fileName)));
         fontSystems.Add(name, system);
 
         return system;
     }
 
-    public static FontSystem CreateFontSystem(string name, string pathToTTF, FontSystemSettings settings)
+    public static FontSystem CreateFontSystem(string name, string fileName, FontSystemSettings settings)
     {
         var system = new FontSystem(settings);
-        system.AddFont(File.ReadAllBytes(pathToTTF));
+        system.AddFont(File.ReadAllBytes(AssetManager.GetFontPath(fileName)));
         fontSystems.Add(name, system);
 
         return system;
+    }
+
+    public static void UnloadAll()
+    {
+        foreach (var font in fontSystems.Values)
+        {
+            font.Dispose();
+        }
+        fontSystems.Clear();
+        GC.Collect();
     }
 
     public static FontSystem GetFontSystem(string name)

@@ -130,4 +130,20 @@ public static class TextureManager
 
         GC.Collect();
     }
+
+    public static void UnloadAll()
+    {
+        foreach (var thread in LoadingThreads.Values)
+        {
+            thread.Join();
+        }
+        
+        LoadingThreads.Clear();
+        Pages.Clear();
+        IsLoadingPage.Clear();
+        IsUnloadingPage.Clear();
+        LoadCallbacks.Clear();
+        
+        GC.Collect();
+    }
 }

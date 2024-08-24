@@ -85,8 +85,8 @@ public sealed class EngineCore : Game
         imGuiRenderer = new ImGuiRenderer(this);
         imGuiRenderer.RebuildFontAtlas();
 
-        ShaderManager.LoadAll();
-        Audio.Init();
+        //ShaderManager.Load();
+        //Audio.Load();
         LocalStorage.Initialize();
 
         // Run supplied entrypoint callback.

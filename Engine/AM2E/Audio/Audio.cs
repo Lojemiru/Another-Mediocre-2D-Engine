@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using AM2E.IO;
 using AM2E.Levels;
 using FMOD;
+using Microsoft.Xna.Framework.Content;
 
 #region Design Notes
 
@@ -37,13 +38,13 @@ public static class Audio
     /// <summary>
     /// Initalizes the audio engine
     /// </summary>
-    internal static void Init()
+    public static void Load()
     {
         Logger.Engine("Initializing audio engine... thanks M3D!");
-        
-        if (initialized)
-            throw new Exception("AM2E Audio Engine has already been initialized!!!");
 
+        if (initialized)
+            throw new ContentLoadException("Audio banks have already been loaded! Please call Audio.Unload() first.");
+        
         initialized = true;
         
         // "Temporary" hack for a .net bug: https://github.com/dotnet/runtime/issues/96337
@@ -88,12 +89,28 @@ public static class Audio
         }
     }
 
+    public static void Unload()
+    {
+        StopAll();
+        eventDictionary.Clear();
+        playingEvents.Clear();
+        studio.release();
+        GC.Collect();
+        initialized = false;
+    }
+
+    private static void ThrowIfUninitialized()
+    {
+        if (!initialized)
+            throw new TypeUnloadedException("Audio banks have not been loaded! Please call Audio.Load() first.");
+    }
+
     /// <summary>
     /// Helper function which prints the FMOD_RESULT of a given FMOD function, as well as returning true if there were no errors
     /// Useful for debugging weird-ass fmod issues
     /// </summary>
     /// <param name="statement"></param>
-    public static bool FMODCall(RESULT statement) {
+    internal static bool FMODCall(RESULT statement) {
         return statement == RESULT.OK;
     }
 
@@ -137,6 +154,8 @@ public static class Audio
     /// <param name="level">The <see cref="Level"/> to require active to play this event. If null, will always play.</param>
     public static EventInstance? PlayEvent(string eventName, Level level, string eventPrefix = "event:/", bool dontStart = false)
     {
+        ThrowIfUninitialized();
+        
         // Cancel event if our target level exists and is NOT active.
         if (level is not null && !level.Active)
             return null;
@@ -170,6 +189,8 @@ public static class Audio
     }
     
     public static bool IsPlaying(string eventName) {
+        ThrowIfUninitialized();
+        
         foreach (var e in playingEvents) {
             if (e.GetPath() == eventName)
                 return true;
@@ -179,11 +200,15 @@ public static class Audio
     }
     
     public static void StopSnapshot(string snapshotName) {
+        ThrowIfUninitialized();
+        
         StopEvent(snapshotName, true, "snapshot:/");
     }
 
     public static void StopEvent(string eventName, bool executeOnStop = true, string eventPrefix = "event:/")
     {
+        ThrowIfUninitialized();
+        
         // Since this is a brute-force cutoff anyway, we're not going to scan for an input room and just cancel everything instead.
         
         var eventPath = eventPrefix + eventName;
@@ -217,6 +242,8 @@ public static class Audio
     /// <param name="value">Value to set it to</param>
     public static void SetParameterGlobal(string parameterName, float value)
     {
+        ThrowIfUninitialized();
+        
         var r = studio.setParameterByName(parameterName, value);
         if (r == RESULT.ERR_EVENT_NOTFOUND) {
             Logger.Warn("Unable to set global parameter: ﬁ" + parameterName + "! Is the parameter local? Does it exist?");
@@ -229,14 +256,19 @@ public static class Audio
     /// <summary>
     /// Update FMOD callbacks. Should ALWAYS be called.
     /// </summary>
-    public static void Update()
+    internal static void Update()
     {
+        if (!initialized)
+            return;
+        
         studio.update();
 
         playingEvents.RemoveAll(item => item.GetStopped());
     }
     
     public static void StopAll() {
+        ThrowIfUninitialized();
+        
         foreach (var e in playingEvents) {
             e.HardStop();
         }
