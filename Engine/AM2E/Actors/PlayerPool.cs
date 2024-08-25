@@ -35,6 +35,9 @@ public static class PlayerPool
     {
         if (Players.Contains(player))
             Players.Remove(player);
+
+        if (LocalPlayer == player)
+            LocalPlayer = null;
     }
 
     /// <summary>

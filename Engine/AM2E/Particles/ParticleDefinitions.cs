@@ -31,4 +31,9 @@ public static class ParticleDefinitions
     {
         return Definitions[name];
     }
+
+    public static void UnloadAll()
+    {
+        Definitions.Clear();
+    }
 }

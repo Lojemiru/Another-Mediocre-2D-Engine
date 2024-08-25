@@ -45,6 +45,12 @@ public abstract class Actor : ColliderBase, IDrawable
         set => alpha = Math.Clamp(value, 0, 1);
     }
     
+    internal sealed override void Dispose(bool fromLayer)
+    {
+        SetPersistent(false);
+        base.Dispose(fromLayer);
+    }
+    
     #region Constructors
 
     /// <summary>

@@ -57,5 +57,9 @@ internal static class ActorManager
         World.PostTick(isFastForward);
     }
     
-    
+    public static void DisposeAllPersistent()
+    {
+        foreach (var actor in PersistentActors.Values)
+            actor.Dispose();
+    }
 }

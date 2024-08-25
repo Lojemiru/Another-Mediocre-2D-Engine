@@ -80,7 +80,7 @@ public abstract class ColliderBase : GenericLevelElement, ICollider
         ApplyFlips((bits & 1) != 0, (bits & 2) != 0);
     }
 
-    internal sealed override void Dispose(bool fromLayer)
+    internal override void Dispose(bool fromLayer)
     {
         Collider.Dispose();
         base.Dispose(fromLayer);

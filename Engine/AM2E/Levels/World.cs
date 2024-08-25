@@ -38,7 +38,7 @@ public static class World
     public static int LevelUnitHeight => world.WorldGridHeight;
     public static int LevelUnitWidth => world.WorldGridWidth;
 
-    public static void LoadWorld(string path)
+    public static void Unload()
     {
         // Yeah, this is kinda crappy... but it's the best I've got to forcibly shut down all current loads. I think.
         foreach (var thread in Threads.Values)
@@ -60,6 +60,11 @@ public static class World
         levelsToBeUninstantiated.Clear();
         stagedCallbacks.Clear();
         deferredLevelsToBeInstantiated.Clear();
+    }
+
+    public static void LoadWorld(string path)
+    {
+        Unload();
 
         JsonSerializer serializer = new();
         using (var reader = File.OpenText(path))

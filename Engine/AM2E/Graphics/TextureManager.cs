@@ -135,7 +135,7 @@ public static class TextureManager
     {
         foreach (var thread in LoadingThreads.Values)
         {
-            thread.Join();
+            thread?.Join();
         }
         
         LoadingThreads.Clear();
