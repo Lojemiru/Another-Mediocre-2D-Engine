@@ -18,6 +18,12 @@ public static class LocalStorage
             Directory.CreateDirectory(path);
         }
     }
+
+    public static void SafeAddSubfolder(string path)
+    {
+        if (!Directory.Exists(GetPath() + "/" + path))
+            Directory.CreateDirectory(GetPath() + "/" + path);
+    }
     
     public static string GetPath()
     {

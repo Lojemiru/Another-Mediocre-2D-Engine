@@ -491,7 +491,7 @@ public static class World
     {
         foreach (var entry in world.TableOfContent)
         {
-            if (entry.Identifier == identifier)
+            if (entry.Identifier == identifier && entry.Instances.Length > 0)
                 return entry.Instances[0];
         }
         
