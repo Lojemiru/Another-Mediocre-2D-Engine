@@ -33,6 +33,8 @@ public static class World
     private static readonly ConcurrentDictionary<string, Action<Level>> stagedCallbacks = new();
     private static readonly Dictionary<string, Thread> Threads = new();
 
+    private static readonly List<Action> OutOfTickCallbacks = new();
+
     private static string currentPath;
 
     public static int LevelUnitHeight => world.WorldGridHeight;
@@ -60,6 +62,7 @@ public static class World
         levelsToBeUninstantiated.Clear();
         stagedCallbacks.Clear();
         deferredLevelsToBeInstantiated.Clear();
+        OutOfTickCallbacks.Clear();
     }
 
     public static void LoadWorld(string path)
@@ -261,7 +264,8 @@ public static class World
             InstantiateLevel(level.Iid);
     }
 
-    public static void UninstantiateLevel(string iid) => UninstantiateLevel(iid, true);
+    public static void UninstantiateLevel(string iid) 
+        => UninstantiateLevel(iid, true);
     
     private static void UninstantiateLevel(string iid, bool collect)
     {
@@ -302,8 +306,6 @@ public static class World
     {
         foreach (var level in LoadedLevels.Values)
             UninstantiateLevel(level.Iid, false);
-        
-        GC.Collect();
     }
 
     public static void UninstantiateAllExcept(Level targetLevel)
@@ -313,8 +315,6 @@ public static class World
             if (level != targetLevel)
                 UninstantiateLevel(level.Iid, false);
         }
-        
-        GC.Collect();
     }
 
     public static void ActivateLevel(string iid)
@@ -455,6 +455,11 @@ public static class World
             level.PostTick(isFastForward);
         
         inTick = false;
+        
+        foreach (var action in OutOfTickCallbacks)
+            action.Invoke();
+        
+        OutOfTickCallbacks.Clear();
 
         foreach (var level in levelsToBeDeactivated)
             DeactivateLevel(level);
@@ -507,5 +512,10 @@ public static class World
         }
 
         return default;
+    }
+
+    public static void DoAfterThisTick(Action action)
+    {
+        OutOfTickCallbacks.Add(action);
     }
 }

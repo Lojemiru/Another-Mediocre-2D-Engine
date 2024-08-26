@@ -297,5 +297,14 @@ public sealed class EngineCore : Game
         isNetworked = true;
         isServer = false;
     }
+
+    public static void GracefulExit()
+    {
+        Logger.Info("Exiting game gracefully. Thank you for using Another Mediocre 2D Engine!");
+        Logger.DispatchWrite();
+        
+        // Exit hilariously ungracefully. The only thing we actually care about right now is the logger.
+        Environment.Exit(0);
+    }
 }
 
