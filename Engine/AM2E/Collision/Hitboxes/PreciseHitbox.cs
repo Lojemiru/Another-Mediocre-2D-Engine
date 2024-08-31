@@ -25,6 +25,7 @@ namespace AM2E.Collision;
 
 public sealed class PreciseHitbox : RectangleHitboxBase
 {
+    // TODO: Support swapping the mask?
     public bool[, ] Mask { get; }
 
     public PreciseHitbox(int x, int y, bool[,] mask, int offsetX = 0, int offsetY = 0) : 

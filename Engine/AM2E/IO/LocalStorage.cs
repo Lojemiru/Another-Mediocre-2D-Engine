@@ -68,4 +68,11 @@ public static class LocalStorage
         var text = File.ReadAllText(GetPath() + "/" + name);
         data = JsonConvert.DeserializeObject<T>(text);
     }
+
+    public static void Delete(string name)
+    {
+        var path = GetPath() + "/" + name;
+        if (File.Exists(path))
+            File.Delete(path);
+    }
 }
