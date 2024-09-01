@@ -503,7 +503,7 @@ public static class World
         return default;
     }
 
-    public static LDtkReferenceToAnEntityInstance[] GetAllFromToC(string identifier)
+    public static IEnumerable<LDtkReferenceToAnEntityInstance> GetAllFromToC(string identifier)
     {
         foreach (var entry in world.TableOfContent)
         {

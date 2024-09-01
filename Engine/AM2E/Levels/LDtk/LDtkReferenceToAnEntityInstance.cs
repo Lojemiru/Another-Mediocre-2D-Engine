@@ -1,3 +1,4 @@
+using System;
 using Newtonsoft.Json;
 
 namespace AM2E.Levels;
@@ -59,6 +60,9 @@ public struct LDtkReferenceToAnEntityInstance
     
     public dynamic GetFieldInstance(string identifier)
         => FieldInstances.GetFieldInstance(identifier);
+    
+    public T GetFieldInstance<T>(string identifier) where T : struct, Enum
+        => FieldInstances.GetFieldInstance<T>(identifier);
 
     public T[] GetFieldInstanceArray<T>(string identifier)
         => FieldInstances.GetFieldInstanceArray<T>(identifier);
