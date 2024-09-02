@@ -53,6 +53,7 @@ internal readonly struct Background
     public void Draw(SpriteBatch spriteBatch, Level level, int layer)
     {
         // TODO: Somewhere in here, everything still looks jittery. That's a problem.
+        // TODO: also, on some GPUs this does not tile perfectly! Rounding issues cause gaps between the backgrounds, sometimes.
         
         // Fractional camera offset
         var xOff = Camera.X - (int)Camera.X;
