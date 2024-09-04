@@ -16,8 +16,6 @@ using Microsoft.Xna.Framework.Content;
 
 #endregion
 
-// TODO: Steal changes from newer CAudio for snapshots
-
 namespace AM2E;
 
 public static class Audio 
@@ -47,7 +45,7 @@ public static class Audio
         
         initialized = true;
         
-        // "Temporary" hack for a .net bug: https://github.com/dotnet/runtime/issues/96337
+        // "Temporary" hack for a .net issue: https://github.com/dotnet/runtime/issues/96337
         // do not ask me how this works it's M3D's code aaaaaaaaa
         if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) {
             Factory.System_Create(out var tempSystem);

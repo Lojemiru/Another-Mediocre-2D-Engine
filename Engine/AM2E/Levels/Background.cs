@@ -52,9 +52,6 @@ internal readonly struct Background
 
     public void Draw(SpriteBatch spriteBatch, Level level, int layer)
     {
-        // TODO: Somewhere in here, everything still looks jittery. That's a problem.
-        // TODO: also, on some GPUs this does not tile perfectly! Rounding issues cause gaps between the backgrounds, sometimes.
-        
         // Fractional camera offset
         var xOff = Camera.X - (int)Camera.X;
         var yOff = Camera.Y - (int)Camera.Y;
@@ -72,9 +69,8 @@ internal readonly struct Background
         var posY = offsetY + paraY + level.Y;
 
         // Adjust position for repeat drawing
-        // TODO: As far as I can determine, THIS is what causes the jitter.
-        posX += repeatX ? sprite.Width * MathF.Floor((Camera.BoundLeft - posX) / sprite.Width) : 0;
-        posY += repeatY ? sprite.Height * MathF.Floor((Camera.BoundTop - posY) / sprite.Height) : 0;
+        posX += repeatX ? MathF.Floor(sprite.Width * MathF.Floor((Camera.BoundLeft - posX) / sprite.Width)) : 0;
+        posY += repeatY ? MathF.Floor(sprite.Height * MathF.Floor((Camera.BoundTop - posY) / sprite.Height)) : 0;
 
         // Determine repeat counts
         var repeatCountX = repeatX ? Math.Max(MathF.Ceiling(Camera.Width / (float)sprite.Width), 1) + 1 : 1;
