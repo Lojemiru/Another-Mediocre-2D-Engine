@@ -36,22 +36,14 @@ public sealed class StateMachine <TKey, TState> where TState : State
     private bool changed = false;
 
     /// <summary>
-    /// Initializes a new empty <see cref="StateMachine{TKey,TState}"/>. Enter event must be called manually for first state if instantiated this way!
-    /// </summary>
-    /// <param name="initialState">The key of the <see cref="TState"/> within which this <see cref="StateMachine{TKey,TState}"/> should start.</param>
-    public StateMachine(TKey initialState) : this(initialState, null)
-    {
-        CurrentKey = initialState;
-        PreviousKey = initialState;
-    }
-        
-    /// <summary>
     /// Initializes a new <see cref="StateMachine{TKey,TState}"/> from the given <see cref="Dictionary{TKey,TState}"/>.
     /// </summary>
     /// <param name="initialState">The key of the <see cref="TState"/> within which this <see cref="StateMachine{TKey,TState}"/> should start.</param>
     /// <param name="states">The <see cref="Dictionary{TKey,TState}"/> this <see cref="StateMachine{TKey,TState}"/> should utilize.</param>
-    public StateMachine(TKey initialState, Dictionary<TKey, TState> states)
+    public StateMachine(TKey initialState, Dictionary<TKey, TState> states = null)
     {
+        CurrentKey = initialState;
+        PreviousKey = initialState;
         this.states = states ?? new Dictionary<TKey, TState>();
     }
 
