@@ -246,14 +246,14 @@ public static class World
         }
     }
 
-    public static void InstantiateLevelByName(string name, Action<Level> callback = null)
+    public static void InstantiateLevelByName(string name, Action<Level> callback = null, bool blocking = false)
     {
         foreach (var level in LdtkLevels.Values)
         {
             if (level.Identifier != name) 
                 continue;
             
-            InstantiateLevel(level.Iid, callback);
+            InstantiateLevel(level.Iid, callback, blocking);
             return;
         }
     }
@@ -308,11 +308,11 @@ public static class World
             UninstantiateLevel(level.Iid, false);
     }
 
-    public static void UninstantiateAllExcept(Level targetLevel)
+    public static void UninstantiateAllExcept(params Level[] targetLevels)
     {
         foreach (var level in LoadedLevels.Values)
         {
-            if (level != targetLevel)
+            if (!targetLevels.Contains(level))
                 UninstantiateLevel(level.Iid, false);
         }
     }
