@@ -15,8 +15,8 @@ public static class Renderer
     private static Vector2 posVector = new(0, 0);
     public static int GameWidth;
     public static int GameHeight;
-    public static int OffsetX = 0;
-    public static int OffsetY = 0;
+    public static float OffsetX = 0;
+    public static float OffsetY = 0;
     private static Rectangle finalApplicationSpace = new();
 
     internal static int UpscaleAmount { get; private set; } = 1;
@@ -136,7 +136,7 @@ public static class Renderer
         var texelX = ApplicationSpace.Width / GameWidth;
         var texelY = ApplicationSpace.Height / GameHeight;
 
-        finalApplicationSpace = new Rectangle(ApplicationSpace.X + (OffsetX * texelX), ApplicationSpace.Y + (OffsetY * texelY), ApplicationSpace.Width, ApplicationSpace.Height);
+        finalApplicationSpace = new Rectangle(ApplicationSpace.X + (int)Math.Floor(OffsetX * texelX), ApplicationSpace.Y + (int)Math.Floor(OffsetY * texelY), ApplicationSpace.Width, ApplicationSpace.Height);
         
         // Render application and GUI surfaces into drawable application space.
         applicationBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp);
