@@ -24,9 +24,9 @@ public sealed class Layer
     public bool Visible = true;
     public readonly Level Level;
 
-    public event Action<Layer> OnPreRender = layer => { };
+    public event Action<SpriteBatch, Layer> OnPreRender = (_, _) => { };
 
-    public event Action<Layer> OnPostRender = layer => { };
+    public event Action<SpriteBatch, Layer> OnPostRender = (_, _) => { };
 
     public Layer(string name, Level level)
     {
@@ -36,7 +36,7 @@ public sealed class Layer
 
     public void AddTile(int x, int y, Tile tile)
     {
-        tileManager ??= new TileManager(Level, tile.Size);
+        tileManager ??= new TileManager(Level, tile.TilesetSprite, tile.Size);
         
         tileManager.AddTile(x, y, tile);
     }
@@ -44,6 +44,19 @@ public sealed class Layer
     public Tile GetTile(int x, int y)
     {
         return tileManager?.GetTile(x, y);
+    }
+
+    public Tile[,] GetTiles()
+    {
+        if (tileManager is null)
+            return null;
+
+        return tileManager.Tiles;
+    }
+
+    public Sprite GetTilesetSprite()
+    {
+        return tileManager?.TilesetSprite;
     }
 
     public void DeleteTile(int x, int y)
@@ -54,6 +67,11 @@ public sealed class Layer
     public void DeleteTiles(int x, int y, int numX, int numY)
     {
         tileManager?.DeleteTiles(x, y, numX, numY);
+    }
+
+    public void EradicateTiles()
+    {
+        tileManager = null;
     }
 
     public void Add(IDrawable drawable)
@@ -228,7 +246,7 @@ public sealed class Layer
     {
         if (!Visible) return;
 
-        OnPreRender(this);
+        OnPreRender(spriteBatch, this);
 
         foreach(var drawable in Drawables)
         {
@@ -240,7 +258,7 @@ public sealed class Layer
 
         tileManager?.Draw(spriteBatch);
 
-        OnPostRender(this);
+        OnPostRender(spriteBatch, this);
     }
 
     internal void PreTick(bool isFastForward)
@@ -292,8 +310,6 @@ public sealed class Layer
         }
         
         genericLevelElementsForAddition.Clear();
-
-        tileManager?.Step();
     }
 
     internal void Activate()

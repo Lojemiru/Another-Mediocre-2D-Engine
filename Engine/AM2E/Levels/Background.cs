@@ -52,13 +52,9 @@ internal readonly struct Background
 
     public void Draw(SpriteBatch spriteBatch, Level level, int layer)
     {
-        // Fractional camera offset
-        var xOff = Camera.X - (int)Camera.X;
-        var yOff = Camera.Y - (int)Camera.Y;
-        
         // Parallax component
-        var paraX = ((Camera.BoundLeft + xOff - level.X) * parallaxX);
-        var paraY = ((Camera.BoundBottom + yOff - level.Y) * parallaxY);
+        var paraX = ((Camera.BoundLeft - level.X) * parallaxX);
+        var paraY = ((Camera.BoundBottom - level.Y) * parallaxY);
 
         // Offset based on pivot
         var offsetX = (level.Width - sprite.Width) * pivotX;
@@ -82,8 +78,8 @@ internal readonly struct Background
             for (var j = 0; j < repeatCountY; j++)
             {
                 sprite.Draw(spriteBatch,
-                    posX + (sprite.Width * i),
-                    posY + (sprite.Height * j), 
+                    (int)posX + (sprite.Width * i),
+                    (int)posY + (sprite.Height * j), 
                     0, layer: layer);
             }
         }

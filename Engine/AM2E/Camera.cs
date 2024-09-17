@@ -7,8 +7,8 @@ public static class Camera
 {
     // I have NO CLUE how matrices work
     // ...but this guy does: https://www.youtube.com/watch?v=ceBCDKU_mNw
-    public static float X { get; private set; } = 0;
-    public static float Y { get; private set; } = 0;
+    public static int X { get; private set; } = 0;
+    public static int Y { get; private set; } = 0;
     public static Matrix Transform { get; private set; }
     public static int Width => Renderer.GameWidth;
     public static int Height => Renderer.GameHeight;
@@ -22,7 +22,7 @@ public static class Camera
         UpdateTransform();
     }
 
-    public static void SetPosition(float x, float y)
+    public static void SetPosition(int x, int y)
     {
         X = x;
         Y = y;

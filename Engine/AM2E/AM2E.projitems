@@ -50,7 +50,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\TextureManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\TexturePage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Tiles\Tile.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Graphics\Tiles\TileChunk.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Tiles\TileManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Tiles\Tileset.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ImGui\DrawVertDeclaration.cs" />
