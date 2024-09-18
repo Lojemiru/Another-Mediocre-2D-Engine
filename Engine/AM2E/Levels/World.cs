@@ -32,6 +32,7 @@ public static class World
     private static readonly List<Level> levelsToBeUninstantiated = new();
     private static readonly ConcurrentDictionary<string, Action<Level>> stagedCallbacks = new();
     private static readonly Dictionary<string, Thread> Threads = new();
+    private static readonly Dictionary<string, bool> PendingLevelIsBlocking = new();
 
     private static readonly List<Action> OutOfTickCallbacks = new();
 
@@ -63,6 +64,7 @@ public static class World
         stagedCallbacks.Clear();
         deferredLevelsToBeInstantiated.Clear();
         OutOfTickCallbacks.Clear();
+        PendingLevelIsBlocking.Clear();
     }
 
     public static void LoadWorld(string path)
@@ -94,10 +96,11 @@ public static class World
         {
             LdtkLevels.Add(level.Iid, level);
             Threads.Add(level.Iid, null);
+            PendingLevelIsBlocking[level.Iid] = false;
         }
     }
 
-    private static void PopulateTiles(LDtkLevelInstance level, LDtkLayerInstance ldtkLayer)
+    private static void PopulateTiles(LDtkLevelInstance level, LDtkLayerInstance ldtkLayer, bool blocking = false)
     {
         var key = ldtkLayer.TilesetDefUid;
         
@@ -113,8 +116,8 @@ public static class World
         var tileset = LDtkTilesets[(int)key];
         var entries = tileset.RelPath.Split('/');
         var pageIndex = entries[^2];
-        
-        TextureManager.LoadPage(pageIndex, _ =>
+
+        Action<TexturePage> placeTiles = _ =>
         {
             if (!Tilesets.ContainsKey(tileset.Uid))
             {
@@ -123,7 +126,17 @@ public static class World
             }
 
             PlaceTiles(level, ldtkLayer);
-        });
+        };
+
+        if (blocking)
+        {
+            TextureManager.LoadPageBlocking(pageIndex);
+            placeTiles(null);
+        }
+        else
+        {
+            TextureManager.LoadPage(pageIndex, placeTiles);
+        }
     }
 
     private static void PlaceTiles(LDtkLevelInstance level, LDtkLayerInstance ldtkLayer)
@@ -137,14 +150,14 @@ public static class World
             LoadedLevels[level.Iid].Add(ldtkLayer.Identifier, new Tile(tile, Tilesets[(int)key]), level.WorldX + tile.Px[0], level.WorldY + tile.Px[1]);
     }
 
-    private static void LoadLevelFromFile(LDtkLightweightLevelInstance level)
+    private static void LoadLevelFromFile(LDtkLightweightLevelInstance level, bool blocking = false)
     {
         JsonSerializer serializer = new();
         using var reader = File.OpenText(currentPath + level.ExternalRelPath);
         var levelInstance = (LDtkLevelInstance)serializer.Deserialize(reader, typeof(LDtkLevelInstance));
         stagedLevels[level.Iid] = levelInstance;
 
-        QueueLevelForInstantiation(levelInstance);
+        QueueLevelForInstantiation(levelInstance, blocking);
         Threads[level.Iid] = null;
     }
 
@@ -191,7 +204,7 @@ public static class World
                 else
                 {
                     Logger.Engine($"Initiating blocking load for level {LdtkLevels[id].Identifier} ({id})");
-                    LoadLevelFromFile(LdtkLevels[id]);
+                    LoadLevelFromFile(LdtkLevels[id], blocking);
                 }
             }
 
@@ -226,7 +239,7 @@ public static class World
                     break;
                 case LDtkLayerType.Tiles:
                     // Get tileset.
-                    PopulateTiles(level, ldtkLayer);
+                    PopulateTiles(level, ldtkLayer, blocking);
 
                     break;
                 case LDtkLayerType.AutoLayer:
@@ -244,6 +257,8 @@ public static class World
             finalCallback?.Invoke(LoadedLevels[level.Iid]);
             stagedCallbacks.TryRemove(id, out _);
         }
+
+        PendingLevelIsBlocking[level.Iid] = false;
     }
 
     public static void InstantiateLevelByName(string name, Action<Level> callback = null, bool blocking = false)
@@ -419,7 +434,7 @@ public static class World
             levelsToBeActivated.Add(level);
     }
     
-    private static void QueueLevelForInstantiation(LDtkLevelInstance level)
+    private static void QueueLevelForInstantiation(LDtkLevelInstance level, bool blocking = false)
     {
         if (!levelsToBeInstantiated.Contains(level))
         {
@@ -427,6 +442,8 @@ public static class World
                 levelsToBeInstantiated.Add(level);
             else
                 deferredLevelsToBeInstantiated.Add(level);
+
+            PendingLevelIsBlocking[level.Iid] = blocking;
         }
     }
     
@@ -474,7 +491,7 @@ public static class World
         inInstantiation = true;
         
         foreach (var level in levelsToBeInstantiated)
-            InstantiateLevel(level.Iid);
+            InstantiateLevel(level.Iid, blocking:PendingLevelIsBlocking[level.Iid]);
 
         levelsToBeInstantiated.Clear();
 
@@ -482,7 +499,7 @@ public static class World
 
         // ...yes, this is kind of crappy. But it fixed my multithreaded loading problems, so... cope? Or show me a better solution lol
         foreach (var level in deferredLevelsToBeInstantiated)
-            InstantiateLevel(level.Iid);
+            InstantiateLevel(level.Iid, blocking:PendingLevelIsBlocking[level.Iid]);
 
         deferredLevelsToBeInstantiated.Clear();
 
