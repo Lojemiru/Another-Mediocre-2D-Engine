@@ -135,6 +135,8 @@ public static class World
         
         foreach (var tile in ldtkLayer.GridTiles)
             LoadedLevels[level.Iid].Add(ldtkLayer.Identifier, new Tile(tile, Tilesets[(int)key]), level.WorldX + tile.Px[0], level.WorldY + tile.Px[1]);
+
+        LoadedLevels[level.Iid].Layers[ldtkLayer.Identifier].InvokeOnTilePlacement();
     }
 
     private static void LoadLevelFromFile(LDtkLightweightLevelInstance level)
@@ -205,8 +207,12 @@ public static class World
         LoadedLevels.Add(level.Iid, new Level(level));
         
         LoadedLevels[level.Iid].PreLoad();
+
+        var layers = level.LayerInstances.Reverse();
         
-        foreach (var ldtkLayer in level.LayerInstances.Reverse())
+        // Pass 1: create layer, entities.
+        var lDtkLayerInstances = layers as LDtkLayerInstance[] ?? layers.ToArray();
+        foreach (var ldtkLayer in lDtkLayerInstances)
         {
             // Create layer if it doesn't already exist.
             var layer = LoadedLevels[level.Iid].AddLayer(ldtkLayer.Identifier);
@@ -215,7 +221,6 @@ public static class World
             
             switch (ldtkLayer.Type)
             {
-                // TODO: asset layers :)
                 case LDtkLayerType.Entities:
                     foreach (var entity in ldtkLayer.EntityInstances)
                     {
@@ -223,12 +228,28 @@ public static class World
                         // TODO: This needs a friendly error message with actual details! Specifically the failing arguments.
                         Activator.CreateInstance(entityType, entity, level.WorldX + entity.Px[0], level.WorldY + entity.Px[1], layer);
                     }
-                    break;
+                    continue;
+                case LDtkLayerType.Tiles:
+                    continue;
+                case LDtkLayerType.AutoLayer:
+                case LDtkLayerType.IntGrid:
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        // Pass 2: tiles.
+        // We do these later because we need entities to be able to nab tiles and such via an event.
+        foreach (var ldtkLayer in lDtkLayerInstances)
+        {
+            switch (ldtkLayer.Type)
+            {
+                case LDtkLayerType.Entities:
+                    continue;
                 case LDtkLayerType.Tiles:
                     // Get tileset.
                     PopulateTiles(level, ldtkLayer);
-
-                    break;
+                    continue;
                 case LDtkLayerType.AutoLayer:
                 case LDtkLayerType.IntGrid:
                 default:

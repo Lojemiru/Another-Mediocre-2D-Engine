@@ -27,6 +27,10 @@ public sealed class Layer
     public event Action<SpriteBatch, Layer> OnPreRender = (_, _) => { };
 
     public event Action<SpriteBatch, Layer> OnPostRender = (_, _) => { };
+    
+    public event Action OnTilePlacement = () => { };
+
+    internal void InvokeOnTilePlacement() => OnTilePlacement();
 
     public Layer(string name, Level level)
     {
