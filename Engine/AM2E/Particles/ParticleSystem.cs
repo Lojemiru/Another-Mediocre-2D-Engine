@@ -129,7 +129,7 @@ public sealed class ParticleSystem
                 }
                 p[P_INDEX] += len;
             }
-            else if (p[P_INDEX] > len)
+            else if (p[P_INDEX] >= len)
             {
                 if (Definition.DestroyOnAnimationEnd)
                 {

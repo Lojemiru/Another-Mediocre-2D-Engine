@@ -27,6 +27,9 @@ public static class LDtkTypeExtensions
         {
             if (field.Identifier != identifier)
                 continue;
+
+            if (field.Value is null)
+                return null;
             
             // LDtk will pass us floats as doubles... even though they're called floats in the editor.
             // This could also just be a JSON issue. Either way, I'd rather catch it here than on the other end every time...
