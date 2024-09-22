@@ -21,6 +21,8 @@ public sealed class Level
     private readonly bool hasBackground = false;
     private readonly SpriteBatch spriteBatch = new(EngineCore._graphics.GraphicsDevice);
 
+    public readonly LDtkFieldInstance[] FieldInstances;
+
     public Level(LDtkLevelInstance level)
     {
         Name = level.Identifier;
@@ -35,6 +37,8 @@ public sealed class Level
             bgBatch = new SpriteBatch(EngineCore._graphics.GraphicsDevice);
             hasBackground = true;
         }
+
+        FieldInstances = level.FieldInstances;
     }
     public Level(string name, int x, int y, int width, int height)
     {
@@ -193,4 +197,12 @@ public sealed class Level
     internal void PostUnload()
         => PostUnloadHook(this);
     
+    public dynamic GetFieldInstance(string identifier)
+        => FieldInstances.GetFieldInstance(identifier);
+
+    public T GetFieldInstance<T>(string identifier) where T : struct, Enum
+        => FieldInstances.GetFieldInstance<T>(identifier);
+
+    public T[] GetFieldInstanceArray<T>(string identifier)
+        => FieldInstances.GetFieldInstanceArray<T>(identifier);
 }
