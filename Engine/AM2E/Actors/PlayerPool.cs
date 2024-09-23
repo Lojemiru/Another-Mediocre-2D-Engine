@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
+using AM2E.Levels;
 
 namespace AM2E.Actors;
 
-public static class PlayerPool
+public static class PlayerPool<T> where T : Actor
 {
-    private static readonly List<IPlayer> Players = new();
+    private static readonly List<T> Players = new();
 
-    public static IPlayer LocalPlayer;
+    public static T LocalPlayer;
     
     public enum Side
     {
@@ -21,7 +22,7 @@ public static class PlayerPool
     /// Adds the given <see cref="IPlayer"/> to the pool.
     /// </summary>
     /// <param name="player"></param>
-    public static void Add(IPlayer player)
+    public static void Add(T player)
     {
         if (!Players.Contains(player))
             Players.Add(player);
@@ -31,7 +32,7 @@ public static class PlayerPool
     /// Removes the given <see cref="IPlayer"/> from the pool.
     /// </summary>
     /// <param name="player"></param>
-    public static void Remove(IPlayer player)
+    public static void Remove(T player)
     {
         if (Players.Contains(player))
             Players.Remove(player);
@@ -51,7 +52,7 @@ public static class PlayerPool
     /// <summary>
     /// Returns the first <see cref="IPlayer"/> in the pool.
     /// </summary>
-    public static IPlayer GetFirst()
+    public static T GetFirst()
     {
         return (Players.Count > 0) ? Players[0] : null;
     }
@@ -61,7 +62,7 @@ public static class PlayerPool
     /// </summary>
     /// <param name="x">X position to base the check on.</param>
     /// <param name="y">Y position to base the check on.</param>
-    public static IPlayer GetClosest(int x, int y)
+    public static T GetClosest(int x, int y)
     {
         if (Players.Count <= 1)
             return GetFirst();
@@ -77,6 +78,35 @@ public static class PlayerPool
 
         return closest;
     }
+    
+    public static T GetClosest(int x, int y, Level level)
+    {
+        var playersInLevel = new List<T>();
+
+        foreach (var player in Players)
+        {
+            if (player.Level != level)
+                continue;
+            playersInLevel.Add(player);
+        }
+
+        if (playersInLevel.Count == 0)
+            return null;
+        
+        if (playersInLevel.Count == 1)
+            return playersInLevel[0];
+
+        var closest = playersInLevel[0];
+        var closestDistance = MathHelper.PointDistance(x, y, closest.X, closest.Y);
+
+        for (var i = 1; i < playersInLevel.Length(); i++)
+        {
+            if (MathHelper.PointDistance(x, y, playersInLevel[i].X, playersInLevel[i].Y) < closestDistance)
+                closest = playersInLevel[i];
+        }
+
+        return closest;
+    }
 
     /// <summary>
     /// Finds the closest <see cref="IPlayer"/> to the given position on the given <see cref="Side"/>.
@@ -85,12 +115,12 @@ public static class PlayerPool
     /// <param name="y">Y position to base the check on.</param>
     /// <param name="side">The side to check.</param>
     /// <returns>The closest <see cref="IPlayer"/> on the given <see cref="Side"/>, if it exists; otherwise null.</returns>
-    public static IPlayer GetClosestOnSide(int x, int y, Side side)
+    public static T GetClosestOnSide(int x, int y, Side side)
     {
         if (Players.Count < 1)
             return null;
         
-        IPlayer closest = null;
+        T closest = null;
         var distance = 0f;
         
         foreach (var player in Players)

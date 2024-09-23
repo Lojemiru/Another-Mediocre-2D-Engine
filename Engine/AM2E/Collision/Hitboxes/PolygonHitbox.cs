@@ -1,12 +1,14 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Point = System.Drawing.Point;
+using Point = Microsoft.Xna.Framework.Point;
 using Vector2 = Microsoft.Xna.Framework.Vector2;
 
 namespace AM2E.Collision;
 
-public abstract class PolygonHitbox : Hitbox
+public class PolygonHitbox : Hitbox
 {
     // TODO: Scaling?
     
@@ -31,6 +33,24 @@ public abstract class PolygonHitbox : Hitbox
 
     public sealed override int BoundBottom 
         => Y + furthestBottom;
+
+    public PolygonHitbox(int x, int y, IList<Point> points, int offsetX = 0, int offsetY = 0)
+    {
+        if (points.Count < 3)
+            throw new ArgumentOutOfRangeException(nameof(points), "Points collection must be at least length 3!");
+        
+        X = x;
+        Y = y;
+        this.points = new Point[points.Count];
+        untranslatedPoints = new Point[points.Count];
+        OffsetX = offsetX;
+        OffsetY = offsetY;
+
+        for (var i = 0; i < points.Count; i++)
+            SetPoint(i, points[i].X, points[i].Y);
+        
+        RecalculateBounds();
+    }
 
     protected PolygonHitbox(int size, int x, int y, int offsetX = 0, int offsetY = 0)
     {
