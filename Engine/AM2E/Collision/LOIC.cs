@@ -34,6 +34,37 @@ public static class LOIC
     {
         return (collider.CollisionActive && collider is T && collider.Collider.ContainsPoint<T>(x, y));
     }
+
+    public static bool CheckCircle<T>(int x, int y, int radius) where T : ICollider
+    {
+        return ColliderAtCircle<T>(x, y, radius) is not null;
+    }
+
+    public static T ColliderAtCircle<T>(int x, int y, int radius) where T : ICollider
+    {
+        var check = RTree.Intersects(new Rectangle(x - radius, y - radius, x + radius, y + radius));
+        foreach (var collider in check)
+        {
+            if (InternalCheckCircle<T>(collider, x, y, radius))
+                return (T)collider;
+        }
+
+        return default;
+    }
+
+    public static IEnumerable<T> AllCollidersAtCircle<T>(int x, int y, int radius) where T : ICollider
+    {
+        var output = new List<T>();
+        
+        var check = RTree.Intersects(new Rectangle(x - radius, y - radius, x + radius, y + radius));
+        foreach (var collider in check)
+        {
+            if (InternalCheckCircle<T>(collider, x, y, radius))
+                output.Add((T)collider);
+        }
+
+        return output;
+    }
     
     public static bool CheckRectangle<T>(int x1, int y1, int x2, int y2) where T : ICollider
     {
@@ -117,6 +148,20 @@ public static class LOIC
         RectCheckHitbox.Resize((x2 - x1) + 1, (y2 - y1) + 1);
 
         return collider.Collider.IsIntersectedBy<T>(RectCheckHitbox);
+    }
+
+    private static readonly CircleHitbox CircleCheckHitbox = new(0, 0, 1);
+
+    private static bool InternalCheckCircle<T>(ICollider collider, int x, int y, int radius) where T : ICollider
+    {
+        if (!collider.CollisionActive || collider is not T)
+            return false;
+
+        CircleCheckHitbox.X = x;
+        CircleCheckHitbox.Y = y;
+        CircleCheckHitbox.Resize(radius);
+
+        return collider.Collider.IsIntersectedBy<T>(CircleCheckHitbox);
     }
 
     public static T CheckCollider<T>(Collider self) where T : class, ICollider
