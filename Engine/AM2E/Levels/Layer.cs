@@ -21,6 +21,7 @@ public sealed class Layer
 
     private bool inTick = false;
 
+    public bool RenderTiles = true;
     public bool Visible = true;
     public readonly Level Level;
 
@@ -256,7 +257,8 @@ public sealed class Layer
         if (EngineCore.DEBUG)
             Renderer.DebugRender(spriteBatch);
 
-        tileManager?.Draw(spriteBatch);
+        if (RenderTiles)
+            tileManager?.Draw(spriteBatch);
 
         OnPostRender(spriteBatch, this);
     }
