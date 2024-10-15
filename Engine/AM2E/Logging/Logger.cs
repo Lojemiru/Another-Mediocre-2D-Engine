@@ -134,7 +134,7 @@ v." + EngineCore.Version + "\n\nLogging started.");
         thread.Join();
         
         streamWriter.WriteLine("[----------GAME CRASHED----------]");
-        streamWriter.WriteLine(CrashMessages[RNG.Random(CrashMessages.Length() - 1)]);
+        streamWriter.WriteLine(CrashMessages[RNG.Random(CrashMessages.Length - 1)]);
         streamWriter.WriteLine();
         streamWriter.WriteLine("Crash occurred at " + DateTime.Now.ToString("HH:mm:ss.ffff"));
         streamWriter.WriteLine();

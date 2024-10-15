@@ -383,7 +383,7 @@ public sealed class Collider
     {
         var colliders = (List<T>)IntersectsAllAt<T>(checkX, checkY);
         
-        if (colliders.Length() == 0)
+        if (colliders.Count == 0)
             return;
         
         if (!events.ContainsKey(typeof(T)))

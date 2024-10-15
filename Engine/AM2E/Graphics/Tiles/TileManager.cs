@@ -1,6 +1,6 @@
+using System;
 using AM2E.Levels;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended;
 
 namespace AM2E.Graphics;
 
@@ -12,6 +12,7 @@ public sealed class TileManager : IDrawable
     private readonly int worldY;
     private readonly int tilesX;
     private readonly int tilesY;
+    private readonly Level level;
 
     public readonly Sprite TilesetSprite;
 
@@ -24,6 +25,7 @@ public sealed class TileManager : IDrawable
         tilesX = (level.Width / tileSize) + 1;
         tilesY = (level.Height / tileSize) + 1;
         Tiles = new Tile[tilesX, tilesY];
+        this.level = level;
     }
 
     public void AddTile(int x, int y, Tile tile)
@@ -68,9 +70,14 @@ public sealed class TileManager : IDrawable
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        for (var i = 0; i < Tiles.GetLength(0); i++)
+        var l = Math.Clamp((Camera.BoundLeft - level.X) / 16, 0, tilesX);
+        var u = Math.Clamp((Camera.BoundTop - level.Y) / 16, 0, tilesY);
+        var r = Math.Clamp((Camera.BoundRight - level.X) / 16 + 1, 0, tilesX);
+        var d = Math.Clamp((Camera.BoundBottom - level.Y) / 16 + 1, 0, tilesY);
+        
+        for (var i = l; i < r; i++)
         {
-            for (var j = 0; j < Tiles.GetLength(1); j++)
+            for (var j = u; j < d; j++)
             {
                 Tiles[i, j]?.Draw(spriteBatch, worldX + i * tileSize, worldY + j * tileSize);
             }

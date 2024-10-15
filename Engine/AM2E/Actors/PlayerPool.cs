@@ -70,7 +70,7 @@ public static class PlayerPool<T> where T : Actor
         var closest = Players[0];
         var closestDistance = MathHelper.PointDistance(x, y, closest.X, closest.Y);
 
-        for (var i = 1; i < Players.Length(); i++)
+        for (var i = 1; i < Players.Count; i++)
         {
             if (MathHelper.PointDistance(x, y, Players[i].X, Players[i].Y) < closestDistance)
                 closest = Players[i];
@@ -99,7 +99,7 @@ public static class PlayerPool<T> where T : Actor
         var closest = playersInLevel[0];
         var closestDistance = MathHelper.PointDistance(x, y, closest.X, closest.Y);
 
-        for (var i = 1; i < playersInLevel.Length(); i++)
+        for (var i = 1; i < playersInLevel.Count; i++)
         {
             if (MathHelper.PointDistance(x, y, playersInLevel[i].X, playersInLevel[i].Y) < closestDistance)
                 closest = playersInLevel[i];
