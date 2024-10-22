@@ -4,6 +4,8 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Particles;
 
+// TODO: Camera-based culling
+
 public sealed class ParticleSystem
 {
     public readonly ParticleDefinition Definition;
