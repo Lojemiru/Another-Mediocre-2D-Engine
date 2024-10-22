@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Graphics;
 
-public sealed class TileManager : IDrawable
+public sealed class TileManager
 {
     internal readonly Tile[,] Tiles;
     private readonly int tileSize;

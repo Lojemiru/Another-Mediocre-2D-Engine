@@ -37,6 +37,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Collision\LOIC.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Animation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EngineCore.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Graphics\CullingBounds.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\EffectExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Fonts and Text\FontManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Graphics\Fonts and Text\HorizontalTextAlignment.cs" />

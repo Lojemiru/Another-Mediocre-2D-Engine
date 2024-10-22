@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Xna.Framework.Graphics;
 using AM2E.Collision;
+using AM2E.Graphics;
 using AM2E.Levels;
 
 namespace AM2E.Actors;
@@ -25,6 +26,8 @@ namespace AM2E.Actors;
 
 public abstract class Actor : ColliderBase, IDrawable
 {
+    public CullingBounds? CullingBounds { get; protected set; }
+    
     public bool Persistent { get; private set; } = false;
     
     /// <summary>

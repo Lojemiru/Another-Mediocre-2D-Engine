@@ -251,6 +251,17 @@ public sealed class Layer
 
         foreach(var drawable in Drawables)
         {
+            // Apply culling.
+            if (drawable.CullingBounds is not null)
+            {
+                var val = drawable.CullingBounds.Value;
+                if (drawable.X - val.L > Camera.BoundRight ||
+                    drawable.X + val.R < Camera.BoundLeft ||
+                    drawable.Y - val.U > Camera.BoundBottom ||
+                    drawable.Y + val.D < Camera.BoundTop)
+                    continue;
+            }
+
             drawable.Draw(spriteBatch);
         }
         
