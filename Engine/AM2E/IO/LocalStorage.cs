@@ -29,7 +29,7 @@ public static class LocalStorage
     {
         var separator = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "/" : "/.";
 
-        return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.None) + 
+        return Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData, Environment.SpecialFolderOption.None) + 
                separator + EngineCore.LocalStorageName;
     }
 
