@@ -1,52 +1,31 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace AM2E;
 
 public static class RNG
 {
-    private static Random random;
-    public static int Seed { get; private set; }
+    private static readonly RNGInstance Instance = new();
+    public static int Seed 
+        => Instance.Seed;
 
     public static void SetSeed(int seed)
-    {
-        random = new Random(seed);
-        Seed = seed;
-    }
-
-    static RNG()
-    {
-        SetSeed(0);
-    }
+        => Instance.SetSeed(seed);
 
     public static float RandomRange(float min, float max)
-    {
-        return min + (random.NextSingle() * (max - min));
-    }
+        => Instance.RandomRange(min, max);
 
     public static float Random(float max)
-    {
-        return random.NextSingle() * max;
-    }
-    
+        => Instance.Random(max);
+
     public static int RandomRange(int min, int max)
-    {
-        return random.Next(min, max + 1);
-    }
+        => Instance.RandomRange(min, max);
 
     public static int Random(int max)
-    {
-        return random.Next(0, max + 1);
-    }
+        => Instance.Random(max);
 
     public static List<T> Shuffle<T>(List<T> list)
-    {
-        return list.OrderBy(x => random.Next()).ToList();
-    }
+        => Instance.Shuffle(list);
 
     public static T Choose<T>(params T[] items)
-    {
-        return items[Random(items.Length - 1)];
-    }
+        => Instance.Choose(items);
 }

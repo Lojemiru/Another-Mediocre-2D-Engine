@@ -113,6 +113,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Particles\ParticleDefinitions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Particles\ParticleSystem.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RNG.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RNGInstance.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)State.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StateMachine.cs" />
   </ItemGroup>

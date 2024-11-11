@@ -37,7 +37,6 @@ public abstract class Hitbox
     {
         FlippedX = xFlip;
         FlippedY = yFlip;
-        // TODO: option for origin offset like sprites?
     }
         
     private List<Type> boundInterfaces;

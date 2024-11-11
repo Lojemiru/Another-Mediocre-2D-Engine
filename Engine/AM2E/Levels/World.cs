@@ -228,7 +228,6 @@ public static class World
             
             switch (ldtkLayer.Type)
             {
-                // TODO: asset layers :)
                 case LDtkLayerType.Entities:
                     foreach (var entity in ldtkLayer.EntityInstances)
                     {
@@ -238,9 +237,7 @@ public static class World
                     }
                     break;
                 case LDtkLayerType.Tiles:
-                    // Get tileset.
                     PopulateTiles(level, ldtkLayer, blocking);
-
                     break;
                 case LDtkLayerType.AutoLayer:
                 case LDtkLayerType.IntGrid:

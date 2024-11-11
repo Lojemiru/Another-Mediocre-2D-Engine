@@ -1,6 +1,4 @@
-﻿// TODO: All GameContent references need to be removed from AM2E.
-using GameContent.EngineConfig;
-using System;
+﻿using System;
 using AM2E.Control;
 
 namespace AM2E.Networking;
@@ -13,14 +11,16 @@ internal class NetCommand
     {
         if (!empty)
         {
-            foreach (Input i in Enum.GetValues(typeof(Input)))
+            var i = 0;
+            foreach (var name in Enum.GetNames(InputManager.EnumType))
             {
-                inputs[(int)i] = InputManager.GetHeld(i);
+                inputs[i] = InputManager.GetHeld(name);
+                i++;
             }
         }
         else
         {
-            foreach (int i in Enum.GetValues(typeof(Input)))
+            foreach (int i in Enum.GetValues(InputManager.EnumType))
             {
                 inputs[i] = false;
             }
@@ -31,7 +31,7 @@ internal class NetCommand
     {
         data.WriteBits(tick, 10);
             
-        foreach (Input i in Enum.GetValues(typeof(Input)))
+        foreach (var i in Enum.GetNames(InputManager.EnumType))
         {
             data.WriteBool(InputManager.GetHeld(i));
         }
@@ -39,7 +39,7 @@ internal class NetCommand
 
     internal void Serialize(BitPackedData data)
     {
-        foreach (int i in Enum.GetValues(typeof(Input)))
+        foreach (int i in Enum.GetValues(InputManager.EnumType))
         {
             data.WriteBool(inputs[i]);
         }
@@ -47,7 +47,7 @@ internal class NetCommand
 
     internal void Deserialize(BitPackedData data) 
     { 
-        foreach (int i in Enum.GetValues(typeof(Input)))
+        foreach (int i in Enum.GetValues(InputManager.EnumType))
         {
             inputs[i] = data.ReadBool();
         }

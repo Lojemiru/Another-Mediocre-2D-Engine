@@ -75,8 +75,11 @@ public static class InputManager
     public static float RightTrigger { get; private set; }
     public static float LeftTrigger { get; private set; }
 
+    internal static Type EnumType;
+
     internal static void Initialize(Type enumType)
     {
+        EnumType = enumType;
         foreach (var input in Enum.GetNames(enumType))
         {
             KeyboardListeners.Add(input, new KeyboardInput(Keys.None));

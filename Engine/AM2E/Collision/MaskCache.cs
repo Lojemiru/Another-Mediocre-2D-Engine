@@ -3,8 +3,6 @@ using AM2E.Graphics;
 
 namespace AM2E.Collision;
 
-// TODO: Review if this is even a good design paradigm.
-
 public static class MaskCache
 {
     private static Dictionary<Sprite, Dictionary<int, bool[,]>> preciseMasks = new();

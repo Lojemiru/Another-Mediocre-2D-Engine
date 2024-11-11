@@ -4,10 +4,13 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace AM2E.Particles;
 
-// TODO: Camera-based culling
-
 public sealed class ParticleSystem
 {
+    // We use our own RNG instance so as not to interfere with programmer usage of the static one.
+    // Technically they should probably be managing their own instances if that's relevant, but I'm trying to be a
+    //      little bit noob-friendly. Emphasis on "little bit."
+    private static readonly RNGInstance Rng = new();
+    
     public readonly ParticleDefinition Definition;
     public readonly int Size;
 
@@ -67,20 +70,19 @@ public sealed class ParticleSystem
 
     public void Create(float x, float y)
     {
-        // TODO: Custom RNG instance so we don't interfere with the main one?
-        particles[index][P_LIFE] = RNG.RandomRange(Definition.LifetimeMin, Definition.LifetimeMax);
+        particles[index][P_LIFE] = Rng.RandomRange(Definition.LifetimeMin, Definition.LifetimeMax);
         particles[index][P_X] = x;
         particles[index][P_Y] = y;
-        particles[index][P_ANGLE] = RNG.RandomRange(Definition.AngleMin, Definition.AngleMax);
-        particles[index][P_ROTATION] = RNG.RandomRange(Definition.RotationMin, Definition.RotationMax);
-        particles[index][P_SPEED] = RNG.RandomRange(Definition.SpeedMin, Definition.SpeedMax);
-        particles[index][P_ACCEL] = RNG.RandomRange(Definition.AccelMin, Definition.AccelMax);
-        particles[index][P_DIRECTION] = RNG.RandomRange(Definition.DirectionMin, Definition.DirectionMax);
-        particles[index][P_TURN] = RNG.RandomRange(Definition.TurnMin, Definition.TurnMax);
-        particles[index][P_INDEX] = RNG.RandomRange(Definition.IndexMin, Definition.IndexMax);
-        particles[index][P_ANIMATE] = RNG.RandomRange(Definition.AnimateMin, Definition.AnimateMax);
-        particles[index][P_ALPHA] = RNG.RandomRange(Definition.AlphaMin, Definition.AlphaMax);
-        particles[index][P_FADE] = RNG.RandomRange(Definition.FadeMin, Definition.FadeMax);
+        particles[index][P_ANGLE] = Rng.RandomRange(Definition.AngleMin, Definition.AngleMax);
+        particles[index][P_ROTATION] = Rng.RandomRange(Definition.RotationMin, Definition.RotationMax);
+        particles[index][P_SPEED] = Rng.RandomRange(Definition.SpeedMin, Definition.SpeedMax);
+        particles[index][P_ACCEL] = Rng.RandomRange(Definition.AccelMin, Definition.AccelMax);
+        particles[index][P_DIRECTION] = Rng.RandomRange(Definition.DirectionMin, Definition.DirectionMax);
+        particles[index][P_TURN] = Rng.RandomRange(Definition.TurnMin, Definition.TurnMax);
+        particles[index][P_INDEX] = Rng.RandomRange(Definition.IndexMin, Definition.IndexMax);
+        particles[index][P_ANIMATE] = Rng.RandomRange(Definition.AnimateMin, Definition.AnimateMax);
+        particles[index][P_ALPHA] = Rng.RandomRange(Definition.AlphaMin, Definition.AlphaMax);
+        particles[index][P_FADE] = Rng.RandomRange(Definition.FadeMin, Definition.FadeMax);
         particles[index][P_GRAVITY] = 0;
         particles[index][P_FADE_DELAY] = Definition.FadeDelay;
         
@@ -153,16 +155,21 @@ public sealed class ParticleSystem
         }
     }
 
-    public void Draw(SpriteBatch spriteBatch, float x, float y, Color color = default)
+    public void Draw(SpriteBatch spriteBatch, float x, float y, Color color = default, bool cull = true)
     {
         for (var i = 0; i < Size; i++)
         {
             var p = particles[i];
+            var pX = x + p[P_X];
+            var pY = y + p[P_Y];
+            var w = Definition.Sprite.Width;
+            var h = Definition.Sprite.Height;
             
-            if (p[P_LIFE] <= 0)
+            if (p[P_LIFE] <= 0 || 
+                (cull && (pX < Camera.BoundLeft - w || pX > Camera.BoundRight + w || pY < Camera.BoundTop - h || pY > Camera.BoundBottom + h)))
                 continue;
             
-            Definition.Sprite.Draw(spriteBatch, x + p[P_X], y + p[P_Y], (int)p[P_INDEX], p[P_ANGLE], SpriteEffects.None, p[P_ALPHA], layer:layer, color:color);
+            Definition.Sprite.Draw(spriteBatch, pX, pY, (int)p[P_INDEX], p[P_ANGLE], SpriteEffects.None, p[P_ALPHA], layer:layer, color:color);
         }
     }
 }
