@@ -39,6 +39,9 @@ public struct LDtkLayerInstance
 
     [JsonProperty("gridTiles")]
     public LDtkTileInstance[] GridTiles { get; set; }
+    
+    [JsonProperty("autoLayerTiles")]
+    public LDtkTileInstance[] AutoLayerTiles { get; set; }
 
     /// <summary>
     /// Layer instance visibility

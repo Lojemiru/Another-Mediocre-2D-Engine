@@ -146,8 +146,12 @@ public static class World
         if (key is null)
             throw new NullReferenceException(nameof(ldtkLayer.TilesetDefUid) + " is somehow null. This indicates a broken LDtk file.");
         
-        foreach (var tile in ldtkLayer.GridTiles)
-            LoadedLevels[level.Iid].Add(ldtkLayer.Identifier, new Tile(tile, Tilesets[(int)key]), level.WorldX + tile.Px[0], level.WorldY + tile.Px[1]);
+        if (ldtkLayer.Type == LDtkLayerType.Tiles)
+            foreach (var tile in ldtkLayer.GridTiles)
+                LoadedLevels[level.Iid].Add(ldtkLayer.Identifier, new Tile(tile, Tilesets[(int)key]), level.WorldX + tile.Px[0], level.WorldY + tile.Px[1]);
+        else if (ldtkLayer.Type == LDtkLayerType.AutoLayer)
+            foreach (var tile in ldtkLayer.AutoLayerTiles)
+                LoadedLevels[level.Iid].Add(ldtkLayer.Identifier, new Tile(tile, Tilesets[(int)key]), level.WorldX + tile.Px[0], level.WorldY + tile.Px[1]);
     }
 
     private static void LoadLevelFromFile(LDtkLightweightLevelInstance level, bool blocking = false)
@@ -237,10 +241,14 @@ public static class World
                     }
                     break;
                 case LDtkLayerType.Tiles:
+                case LDtkLayerType.AutoLayer:
                     PopulateTiles(level, ldtkLayer, blocking);
                     break;
-                case LDtkLayerType.AutoLayer:
                 case LDtkLayerType.IntGrid:
+                    // Do nothing.
+                    // We don't want to crash on these because they're needed for AutoLayers, but I have no other use for them.
+                    // Yet.
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
