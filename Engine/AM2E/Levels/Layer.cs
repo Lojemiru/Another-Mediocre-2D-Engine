@@ -309,6 +309,13 @@ public sealed class Layer
         }
         
         inTick = false;
+        
+        foreach (var gle in genericLevelElementsForAddition)
+        {
+            AddGeneric(gle);
+        }
+        
+        genericLevelElementsForAddition.Clear();
 
         foreach (var gle in genericLevelElementsForRemoval)
         {
@@ -317,12 +324,7 @@ public sealed class Layer
         
         genericLevelElementsForRemoval.Clear();
 
-        foreach (var gle in genericLevelElementsForAddition)
-        {
-            AddGeneric(gle);
-        }
         
-        genericLevelElementsForAddition.Clear();
     }
 
     internal void Activate()
