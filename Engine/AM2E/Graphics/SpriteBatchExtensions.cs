@@ -14,7 +14,7 @@ public static class SpriteBatchExtensions
     {
         samplerState ??= SamplerState.PointClamp;
         spriteBatch.End();
-        spriteBatch.Begin(SpriteSortMode.Deferred, blendState, samplerState, transformMatrix:Camera.Transform);
+        spriteBatch.Begin(SpriteSortMode.Deferred, blendState, samplerState, transformMatrix: spriteBatch == Renderer.GuiBatch ? null : Camera.Transform);
     }
 
     /// <summary>
@@ -25,13 +25,13 @@ public static class SpriteBatchExtensions
     public static void ResetState(this SpriteBatch spriteBatch)
     {
         spriteBatch.End();
-        spriteBatch.Begin(SpriteSortMode.Deferred, samplerState:SamplerState.PointClamp, transformMatrix:Camera.Transform);
+        spriteBatch.Begin(SpriteSortMode.Deferred, samplerState:SamplerState.PointClamp, transformMatrix: spriteBatch == Renderer.GuiBatch ? null : Camera.Transform);
     }
 
     public static void SetShader(this SpriteBatch spriteBatch, Effect effect, BlendState blendState = null, SamplerState samplerState = null)
     {
         samplerState ??= SamplerState.PointClamp;
         spriteBatch.End();
-        spriteBatch.Begin(SpriteSortMode.Deferred, samplerState:samplerState, transformMatrix:Camera.Transform, effect:effect, blendState:blendState);
+        spriteBatch.Begin(SpriteSortMode.Deferred, samplerState:samplerState, transformMatrix: spriteBatch == Renderer.GuiBatch ? null : Camera.Transform, effect:effect, blendState:blendState);
     }
 }

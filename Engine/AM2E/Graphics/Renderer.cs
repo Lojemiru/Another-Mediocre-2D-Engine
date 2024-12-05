@@ -11,7 +11,7 @@ public static class Renderer
     public static Rectangle ApplicationSpace;
     private static Rectangle guiSpace = new();
     private static SpriteBatch applicationBatch;
-    private static SpriteBatch guiBatch;
+    internal static SpriteBatch GuiBatch;
     private static Vector2 posVector = new(0, 0);
     public static int GameWidth;
     public static int GameHeight;
@@ -46,7 +46,7 @@ public static class Renderer
     {
         GraphicsDeviceManager = graphicsDeviceManager;
         applicationBatch = new SpriteBatch(graphicsDeviceManager.GraphicsDevice);
-        guiBatch = new SpriteBatch(graphicsDeviceManager.GraphicsDevice);
+        GuiBatch = new SpriteBatch(graphicsDeviceManager.GraphicsDevice);
     }
 
     public static void SetGameResolution(int width, int height)
@@ -125,9 +125,9 @@ public static class Renderer
         GraphicsDeviceManager.GraphicsDevice.Clear(Color.Transparent);
 
         // Render GUI surface.
-        guiBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
-        OnGUIRender(guiBatch);
-        guiBatch.End();
+        GuiBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
+        OnGUIRender(GuiBatch);
+        GuiBatch.End();
         
         // Reset render target, clear backbuffer.
         GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(null);
