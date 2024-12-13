@@ -62,14 +62,13 @@ public sealed class Animation
 
     private void WrapIndex(bool runAnimEnd = true)
     {
-        var exceeded = _index >= Sprite.Length;
-        
-        if (!exceeded && !(_index < 0)) return;
-        
-        var sign = exceeded ? 1 : -1;
-                
-        while (_index >= Sprite.Length || _index < 0)
-            _index -= sign * Sprite.Length;
+        if (_index < Sprite.Length && _index >= 0) return;
+
+        while (_index >= Sprite.Length)
+            _index -= Sprite.Length;
+
+        while (_index < 0)
+            _index += Sprite.Length;
 
         if (runAnimEnd)
             OnAnimationEnd();
