@@ -172,4 +172,10 @@ public sealed class ParticleSystem
             Definition.Sprite.Draw(spriteBatch, pX, pY, (int)p[P_INDEX], p[P_ANGLE], SpriteEffects.None, p[P_ALPHA], layer:layer, color:color);
         }
     }
+
+    public void Clear()
+    {
+        for (var i = 0; i < Size; i++)
+            particles[i][P_LIFE] = -1;
+    }
 }
