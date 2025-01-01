@@ -47,6 +47,8 @@ namespace AM2E.Control;
 
 #endregion
 
+// TODO: Toggle for controller background input on/off
+
 public static class InputManager
 {
     internal static readonly Dictionary<string, KeyboardInput> KeyboardListeners = new();

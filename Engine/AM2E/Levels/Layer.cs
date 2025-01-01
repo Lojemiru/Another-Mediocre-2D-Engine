@@ -75,6 +75,12 @@ public sealed class Layer
         tileManager = null;
     }
 
+    public void DoTileRender(SpriteBatch spriteBatch, int offsetX = 0, int offsetY = 0)
+    {
+        if (RenderTiles)
+            tileManager?.Draw(spriteBatch, offsetX, offsetY);
+    }
+
     public void Add(IDrawable drawable)
     {
         Drawables.Add(drawable);
@@ -264,12 +270,8 @@ public sealed class Layer
 
             drawable.Draw(spriteBatch);
         }
-        
-        if (EngineCore.DEBUG)
-            Renderer.DebugRender(spriteBatch);
 
-        if (RenderTiles)
-            tileManager?.Draw(spriteBatch);
+        DoTileRender(spriteBatch);
 
         OnPostRender(spriteBatch, this);
     }

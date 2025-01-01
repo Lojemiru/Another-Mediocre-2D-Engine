@@ -68,7 +68,7 @@ public sealed class TileManager
                 DeleteTile(x + (i * tileSize), y + (j * tileSize));
     }
 
-    public void Draw(SpriteBatch spriteBatch)
+    public void Draw(SpriteBatch spriteBatch, int offsetX = 0, int offsetY = 0)
     {
         var l = Math.Clamp((Camera.BoundLeft - level.X) / 16, 0, tilesX);
         var u = Math.Clamp((Camera.BoundTop - level.Y) / 16, 0, tilesY);
@@ -79,7 +79,7 @@ public sealed class TileManager
         {
             for (var j = u; j < d; j++)
             {
-                Tiles[i, j]?.Draw(spriteBatch, worldX + i * tileSize, worldY + j * tileSize);
+                Tiles[i, j]?.Draw(spriteBatch, (worldX + offsetX) + i * tileSize, (worldY + offsetY) + j * tileSize);
             }
         }
     }
