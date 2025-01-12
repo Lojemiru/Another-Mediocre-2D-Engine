@@ -5,6 +5,8 @@ using AM2E.Levels;
 
 namespace AM2E.Graphics;
 
+// TODO: Run entire canvas through https://github.com/libretro/glsl-shaders/blob/master/interpolation/shaders/ControlledSharpness.glsl ?
+
 public static class Renderer
 {
     public static GraphicsDeviceManager GraphicsDeviceManager { get; private set; }
