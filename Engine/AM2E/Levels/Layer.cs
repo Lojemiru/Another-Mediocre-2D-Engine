@@ -75,10 +75,10 @@ public sealed class Layer
         tileManager = null;
     }
 
-    public void DoTileRender(SpriteBatch spriteBatch, int offsetX = 0, int offsetY = 0)
+    public void DoTileRender(SpriteBatch spriteBatch, int offsetX = 0, int offsetY = 0, int distancePastCamera = 0)
     {
         if (RenderTiles)
-            tileManager?.Draw(spriteBatch, offsetX, offsetY);
+            tileManager?.Draw(spriteBatch, offsetX, offsetY, distancePastCamera);
     }
 
     public void Add(IDrawable drawable)

@@ -68,12 +68,12 @@ public sealed class TileManager
                 DeleteTile(x + (i * tileSize), y + (j * tileSize));
     }
 
-    public void Draw(SpriteBatch spriteBatch, int offsetX = 0, int offsetY = 0)
+    public void Draw(SpriteBatch spriteBatch, int offsetX = 0, int offsetY = 0, int distancePastCamera = 0)
     {
-        var l = Math.Clamp((Camera.BoundLeft - level.X) / 16, 0, tilesX);
-        var u = Math.Clamp((Camera.BoundTop - level.Y) / 16, 0, tilesY);
-        var r = Math.Clamp((Camera.BoundRight - level.X) / 16 + 1, 0, tilesX);
-        var d = Math.Clamp((Camera.BoundBottom - level.Y) / 16 + 1, 0, tilesY);
+        var l = Math.Clamp((Camera.BoundLeft - distancePastCamera - level.X) / 16, 0, tilesX);
+        var u = Math.Clamp((Camera.BoundTop - distancePastCamera - level.Y) / 16, 0, tilesY);
+        var r = Math.Clamp((Camera.BoundRight + distancePastCamera - level.X) / 16 + 1, 0, tilesX);
+        var d = Math.Clamp((Camera.BoundBottom + distancePastCamera - level.Y) / 16 + 1, 0, tilesY);
         
         for (var i = l; i < r; i++)
         {
