@@ -30,7 +30,7 @@ public sealed class RectangleHitbox : RectangleHitboxBase
             return false;
         
         // Only two conditions: circle center is in rectangle...
-        if (ContainsPoint(hitbox.X, hitbox.Y)) 
+        if (ContainsPoint(hitbox.X - hitbox.OffsetX, hitbox.Y - hitbox.OffsetY)) 
             return true;
 
         // Or the circle intersects one of our edges.

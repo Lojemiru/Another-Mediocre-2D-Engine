@@ -154,7 +154,7 @@ public class PolygonHitbox : Hitbox
             return false;
         
         // Either a) circle center is in polygon...
-        if (ContainsPoint(hitbox.X, hitbox.Y))
+        if (ContainsPoint(hitbox.X - hitbox.OffsetX, hitbox.Y - hitbox.OffsetY))
             return true;
 
         // ...or b) an edge intersects.
