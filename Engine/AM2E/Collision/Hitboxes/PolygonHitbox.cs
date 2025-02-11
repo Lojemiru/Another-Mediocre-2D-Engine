@@ -76,6 +76,20 @@ public class PolygonHitbox : Hitbox
         ApplyTransform();
     }
 
+    public override void ApplyOffset(int x, int y)
+    {
+        for (var i = 0; i < untranslatedPoints.Length; i++)
+        {
+            var point = untranslatedPoints[i];
+            untranslatedPoints[i] = new Point(point.X + OffsetX - x, point.Y + OffsetY - y);
+        }
+
+        OffsetX = x;
+        OffsetY = y;
+        
+        ApplyTransform();
+    }
+
     private void ApplyTransform()
     {
         var radAngle = Angle * TO_RADIANS;
@@ -90,8 +104,7 @@ public class PolygonHitbox : Hitbox
             var distance = Math.Round(MathHelper.PointDistance(0f, 0, x, y));
             var originalAngle = MathHelper.PointAngle(0, 0, x, y);
 
-            points[i].X = (int)Math.Round(Math.Cos(originalAngle + radAngle) * distance);
-            points[i].Y = (int)Math.Round(Math.Sin(originalAngle + radAngle) * distance);
+            points[i] = new Point((int)Math.Round(Math.Cos(originalAngle + radAngle) * distance), (int)Math.Round(Math.Sin(originalAngle + radAngle) * distance));
         }
         
         RecalculateBounds();

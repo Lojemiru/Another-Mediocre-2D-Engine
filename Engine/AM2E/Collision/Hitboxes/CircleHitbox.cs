@@ -33,7 +33,13 @@ public sealed class CircleHitbox : Hitbox
     {
         Radius = radius;
     }
-    
+
+    public override void ApplyOffset(int x, int y)
+    {
+        OffsetX = x;
+        OffsetY = y;
+    }
+
     // Defer to RectangleHitbox, check has more to do with the rectangle.
     public override bool Intersects(RectangleHitbox hitbox) 
         => hitbox.Intersects(this);

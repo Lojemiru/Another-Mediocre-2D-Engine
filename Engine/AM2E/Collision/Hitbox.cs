@@ -38,6 +38,8 @@ public abstract class Hitbox
         FlippedX = xFlip;
         FlippedY = yFlip;
     }
+
+    public abstract void ApplyOffset(int x, int y);
         
     private List<Type> boundInterfaces;
     private List<Type> targetInterfaces;

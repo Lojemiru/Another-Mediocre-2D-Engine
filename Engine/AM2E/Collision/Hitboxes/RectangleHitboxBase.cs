@@ -29,7 +29,15 @@ public abstract class RectangleHitboxBase : Hitbox
         OffsetX = FlippedX ? (Width - 1) - InitialOffsetX : InitialOffsetX;
         OffsetY = FlippedY ? (Height - 1) - InitialOffsetY : InitialOffsetY;
     }
-    
+
+    public sealed override void ApplyOffset(int x, int y)
+    {
+        InitialOffsetX = x;
+        InitialOffsetY = y;
+        OffsetX = FlippedX ? (Width - 1) - InitialOffsetX : InitialOffsetX;
+        OffsetY = FlippedY ? (Height - 1) - InitialOffsetY : InitialOffsetY;
+    }
+
     public override bool IntersectsLine(int x1, int y1, int x2, int y2)
     {
         // If we contain an endpoint of the line segment, it obviously intersects.
