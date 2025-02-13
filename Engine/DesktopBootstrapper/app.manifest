@@ -36,7 +36,9 @@
   <application xmlns="urn:schemas-microsoft-com:asm.v3">
     <windowsSettings>
       <dpiAware xmlns="http://schemas.microsoft.com/SMI/2005/WindowsSettings">true/pm</dpiAware>
-      <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">permonitorv2,permonitor</dpiAwareness>
+      <!-- permonitorv2 removed below to fix nasty scaling issue (https://github.com/MonoGame/MonoGame/issues/7844) -->
+      <!-- TODO: identify whether this can be re-added when upgrading the MonoGame version -->
+      <dpiAwareness xmlns="http://schemas.microsoft.com/SMI/2016/WindowsSettings">permonitor</dpiAwareness>
     </windowsSettings>
   </application>
 
