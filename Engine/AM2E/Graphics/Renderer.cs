@@ -81,8 +81,8 @@ public static class Renderer
         {
             window.ClientSizeChanged -= OnResize;
 
-            GraphicsDeviceManager.PreferredBackBufferWidth = GraphicsDeviceManager.GraphicsDevice.Viewport.Width;
-            GraphicsDeviceManager.PreferredBackBufferHeight = GraphicsDeviceManager.GraphicsDevice.Viewport.Height;
+            GraphicsDeviceManager.PreferredBackBufferWidth = window.ClientBounds.Width;
+            GraphicsDeviceManager.PreferredBackBufferHeight = window.ClientBounds.Height;
             GraphicsDeviceManager.ApplyChanges();
 
             window.ClientSizeChanged += OnResize;
