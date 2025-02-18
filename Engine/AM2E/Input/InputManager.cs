@@ -70,6 +70,9 @@ public static class InputManager
     private static float leftMotorVibration = 0;
     private static float rightMotorVibration = 0;
 
+    public static bool AcceptUpdates { get; set; } = true;
+    public static bool UpdateVibration { get; set; } = true;
+
     public static int MouseX { get; private set; }
     public static int MouseY { get; private set; }
     public static Vector2 RightStick { get; private set; }
@@ -130,44 +133,53 @@ public static class InputManager
 
     internal static void Update()
     {
-        // Keyboard
-        var keyboardState = Keyboard.GetState();
-        foreach (var listener in KeyboardListeners.Values)
+        if (AcceptUpdates)
         {
-            listener.Update(keyboardState);
-        }
-        
-        // Mouse
-        var mouseState = Mouse.GetState();
-        
-        MouseX = Math.Clamp(Camera.BoundLeft + (int)((mouseState.X - Renderer.ApplicationSpace.X) * ((float)Renderer.GameWidth / Renderer.ApplicationSpace.Width)), Camera.BoundLeft, Camera.BoundRight);
-        MouseY = Math.Clamp(Camera.BoundTop + (int)((mouseState.Y - Renderer.ApplicationSpace.Y) * ((float)Renderer.GameHeight / Renderer.ApplicationSpace.Height)), Camera.BoundTop, Camera.BoundBottom);
-
-        if (EngineCore.WindowFocused)
-        {
-            foreach (var listener in MouseListeners.Values)
+            // Keyboard
+            var keyboardState = Keyboard.GetState();
+            foreach (var listener in KeyboardListeners.Values)
             {
-                listener.Update(mouseState);
+                listener.Update(keyboardState);
+            }
+
+            // Mouse
+            var mouseState = Mouse.GetState();
+
+            MouseX = Math.Clamp(
+                Camera.BoundLeft + (int)((mouseState.X - Renderer.ApplicationSpace.X) *
+                                         ((float)Renderer.GameWidth / Renderer.ApplicationSpace.Width)),
+                Camera.BoundLeft, Camera.BoundRight);
+            MouseY = Math.Clamp(
+                Camera.BoundTop + (int)((mouseState.Y - Renderer.ApplicationSpace.Y) *
+                                        ((float)Renderer.GameHeight / Renderer.ApplicationSpace.Height)),
+                Camera.BoundTop, Camera.BoundBottom);
+
+            if (EngineCore.WindowFocused)
+            {
+                foreach (var listener in MouseListeners.Values)
+                {
+                    listener.Update(mouseState);
+                }
+            }
+
+            // GamePad
+            var gamePadState = GamePad.GetState(GamePadIndex);
+
+            RightStick = ApplyDeadZone(gamePadState.ThumbSticks.Right, RightCenterDeadZone);
+            LeftStick = ApplyDeadZone(gamePadState.ThumbSticks.Left, LeftCenterDeadZone);
+
+            RightTrigger = gamePadState.Triggers.Right;
+            LeftTrigger = gamePadState.Triggers.Left;
+
+            foreach (var listener in GamePadListeners.Values)
+            {
+                listener.Update(gamePadState);
             }
         }
 
-        // GamePad
-        var gamePadState = GamePad.GetState(GamePadIndex);
-        
-        RightStick = ApplyDeadZone(gamePadState.ThumbSticks.Right, RightCenterDeadZone);
-        LeftStick = ApplyDeadZone(gamePadState.ThumbSticks.Left, LeftCenterDeadZone);
-        
-        RightTrigger = gamePadState.Triggers.Right;
-        LeftTrigger = gamePadState.Triggers.Left;
-        
-        foreach (var listener in GamePadListeners.Values)
-        {
-            listener.Update(gamePadState);
-        }
-        
         StopVibration();
         
-        if (vibrationTicks > 0)
+        if (UpdateVibration && vibrationTicks > 0)
         {
             GamePad.SetVibration(GamePadIndex, leftMotorVibration, rightMotorVibration);
             vibrationTicks--;
