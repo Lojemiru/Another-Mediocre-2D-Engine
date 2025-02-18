@@ -242,7 +242,11 @@ public static class World
                     break;
                 case LDtkLayerType.Tiles:
                 case LDtkLayerType.AutoLayer:
-                    PopulateTiles(level, ldtkLayer, blocking);
+                    // I have decided that doing asynchronous tile loading is dumb, because many games need to be able
+                    // to reliably access and modify tiles as soon as a room is loaded. Room loads themselves are
+                    // already asynchronous anyway, so this shouldn't really matter in the first place.
+                    // TODO: If this continues to work fine for the proof-of-concept game, remove async tile loading functionality altogether.
+                    PopulateTiles(level, ldtkLayer, true);
                     break;
                 case LDtkLayerType.IntGrid:
                     // Do nothing.
