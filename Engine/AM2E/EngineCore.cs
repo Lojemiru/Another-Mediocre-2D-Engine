@@ -284,6 +284,16 @@ public sealed class EngineCore : Game
         Renderer.OnResizeInternal(StaticWindow, true);
     }
 
+    public static bool GetBorderless()
+    {
+        return staticThis.Window.IsBorderless;
+    }
+
+    public static void SetBorderless(bool status)
+    {
+        staticThis.Window.IsBorderless = status;
+    }
+
     public static void StartServer(int port)
     {
         Server = new Server(port);
