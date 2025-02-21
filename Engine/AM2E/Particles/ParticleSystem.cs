@@ -40,11 +40,12 @@ public sealed class ParticleSystem
     private const int P_FADE = 12;
     private const int P_GRAVITY = 13;
     private const int P_FADE_DELAY = 14;
+    private const int P_LAYER = 15;
 
     private const float TO_RADIANS = (float)Math.PI / 180f;
 
     // lifetime, x, y, angle, rotation, speed, accel, direction, turn, index, animate, alpha, fade, gravity, fade delay
-    private const int DATA_SCALE = 15;
+    private const int DATA_SCALE = 16;
     
     public ParticleSystem(string definition, int size) 
         : this(size)
@@ -68,7 +69,7 @@ public sealed class ParticleSystem
         }
     }
 
-    public void Create(float x, float y)
+    public void Create(float x, float y, int layer = -1)
     {
         particles[index][P_LIFE] = Rng.RandomRange(Definition.LifetimeMin, Definition.LifetimeMax);
         particles[index][P_X] = x;
@@ -85,6 +86,8 @@ public sealed class ParticleSystem
         particles[index][P_FADE] = Rng.RandomRange(Definition.FadeMin, Definition.FadeMax);
         particles[index][P_GRAVITY] = 0;
         particles[index][P_FADE_DELAY] = Definition.FadeDelay;
+        particles[index][P_LAYER] = layer < 0 ? this.layer : layer;
+        
         
         index = MathHelper.Wrap(index + 1, 0, Size);
     }
@@ -169,7 +172,7 @@ public sealed class ParticleSystem
                 (cull && (pX < Camera.BoundLeft - w || pX > Camera.BoundRight + w || pY < Camera.BoundTop - h || pY > Camera.BoundBottom + h)))
                 continue;
             
-            Definition.Sprite.Draw(spriteBatch, pX, pY, (int)p[P_INDEX], p[P_ANGLE], SpriteEffects.None, p[P_ALPHA], layer:layer, color:color);
+            Definition.Sprite.Draw(spriteBatch, pX, pY, (int)p[P_INDEX], p[P_ANGLE], SpriteEffects.None, p[P_ALPHA], layer: (int)p[P_LAYER], color:color);
         }
     }
 
