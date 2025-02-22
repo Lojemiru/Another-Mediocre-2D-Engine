@@ -19,7 +19,7 @@ public sealed class Layer
 
     private TileManager tileManager;
 
-    private bool inTick = false;
+    internal bool InTick = false;
 
     public bool RenderTiles = true;
     public bool Visible = true;
@@ -88,7 +88,7 @@ public sealed class Layer
 
     public void Add(Actor actor)
     {
-        if (inTick)
+        if (InTick)
         {
             QueueForAddition(actor);
             return;
@@ -104,7 +104,7 @@ public sealed class Layer
 
     public void Add(ColliderBase collider)
     {
-        if (inTick)
+        if (InTick)
         {
             QueueForAddition(collider);
             return;
@@ -118,7 +118,7 @@ public sealed class Layer
 
     public void Add(GenericLevelElement genericLevelElement)
     {
-        if (inTick)
+        if (InTick)
         {
             QueueForAddition(genericLevelElement);
             return;
@@ -138,7 +138,7 @@ public sealed class Layer
 
     internal void AddGeneric(GenericLevelElement obj)
     {
-        if (inTick)
+        if (InTick)
         {
             QueueForAddition(obj);
             return;
@@ -160,7 +160,7 @@ public sealed class Layer
 
     internal void RemoveGeneric(GenericLevelElement gle)
     {
-        if (inTick)
+        if (InTick)
         {
             QueueForRemoval(gle);
             return;
@@ -199,7 +199,7 @@ public sealed class Layer
 
     internal void Remove(Actor actor)
     {
-        if (inTick) 
+        if (InTick) 
         {
             QueueForRemoval(actor);
             return;
@@ -215,7 +215,7 @@ public sealed class Layer
 
     internal void Remove(ColliderBase collider)
     {
-        if (inTick)
+        if (InTick)
         {
             QueueForRemoval(collider);
             return;
@@ -229,7 +229,7 @@ public sealed class Layer
 
     internal void Remove(GenericLevelElement genericLevelElement)
     {
-        if (inTick)
+        if (InTick)
         {
             QueueForRemoval(genericLevelElement);
             return;
@@ -278,7 +278,7 @@ public sealed class Layer
 
     internal void PreTick(bool isFastForward)
     {
-        inTick = true;
+        InTick = true;
         
         foreach (var actor in Actors)
         {
@@ -310,8 +310,13 @@ public sealed class Layer
             actor.PostStep();
         }
         
-        inTick = false;
-        
+        InTick = false;
+
+        HandleAdditionAndRemoval();
+    }
+
+    internal void HandleAdditionAndRemoval()
+    {
         foreach (var gle in genericLevelElementsForAddition)
         {
             AddGeneric(gle);
@@ -325,24 +330,26 @@ public sealed class Layer
         }
         
         genericLevelElementsForRemoval.Clear();
-
-        
     }
 
     internal void Activate()
     {
+        InTick = true;
         foreach (var actor in Actors)
         {
             actor.OnLevelActivate();
         }
+        InTick = false;
     }
 
     internal void Deactivate()
     {
+        InTick = true;
         foreach (var actor in Actors)
         {
             actor.OnLevelDeactivate();
         }
+        InTick = false;
     }
 
     internal void Dispose()

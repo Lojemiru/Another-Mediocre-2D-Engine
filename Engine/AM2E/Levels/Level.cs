@@ -154,9 +154,16 @@ public sealed class Level
         Active = true;
 
         foreach (var layer in Layers.Values)
-        {
+            layer.InTick = true;
+
+        foreach (var layer in Layers.Values)
             layer.Activate();
-        }
+
+        foreach (var layer in Layers.Values)
+            layer.HandleAdditionAndRemoval();
+        
+        foreach (var layer in Layers.Values)
+            layer.InTick = false;
     }
 
     internal void Deactivate()
@@ -164,9 +171,16 @@ public sealed class Level
         Active = false;
         
         foreach (var layer in Layers.Values)
-        {
+            layer.InTick = true;
+        
+        foreach (var layer in Layers.Values)
             layer.Deactivate();
-        }
+
+        foreach (var layer in Layers.Values)
+            layer.HandleAdditionAndRemoval();
+        
+        foreach (var layer in Layers.Values)
+            layer.InTick = false;
     }
 
     internal void Dispose()
