@@ -65,8 +65,8 @@ internal readonly struct Background
         var posY = offsetY + paraY + level.Y;
 
         // Adjust position for repeat drawing
-        posX += repeatX ? MathF.Truncate(sprite.Width * MathF.Truncate((Camera.BoundLeft - posX) / sprite.Width)) : 0;
-        posY += repeatY ? MathF.Truncate(sprite.Height * MathF.Truncate((Camera.BoundTop - posY) / sprite.Height)) : 0;
+        posX += repeatX ? MathF.Truncate(sprite.Width * MathF.Floor((Camera.BoundLeft - posX) / sprite.Width)) : 0;
+        posY += repeatY ? MathF.Truncate(sprite.Height * MathF.Floor((Camera.BoundTop - posY) / sprite.Height)) : 0;
 
         // Determine repeat counts
         var repeatCountX = repeatX ? Math.Max(MathF.Ceiling(Camera.Width / (float)sprite.Width), 1) + 1 : 1;
