@@ -57,16 +57,16 @@ internal readonly struct Background
         var paraY = ((Camera.BoundBottom - level.Y) * parallaxY);
 
         // Offset based on pivot
-        var offsetX = (level.Width - sprite.Width) * pivotX;
-        var offsetY = (level.Height - sprite.Height) * pivotY;
+        var offsetX = MathF.Truncate((level.Width - sprite.Width) * pivotX);
+        var offsetY = MathF.Truncate((level.Height - sprite.Height) * pivotY);
 
         // Base position
         var posX = offsetX + paraX + level.X;
         var posY = offsetY + paraY + level.Y;
 
         // Adjust position for repeat drawing
-        posX += repeatX ? MathF.Floor(sprite.Width * MathF.Floor((Camera.BoundLeft - posX) / sprite.Width)) : 0;
-        posY += repeatY ? MathF.Floor(sprite.Height * MathF.Floor((Camera.BoundTop - posY) / sprite.Height)) : 0;
+        posX += repeatX ? MathF.Truncate(sprite.Width * MathF.Truncate((Camera.BoundLeft - posX) / sprite.Width)) : 0;
+        posY += repeatY ? MathF.Truncate(sprite.Height * MathF.Truncate((Camera.BoundTop - posY) / sprite.Height)) : 0;
 
         // Determine repeat counts
         var repeatCountX = repeatX ? Math.Max(MathF.Ceiling(Camera.Width / (float)sprite.Width), 1) + 1 : 1;
