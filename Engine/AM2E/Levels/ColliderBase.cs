@@ -37,7 +37,7 @@ public abstract class ColliderBase : GenericLevelElement, ICollider
     }
 
     public bool CollisionActive 
-        => Level?.Active ?? true;
+        => (Level?.Active ?? true) && Layer is not null;
 
     public bool FlippedX { get; private set; } = false;
     
