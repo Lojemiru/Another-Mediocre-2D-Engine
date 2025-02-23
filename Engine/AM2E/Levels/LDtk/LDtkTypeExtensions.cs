@@ -62,20 +62,18 @@ public static class LDtkTypeExtensions
         return null;
     }
 
-    public static T GetFieldInstance<T>(this IEnumerable<LDtkFieldInstance> fieldInstances, string identifier) where T : struct, Enum
+    public static T? GetFieldInstance<T>(this IEnumerable<LDtkFieldInstance> fieldInstances, string identifier) where T : struct, Enum
     {
         foreach (var field in fieldInstances)
         {
             if (field.Identifier != identifier)
                 continue;
 
-            if (!Enum.TryParse((string)field.Value, out T output))
-                throw new InvalidDataException($"Invalid data on field instance enum parsing!!! Field name: {identifier}.");
-
-            return output;
+            if (Enum.TryParse((string)field.Value, out T output))
+                return output;
         }
         
-        return default;
+        return null;
     }
 
     public static T[] GetFieldInstanceArray<T>(this IEnumerable<LDtkFieldInstance> fieldInstances, string identifier)

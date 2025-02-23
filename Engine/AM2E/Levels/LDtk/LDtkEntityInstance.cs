@@ -55,7 +55,7 @@ public struct LDtkEntityInstance
     public dynamic GetFieldInstance(string identifier)
         => FieldInstances.GetFieldInstance(identifier);
 
-    public T GetFieldInstance<T>(string identifier) where T : struct, Enum
+    public T? GetFieldInstance<T>(string identifier) where T : struct, Enum
         => FieldInstances.GetFieldInstance<T>(identifier);
 
     public T[] GetFieldInstanceArray<T>(string identifier)

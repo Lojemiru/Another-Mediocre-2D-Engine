@@ -37,7 +37,7 @@ public struct LDtkLevelInstance
     /// </summary>
     [JsonProperty("identifier")]
     public string Identifier { get; set; }
-    
+
     /// <summary>
     /// Unique instance identifier
     /// </summary>
@@ -63,7 +63,7 @@ public struct LDtkLevelInstance
     /// </summary>
     [JsonProperty("pxWid")]
     public int PxWid { get; set; }
-    
+
     /// <summary>
     /// Unique Int identifier
     /// </summary>
@@ -93,11 +93,11 @@ public struct LDtkLevelInstance
     /// </summary>
     [JsonProperty("worldY")]
     public int WorldY { get; set; }
-    
+
     public dynamic GetFieldInstance(string identifier)
         => FieldInstances.GetFieldInstance(identifier);
 
-    public T GetFieldInstance<T>(string identifier) where T : struct, Enum
+    public T? GetFieldInstance<T>(string identifier) where T : struct, Enum
         => FieldInstances.GetFieldInstance<T>(identifier);
 
     public T[] GetFieldInstanceArray<T>(string identifier)
