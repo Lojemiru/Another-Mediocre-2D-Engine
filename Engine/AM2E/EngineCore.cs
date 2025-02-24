@@ -26,6 +26,7 @@ public sealed class EngineCore : Game
     public static bool isServer;
     internal static int TileChunkSize;
     internal static string LocalStorageName;
+    public static bool DoDebugRender = false;
 
     private static int gameSpeed = 60;
     public static int GameSpeed

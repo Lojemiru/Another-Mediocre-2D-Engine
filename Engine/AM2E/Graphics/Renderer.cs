@@ -39,9 +39,11 @@ public static class Renderer
 
     public static event Action<SpriteBatch> OnGUIRender = _ => { };
     
-    public static void DebugRender(SpriteBatch spriteBatch)
+    public static void DebugRender()
     {
-        OnDebugRender(spriteBatch);
+        applicationBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, transformMatrix: Camera.Transform);
+        OnDebugRender(applicationBatch);
+        applicationBatch.End();
     }
 
     internal static void Initialize(GraphicsDeviceManager graphicsDeviceManager)
@@ -121,6 +123,9 @@ public static class Renderer
             
         // Draw each layer.
         World.RenderLevels();
+        
+        if (EngineCore.DoDebugRender)
+            DebugRender();
         
         // Target and clear GUI surface.
         GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(guiSurface);
