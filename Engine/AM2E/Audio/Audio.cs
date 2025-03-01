@@ -150,7 +150,7 @@ public static class Audio
     /// </summary>
     /// <param name="eventName">Name of the event.</param>
     /// <param name="level">The <see cref="Level"/> to require active to play this event. If null, will always play.</param>
-    public static EventInstance? PlayEvent(string eventName, Level level, string eventPrefix = "event:/", bool dontStart = false)
+    public static EventInstance? PlayEvent(string eventName, Level? level, string eventPrefix = "event:/", bool dontStart = false)
     {
         ThrowIfUninitialized();
         
@@ -182,7 +182,7 @@ public static class Audio
         return newInstance;
     }
     
-    public static EventInstance? PlaySnapshot(string snapshotName, Level level, bool dontStart = false) {
+    public static EventInstance? PlaySnapshot(string snapshotName, Level? level, bool dontStart = false) {
         return PlayEvent(snapshotName, level, "snapshot:/", dontStart);
     }
     
