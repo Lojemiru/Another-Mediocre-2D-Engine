@@ -14,8 +14,21 @@ namespace AM2E;
 /// <summary>
 /// Container class for an instance of a fmod event
 /// </summary>
-public class EventInstance 
+public class EventInstance
 {
+    private bool stopped = false;
+    public event Action<EventInstance, bool> OnStop = (_, _) => { };
+    public readonly string Name;
+
+    internal void DoOnStop(bool force)
+    {
+        if (stopped)
+            return;
+        
+        stopped = true;
+        OnStop(this, force);
+    }
+    
     // Underlying FMOD event object
     private FMOD.Studio.EventInstance myEvent;
     
@@ -24,9 +37,10 @@ public class EventInstance
     /// Default constructor, creates the event
     /// </summary>
     /// <param name="myEvent"></param>
-    public EventInstance(FMOD.Studio.EventInstance myEvent) 
+    public EventInstance(FMOD.Studio.EventInstance myEvent, string name) 
     {
         this.myEvent = myEvent;
+        Name = name;
     }
 
 
@@ -48,6 +62,7 @@ public class EventInstance
     {
         var stopMode = immediate ? STOP_MODE.IMMEDIATE : STOP_MODE.ALLOWFADEOUT;
         myEvent.stop(stopMode);
+        DoOnStop(immediate);
     }
     
     public void HardStop() {

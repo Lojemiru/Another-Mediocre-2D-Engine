@@ -166,7 +166,7 @@ public static class Audio
         // Check to see if the event exists
         if (eventDictionary.TryGetValue(eventPath, out var value)) 
         {
-            newInstance = value.CreateInstance();
+            newInstance = value.CreateInstance(eventName);
             if (!dontStart)
             {
                 newInstance.Start();
@@ -261,7 +261,15 @@ public static class Audio
         
         studio.update();
 
-        playingEvents.RemoveAll(item => item.GetStopped());
+        playingEvents.RemoveAll(item =>
+        {
+            var stopped = item.GetStopped();
+
+            if (stopped)
+                item.DoOnStop(false);
+
+            return stopped;
+        });
     }
     
     public static void StopAll() {

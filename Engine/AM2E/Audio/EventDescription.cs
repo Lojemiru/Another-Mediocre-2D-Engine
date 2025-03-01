@@ -29,11 +29,11 @@ public class EventDescription
     /// Creates a new instance of an event
     /// </summary>
     /// <returns>Reference to instance of an event</returns>
-    public EventInstance CreateInstance() 
+    public EventInstance CreateInstance(string name) 
     {
         myDescription.createInstance(out var eventInstance);
         
-        return new EventInstance(eventInstance);
+        return new EventInstance(eventInstance, name);
     }
 
     /// <summary>
