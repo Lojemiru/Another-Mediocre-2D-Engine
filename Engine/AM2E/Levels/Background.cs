@@ -69,8 +69,8 @@ internal readonly struct Background
         posY += repeatY ? MathF.Truncate(sprite.Height * MathF.Floor((Camera.BoundTop - posY) / sprite.Height)) : 0;
 
         // Determine repeat counts
-        var repeatCountX = repeatX ? Math.Max(MathF.Ceiling(Camera.Width / (float)sprite.Width), 1) + 1 : 1;
-        var repeatCountY = repeatY ? Math.Max(MathF.Ceiling(Camera.Height / (float)sprite.Height), 1) + 1 : 1;
+        var repeatCountX = repeatX ? Math.Max(MathF.Ceiling(Camera.Width / (float)sprite.Width), 1) + 2 : 1;
+        var repeatCountY = repeatY ? Math.Max(MathF.Ceiling(Camera.Height / (float)sprite.Height), 1) + 2 : 1;
 
         // Loop over repeat counts and actually draw
         for (var i = 0; i < repeatCountX; i++)
