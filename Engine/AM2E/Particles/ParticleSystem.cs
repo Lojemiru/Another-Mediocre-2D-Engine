@@ -172,7 +172,7 @@ public sealed class ParticleSystem
                 (cull && (pX < Camera.BoundLeft - w || pX > Camera.BoundRight + w || pY < Camera.BoundTop - h || pY > Camera.BoundBottom + h)))
                 continue;
             
-            Definition.Sprite.Draw(spriteBatch, pX, pY, (int)p[P_INDEX], p[P_ANGLE], SpriteEffects.None, p[P_ALPHA], layer: (int)p[P_LAYER], color:color);
+            Definition.Sprite.Draw(spriteBatch, (int)pX, (int)pY, (int)p[P_INDEX], p[P_ANGLE], SpriteEffects.None, p[P_ALPHA], layer: (int)p[P_LAYER], color:color);
         }
     }
 
