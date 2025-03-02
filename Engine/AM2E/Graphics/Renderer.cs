@@ -35,6 +35,12 @@ public static class Renderer
         SetGameResolution(config.DefaultResolutionWidth, config.DefaultResolutionHeight);
     }
 
+    public static void SetTargetRatio(float ratio)
+    {
+        targetRatio = ratio;
+        OnResizeInternal(EngineCore.StaticWindow);
+    }
+
     public static event Action<SpriteBatch> OnDebugRender = _ => { };
 
     public static event Action<SpriteBatch> OnGUIRender = _ => { };
