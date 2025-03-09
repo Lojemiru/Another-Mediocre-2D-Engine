@@ -6,7 +6,7 @@ namespace AM2E.Graphics;
 
 public static class TextureManager
 {
-    private static readonly Dictionary<string, TexturePage> Pages = new();
+    internal static readonly Dictionary<string, WeakReference<TexturePage>> Pages = new();
     private static readonly Dictionary<string, bool> IsLoadingPage = new();
     private static readonly Dictionary<string, bool> IsUnloadingPage = new();
     private static readonly Dictionary<string, Action<TexturePage>> LoadCallbacks = new();
@@ -24,6 +24,22 @@ public static class TextureManager
         LoadCallbacks.Add(page, _ => { });
     }
 
+    private static TexturePage AccessPage(string index)
+    {
+        AddPageName(index);
+        
+        // If our page is still loaded, return it!
+        if (Pages[index] is not null && Pages[index].TryGetTarget(out var page))
+            return page;
+        
+        // Otherwise, do a blocking load...
+        LoadPageBlocking(index);
+
+        // And then return the page.
+        Pages[index].TryGetTarget(out page);
+        return page;
+    }
+
     public static bool IsPageLoaded(Enum index)
         => IsPageLoaded(index.ToString());
     
@@ -31,7 +47,7 @@ public static class TextureManager
     {
         AddPageName(index);
         
-        return Pages[index] != null;
+        return Pages[index] is not null && Pages[index].TryGetTarget(out _);
     }
 
     public static void LoadPageBlocking(Enum index)
@@ -58,9 +74,11 @@ public static class TextureManager
     
     public static void LoadPage(string index, Action<TexturePage> callback = null)
     {
-        if (IsPageLoaded(index))
+        AddPageName(index);
+        
+        if (Pages[index] is not null && Pages[index].TryGetTarget(out var page))
         {
-            callback?.Invoke(Pages[index]);
+            callback?.Invoke(page);
             return;
         }
 
@@ -69,7 +87,7 @@ public static class TextureManager
 
         if (IsLoadingPage[index])
             return;
-        
+
         IsLoadingPage[index] = true;
 
         var t = new Thread(() =>
@@ -78,7 +96,7 @@ public static class TextureManager
             if (IsUnloadingPage[index])
                 DoUnload(index);
         });
-        
+
         t.IsBackground = true;
         LoadingThreads[index] = t;
         
@@ -88,9 +106,11 @@ public static class TextureManager
     private static void DoLoad(string index)
     {
         AddPageName(index);
+
+        var page = TexturePage.Load(index);
         
-        Pages[index] = TexturePage.Load(index);
-        LoadCallbacks[index](Pages[index]);
+        Pages[index] = new WeakReference<TexturePage>(page);
+        LoadCallbacks[index](page);
         LoadCallbacks[index] = _ => { };
         IsLoadingPage[index] = false;
         LoadingThreads[index] = null;
@@ -101,9 +121,7 @@ public static class TextureManager
     
     public static Sprite GetSprite(string page, string sprite)
     {
-        LoadPageBlocking(page);
-        
-        return Pages[page].Sprites[sprite];
+        return AccessPage(page).Sprites[sprite];
     }
 
     public static void UnloadPage(Enum index)
@@ -125,6 +143,7 @@ public static class TextureManager
     private static void DoUnload(string index)
     {
         Pages[index] = null;
+        IsLoadingPage[index] = false;
         IsUnloadingPage[index] = false;
         LoadCallbacks[index] = _ => { };
 

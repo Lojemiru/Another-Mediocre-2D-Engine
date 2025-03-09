@@ -16,9 +16,9 @@ public sealed class TileManager
 
     public readonly Sprite TilesetSprite;
 
-    public TileManager(Level level, Sprite tileset, int tileSize = 16)
+    public TileManager(Level level, Sprite tilesetSpriteSprite, int tileSize = 16)
     {
-        TilesetSprite = tileset;
+        TilesetSprite = tilesetSpriteSprite;
         this.tileSize = tileSize;
         worldX = level.X;
         worldY = level.Y;

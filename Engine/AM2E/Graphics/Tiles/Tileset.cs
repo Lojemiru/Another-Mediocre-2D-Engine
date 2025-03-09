@@ -5,13 +5,15 @@ namespace AM2E.Graphics;
 
 public sealed class Tileset
 {
-    public readonly Sprite Sprite;
     private readonly Rectangle[,] tileCache;
     public readonly int GridSize;
+    public readonly string Index;
+    public readonly string Key;
 
-    public Tileset(Sprite sprite, LDtkTilesetDefinition definition)
+    public Tileset(string index, string key, LDtkTilesetDefinition definition)
     {
-        Sprite = sprite;
+        Index = index;
+        Key = key;
         tileCache = new Rectangle[definition.CWid, definition.CHei];
         GridSize = definition.TileGridSize;
     }

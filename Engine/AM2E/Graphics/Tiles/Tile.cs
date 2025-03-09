@@ -15,7 +15,7 @@ public sealed class Tile
 
     public Tile(LDtkTileInstance tile, Tileset tileset)
     {
-        TilesetSprite = tileset.Sprite;
+        TilesetSprite = TextureManager.GetSprite(tileset.Index, tileset.Key);
         tileRect = tileset.GetCachedTileRectangle(tile.Src[0] / tileset.GridSize, tile.Src[1] / tileset.GridSize);
         flips = (SpriteEffects)tile.F;
     }

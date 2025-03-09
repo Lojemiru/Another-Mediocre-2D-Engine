@@ -109,8 +109,8 @@ public static class World
 
         if (Tilesets.ContainsKey((int)key))
         {
-            PlaceTiles(level, ldtkLayer);
-            return;
+            //PlaceTiles(level, ldtkLayer);
+            //return;
         }
         
         var tileset = LDtkTilesets[(int)key];
@@ -122,7 +122,7 @@ public static class World
             if (!Tilesets.ContainsKey(tileset.Uid))
             {
                 Tilesets.Add(tileset.Uid,
-                    new Tileset(TextureManager.GetSprite(pageIndex, tileset.Identifier), tileset));
+                    new Tileset(pageIndex, tileset.Identifier, tileset));
             }
 
             PlaceTiles(level, ldtkLayer);
