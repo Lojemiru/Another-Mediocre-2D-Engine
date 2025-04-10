@@ -9,10 +9,6 @@ using Newtonsoft.Json;
 
 namespace AM2E.Levels;
 
-// TODO: Tilesets are never unloaded automatically.
-// This may sort of be okay but it'd be really nice to automagically unload them when they're no longer in use.
-// Or at least have some way to free up their loaded textures.
-
 public static class World
 {
     private static LDtkWorldInstance world;
@@ -26,9 +22,7 @@ public static class World
     private static bool inTick = false;
     private static List<Level> levelsToBeActivated = new();
     private static List<Level> levelsToBeDeactivated = new();
-    private static readonly List<LDtkLevelInstance> levelsToBeInstantiated = new();
-    private static readonly List<LDtkLevelInstance> deferredLevelsToBeInstantiated = new();
-    private static bool inInstantiation = false;
+    private static readonly ConcurrentQueue<LDtkLevelInstance> levelsToBeInstantiated = new();
     private static readonly List<Level> levelsToBeUninstantiated = new();
     private static readonly ConcurrentDictionary<string, Action<Level>> stagedCallbacks = new();
     private static readonly Dictionary<string, Thread> Threads = new();
@@ -62,7 +56,6 @@ public static class World
         levelsToBeInstantiated.Clear();
         levelsToBeUninstantiated.Clear();
         stagedCallbacks.Clear();
-        deferredLevelsToBeInstantiated.Clear();
         OutOfTickCallbacks.Clear();
         PendingLevelIsBlocking.Clear();
     }
@@ -227,9 +220,7 @@ public static class World
         {
             // Create layer if it doesn't already exist.
             var layer = LoadedLevels[level.Iid].AddLayer(ldtkLayer.Identifier);
-            
-            // TODO: We may need to have a means of intentionally choosing *not* to instantiate a layer.
-            
+
             switch (ldtkLayer.Type)
             {
                 case LDtkLayerType.Entities:
@@ -447,10 +438,7 @@ public static class World
     {
         if (!levelsToBeInstantiated.Contains(level))
         {
-            if (!inInstantiation)
-                levelsToBeInstantiated.Add(level);
-            else
-                deferredLevelsToBeInstantiated.Add(level);
+            levelsToBeInstantiated.Enqueue(level);
 
             PendingLevelIsBlocking[level.Iid] = blocking;
         }
@@ -497,20 +485,13 @@ public static class World
 
         levelsToBeUninstantiated.Clear();
 
-        inInstantiation = true;
-        
-        foreach (var level in levelsToBeInstantiated)
-            InstantiateLevel(level.Iid, blocking:PendingLevelIsBlocking[level.Iid]);
+        foreach (var l in levelsToBeInstantiated)
+        {
+            if (!levelsToBeInstantiated.TryDequeue(out var level))
+                Logger.Warn($"Engine warning: level instantiation dequeue failed for {l.Iid}! Expecting catastrophic failure..." );
 
-        levelsToBeInstantiated.Clear();
-
-        inInstantiation = false;
-
-        // ...yes, this is kind of crappy. But it fixed my multithreaded loading problems, so... cope? Or show me a better solution lol
-        foreach (var level in deferredLevelsToBeInstantiated)
-            InstantiateLevel(level.Iid, blocking:PendingLevelIsBlocking[level.Iid]);
-
-        deferredLevelsToBeInstantiated.Clear();
+            InstantiateLevel(level.Iid, blocking: PendingLevelIsBlocking[level.Iid]);
+        }
 
         foreach (var level in levelsToBeActivated)
             ActivateLevel(level);
