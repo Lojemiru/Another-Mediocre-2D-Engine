@@ -67,7 +67,7 @@ public class Server
 
     private void InputPacketReceive(NetPeer peer, int inputTick, BitPackedData data)
     {
-        // TODO: Clean this shit up
+        // TODO: Clean this up
         // Player has received join packet so remove from unjoined
         var peerInput = peer.Tag as PeerInput;
         if (!players.ContainsKey(peer.Id))
