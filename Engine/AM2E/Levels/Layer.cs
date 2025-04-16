@@ -158,7 +158,7 @@ public sealed class Layer
         }
     }
 
-    internal void RemoveGeneric(GenericLevelElement gle)
+    public void RemoveGeneric(GenericLevelElement gle)
     {
         if (InTick)
         {
@@ -197,7 +197,7 @@ public sealed class Layer
         Drawables.Remove(drawable);
     }
 
-    internal void Remove(Actor actor)
+    public void Remove(Actor actor)
     {
         if (InTick) 
         {
@@ -213,7 +213,7 @@ public sealed class Layer
         Drawables.Remove(actor);
     }
 
-    internal void Remove(ColliderBase collider)
+    public void Remove(ColliderBase collider)
     {
         if (InTick)
         {
@@ -227,7 +227,7 @@ public sealed class Layer
         Colliders.Remove(collider);
     }
 
-    internal void Remove(GenericLevelElement genericLevelElement)
+    public void Remove(GenericLevelElement genericLevelElement)
     {
         if (InTick)
         {

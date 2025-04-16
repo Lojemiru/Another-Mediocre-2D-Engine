@@ -37,6 +37,11 @@ public sealed class Sprite
     public Vector2 Origin { get; }
     
     /// <summary>
+    /// A collection of locations on this <see cref="Sprite"/>'s <see cref="TexturePage"/>, one entry for each frame.
+    /// </summary>
+    public readonly Rectangle[][] Positions;
+    
+    /// <summary>
     /// The <see cref="TexturePage"/> to which this <see cref="Sprite"/> belongs.
     /// </summary>
     public TexturePage TexturePage { get; set; }
@@ -75,12 +80,7 @@ public sealed class Sprite
     /// Static <see cref="Vector2"/> used to set the transform-respecting origin for each draw call.
     /// </summary>
     private static Vector2 origin;
-    
-    /// <summary>
-    /// A collection of locations on this <see cref="Sprite"/>'s <see cref="TexturePage"/>, one entry for each frame.
-    /// </summary>
-    internal readonly Rectangle[][] Positions;
-    
+
     /// <summary>
     /// Static <see cref="Vector2"/> used to translate x/y scale values for <see cref="SpriteBatch"/> draw calls.
     /// </summary>

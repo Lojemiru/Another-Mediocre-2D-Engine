@@ -16,7 +16,7 @@ namespace AM2E.Actors;
 
 #endregion
 
-internal static class ActorManager
+public static class ActorManager
 {
     internal static readonly Dictionary<string, Actor> PersistentActors = new();
 
