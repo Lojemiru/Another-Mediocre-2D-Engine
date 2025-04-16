@@ -227,8 +227,17 @@ public static class World
                     foreach (var entity in ldtkLayer.EntityInstances)
                     {
                         var entityType = Type.GetType(EngineCore.ContentNamespace + "." + entity.Identifier);
-                        // TODO: This needs a friendly error message with actual details! Specifically the failing arguments.
-                        Activator.CreateInstance(entityType, entity, level.WorldX + entity.Px[0], level.WorldY + entity.Px[1], layer);
+
+                        if (entityType is null)
+                        {
+                            Logger.Warn($"Unable to instantiate entity {entity.Iid} in level {level.Iid}: " +
+                                        $"Class {entity.Identifier} does not exist in {EngineCore.ContentNamespace}!");
+                        }
+                        else
+                        {
+                            Activator.CreateInstance(entityType, entity, level.WorldX + entity.Px[0], 
+                                level.WorldY + entity.Px[1], layer);
+                        }
                     }
                     break;
                 case LDtkLayerType.Tiles:
