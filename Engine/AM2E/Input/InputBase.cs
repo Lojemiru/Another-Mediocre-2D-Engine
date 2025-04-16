@@ -22,7 +22,6 @@ internal abstract class InputBase<TInput, TState>
     internal bool InputPressed { get; private set; } = false;
     private bool inputPressedLast = false;
     internal bool InputHeld { get; private set; } = false;
-    internal int InputHeldSteps { get; private set; } = 0;
 
     internal virtual void Update(TState state)
     {
@@ -32,11 +31,6 @@ internal abstract class InputBase<TInput, TState>
         {
             Poll(state, input);
         }
-        
-        if (InputHeld) 
-            InputHeldSteps++;
-        else 
-            InputHeldSteps = 0;
 
         InputPressed = InputHeld && !inputPressedLast;
 

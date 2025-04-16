@@ -47,8 +47,6 @@ namespace AM2E.Control;
 
 #endregion
 
-// TODO: Toggle for controller background input on/off
-
 public static class InputManager
 {
     internal static readonly Dictionary<string, KeyboardInput> KeyboardListeners = new();
@@ -63,9 +61,13 @@ public static class InputManager
     public static float LeftCenterDeadZone = 0.1f;
     public static GamePadDeadZone CenterDeadZoneType = GamePadDeadZone.Circular;
     public static float AngularAxisDeadZone = 15f;
-
-    // TODO: Make this swap dynamically?
-    public static readonly int GamePadIndex = 0;
+    
+    /// <summary>
+    /// Whether to accept controller input when the window is not focused.
+    /// </summary>
+    public static bool AcceptBackgroundInput = true;
+    
+    public static int GamePadIndex { get; private set; } = 2;
     private static int vibrationTicks = 0;
     private static float leftMotorVibration = 0;
     private static float rightMotorVibration = 0;
@@ -82,6 +84,8 @@ public static class InputManager
 
     internal static Type EnumType;
 
+    private static GamePadState[] connectedPads;
+
     internal static void Initialize(Type enumType)
     {
         EnumType = enumType;
@@ -92,6 +96,8 @@ public static class InputManager
             GamePadListeners.Add(input, new GamePadInput(Buttons.None));
             RebindGroupMappings[input] = "";
         }
+
+        connectedPads = new GamePadState[GamePad.MaximumGamePadCount];
     }
 
     private static InputSerialization Serialize()
@@ -162,8 +168,27 @@ public static class InputManager
                 }
             }
 
-            // GamePad
-            var gamePadState = GamePad.GetState(GamePadIndex);
+            // Dynamically swap pad state.
+            for (var i = 0; i < connectedPads.Length; i++)
+            {
+                var state = GamePad.GetState(i);
+                
+                if (state.IsConnected && !connectedPads[i].IsConnected)
+                    GamePadIndex = i;
+                
+                connectedPads[i] = state;
+            }
+
+            // Dynamically pick next controller when current one is unplugged.
+            // This WILL gracefully fail when no controller is connected and just not change the index.
+            if (!connectedPads[GamePadIndex].IsConnected)
+            {
+                for (var i = 0; i < connectedPads.Length; i++)
+                    if (connectedPads[i].IsConnected)
+                        GamePadIndex = i;
+            }
+            
+            var gamePadState = connectedPads[GamePadIndex];
 
             RightStick = ApplyDeadZone(gamePadState.ThumbSticks.Right, RightCenterDeadZone);
             LeftStick = ApplyDeadZone(gamePadState.ThumbSticks.Left, LeftCenterDeadZone);
@@ -433,13 +458,6 @@ public static class InputManager
         ValidateInputExists(input);
         ValidateInputExists(cancellingInput);
         return GetHeld(input) && !GetHeld(cancellingInput);
-    }
-
-    // TODO: this is probably bad practice and not net-supported, nuke it
-    public static int GetHeldSteps(Enum input)
-    {
-        var inputStr = input.ToString();
-        return KeyboardListeners[inputStr].InputHeldSteps | MouseListeners[inputStr].InputHeldSteps | GamePadListeners[inputStr].InputHeldSteps;
     }
 
     #endregion

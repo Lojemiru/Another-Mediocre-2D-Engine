@@ -14,6 +14,9 @@ internal sealed class GamePadInput : InputBase<Buttons, GamePadState>
 
     protected override void Poll(GamePadState state, Buttons input)
     {
+        if (!InputManager.AcceptBackgroundInput && !EngineCore.WindowFocused)
+            return;
+        
         // We have to handle some input types in a totally custom fashion - thumbsticks in particular.
         switch (input)
         {
