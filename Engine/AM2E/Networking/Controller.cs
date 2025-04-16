@@ -1,5 +1,4 @@
-﻿// TODO: All GameContent references need to be removed from AM2E.
-using GameContent.EngineConfig;
+﻿using System;
 using AM2E.Control;
 
 namespace AM2E.Networking;
@@ -12,26 +11,30 @@ public class Controller
     internal NetCommand NetCommand { get; set; }
     internal NetCommand prevNetCommand { get; set; }
 
-    public bool GetHeld(Input input)
+    public bool GetHeld(Enum input)
     {
         if (!puppet || NetCommand == null)
             return InputManager.GetHeld(input);
 
-        return NetCommand.inputs[(int)input];
+        return NetCommand.inputs[Convert.ToInt32(input)];
     }
 
-    public bool GetPressed(Input input)
+    public bool GetPressed(Enum input)
     {
         if (!puppet || NetCommand == null || prevNetCommand == null)
             return InputManager.GetPressed(input);
-        return NetCommand.inputs[(int)input] && !prevNetCommand.inputs[(int)input];
+
+        var i = Convert.ToInt32(input);
+        return NetCommand.inputs[i] && !prevNetCommand.inputs[i];
     }
 
-    public bool GetReleased(Input input)
+    public bool GetReleased(Enum input)
     {
         if (!puppet || NetCommand == null || prevNetCommand == null)
             return InputManager.GetReleased(input);
-        return !NetCommand.inputs[(int)input] && prevNetCommand.inputs[(int)input];
+        
+        var i = Convert.ToInt32(input);
+        return !NetCommand.inputs[i] && prevNetCommand.inputs[i];
     }
 
 }
