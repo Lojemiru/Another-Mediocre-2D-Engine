@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace AM2E.Levels;
@@ -29,7 +30,7 @@ public abstract class GenericLevelElement
     /// <summary>
     /// Used for quickly getting an <see cref="GenericLevelElement"/> reference via UUID.
     /// </summary>
-    internal static readonly Dictionary<string, GenericLevelElement> AllElements = new();
+    internal static readonly ConcurrentDictionary<string, GenericLevelElement> AllElements = new();
     
     public readonly string ID;
     
@@ -47,7 +48,7 @@ public abstract class GenericLevelElement
         X = x;
         Y = y;
         ID = id ?? Guid.NewGuid().ToString();
-        AllElements.Add(ID, this);
+        AllElements.TryAdd(ID, this);
         if (EngineCore.isNetworked)
         {
             EngineCore.Server?.RegisterElement(this);
@@ -65,7 +66,7 @@ public abstract class GenericLevelElement
         exists = false;
         if (!fromLayer)
             Layer?.RemoveGeneric(this);
-        AllElements.Remove(ID);
+        AllElements.Remove(ID, out _);
         if (EngineCore.isNetworked)
         {
             EngineCore.Server?.DeleteObject(ID, this);

@@ -13,20 +13,19 @@ public static class World
 {
     private static LDtkWorldInstance world;
     public static readonly Dictionary<string, LDtkLightweightLevelInstance> LdtkLevels = new();
-    private static readonly ConcurrentDictionary<string, LDtkLevelInstance> stagedLevels = new();
+    private static readonly ConcurrentDictionary<string, LDtkLevelInstance> StagedLevels = new();
     private static readonly Dictionary<int, Tileset> Tilesets = new();
     private static readonly Dictionary<int, LDtkTilesetDefinition> LDtkTilesets = new();
     private static readonly Dictionary<int, LDtkCompositeBackgroundDefinition> LDtkBackgrounds = new();
-    public static Dictionary<string, Level> LoadedLevels = new();
-    public static Dictionary<string, Level> ActiveLevels = new();
+    private static readonly Dictionary<string, Level> LoadedLevels = new();
+    private static readonly ConcurrentQueue<Level> LoadingLevels = new();
+    private static readonly Dictionary<string, Level> ActiveLevels = new();
     private static bool inTick = false;
-    private static List<Level> levelsToBeActivated = new();
-    private static List<Level> levelsToBeDeactivated = new();
-    private static readonly ConcurrentQueue<LDtkLevelInstance> levelsToBeInstantiated = new();
-    private static readonly List<Level> levelsToBeUninstantiated = new();
-    private static readonly ConcurrentDictionary<string, Action<Level>> stagedCallbacks = new();
+    private static readonly List<Level> LevelsToBeActivated = new();
+    private static readonly List<Level> LevelsToBeDeactivated = new();
+    private static readonly List<Level> LevelsToBeUninstantiated = new();
+    private static readonly ConcurrentDictionary<string, Action<Level>> StagedCallbacks = new();
     private static readonly Dictionary<string, Thread> Threads = new();
-    private static readonly Dictionary<string, bool> PendingLevelIsBlocking = new();
 
     private static readonly List<Action> OutOfTickCallbacks = new();
 
@@ -46,18 +45,17 @@ public static class World
 
         Tilesets.Clear();
         LoadedLevels.Clear();
+        LoadingLevels.Clear();
         ActiveLevels.Clear();
-        levelsToBeActivated.Clear();
-        levelsToBeDeactivated.Clear();
+        LevelsToBeActivated.Clear();
+        LevelsToBeDeactivated.Clear();
         LdtkLevels.Clear();
         LDtkTilesets.Clear();
         LDtkBackgrounds.Clear();
-        stagedLevels.Clear();
-        levelsToBeInstantiated.Clear();
-        levelsToBeUninstantiated.Clear();
-        stagedCallbacks.Clear();
+        StagedLevels.Clear();
+        LevelsToBeUninstantiated.Clear();
+        StagedCallbacks.Clear();
         OutOfTickCallbacks.Clear();
-        PendingLevelIsBlocking.Clear();
     }
 
     public static void LoadWorld(string path)
@@ -89,11 +87,10 @@ public static class World
         {
             LdtkLevels.Add(level.Iid, level);
             Threads.Add(level.Iid, null);
-            PendingLevelIsBlocking[level.Iid] = false;
         }
     }
 
-    private static void PopulateTiles(LDtkLevelInstance level, LDtkLayerInstance ldtkLayer, bool blocking = false)
+    private static void PopulateTiles(LDtkLevelInstance levelI, Level level, LDtkLayerInstance ldtkLayer)
     {
         var key = ldtkLayer.TilesetDefUid;
         
@@ -102,7 +99,7 @@ public static class World
 
         if (Tilesets.ContainsKey((int)key))
         {
-            PlaceTiles(level, ldtkLayer);
+            PlaceTiles(levelI, level, ldtkLayer);
             return;
         }
         
@@ -118,21 +115,14 @@ public static class World
                     new Tileset(TextureManager.GetSprite(pageIndex, tileset.Identifier), tileset));
             }
 
-            PlaceTiles(level, ldtkLayer);
+            PlaceTiles(levelI, level, ldtkLayer);
         };
-
-        if (blocking)
-        {
-            TextureManager.LoadPageBlocking(pageIndex);
-            placeTiles(null);
-        }
-        else
-        {
-            TextureManager.LoadPage(pageIndex, placeTiles);
-        }
+        
+        TextureManager.LoadPageBlocking(pageIndex);
+        placeTiles(null);
     }
 
-    private static void PlaceTiles(LDtkLevelInstance level, LDtkLayerInstance ldtkLayer)
+    private static void PlaceTiles(LDtkLevelInstance levelI, Level level, LDtkLayerInstance ldtkLayer)
     {
         var key = ldtkLayer.TilesetDefUid;
 
@@ -141,21 +131,70 @@ public static class World
         
         if (ldtkLayer.Type == LDtkLayerType.Tiles)
             foreach (var tile in ldtkLayer.GridTiles)
-                LoadedLevels[level.Iid].Add(ldtkLayer.Identifier, new Tile(tile, Tilesets[(int)key]), level.WorldX + tile.Px[0], level.WorldY + tile.Px[1]);
+                level.Add(ldtkLayer.Identifier, new Tile(tile, Tilesets[(int)key]), levelI.WorldX + tile.Px[0], levelI.WorldY + tile.Px[1]);
         else if (ldtkLayer.Type == LDtkLayerType.AutoLayer)
             foreach (var tile in ldtkLayer.AutoLayerTiles)
-                LoadedLevels[level.Iid].Add(ldtkLayer.Identifier, new Tile(tile, Tilesets[(int)key]), level.WorldX + tile.Px[0], level.WorldY + tile.Px[1]);
+                level.Add(ldtkLayer.Identifier, new Tile(tile, Tilesets[(int)key]), levelI.WorldX + tile.Px[0], levelI.WorldY + tile.Px[1]);
     }
 
-    private static void LoadLevelFromFile(LDtkLightweightLevelInstance level, bool blocking = false)
+    private static void LoadLevelFromFile(LDtkLightweightLevelInstance lwLevel)
     {
+        Logger.Engine($"Instantiating level {lwLevel.Identifier} ({lwLevel.Iid}) from file.");
+        
         JsonSerializer serializer = new();
-        using var reader = File.OpenText(currentPath + level.ExternalRelPath);
+        using var reader = File.OpenText(currentPath + lwLevel.ExternalRelPath);
         var levelInstance = (LDtkLevelInstance)serializer.Deserialize(reader, typeof(LDtkLevelInstance));
-        stagedLevels[level.Iid] = levelInstance;
+        StagedLevels[lwLevel.Iid] = levelInstance;
 
-        QueueLevelForInstantiation(levelInstance, blocking);
-        Threads[level.Iid] = null;
+        var id = lwLevel.Iid;
+        
+        Logger.Engine($"Instantiating level {LdtkLevels[id].Identifier} ({id}).");
+
+        var level = new Level(levelInstance);
+
+        level.PreLoad();
+        
+        foreach (var ldtkLayer in levelInstance.LayerInstances.Reverse())
+        {
+            // Create layer if it doesn't already exist.
+            var layer = level.AddLayer(ldtkLayer.Identifier);
+
+            switch (ldtkLayer.Type)
+            {
+                case LDtkLayerType.Entities:
+                    foreach (var entity in ldtkLayer.EntityInstances)
+                    {
+                        var entityType = Type.GetType(EngineCore.ContentNamespace + "." + entity.Identifier);
+
+                        if (entityType is null)
+                        {
+                            Logger.Warn($"Unable to instantiate entity {entity.Iid} in level {levelInstance.Iid}: " +
+                                        $"Class {entity.Identifier} does not exist in {EngineCore.ContentNamespace}!");
+                        }
+                        else
+                        {
+                            Activator.CreateInstance(entityType, entity, levelInstance.WorldX + entity.Px[0], 
+                                levelInstance.WorldY + entity.Px[1], layer);
+                        }
+                    }
+                    break;
+                case LDtkLayerType.Tiles:
+                case LDtkLayerType.AutoLayer:
+                    PopulateTiles(levelInstance, level, ldtkLayer);
+                    break;
+                case LDtkLayerType.IntGrid:
+                    // Do nothing.
+                    // We don't want to crash on these because they're needed for AutoLayers, but I have no other use for them.
+                    // Yet.
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        Threads[levelInstance.Iid] = null;
+        
+        LoadingLevels.Enqueue(level);
     }
 
     /// <summary>
@@ -174,10 +213,10 @@ public static class World
             return;
         }
 
-        if (inTick || !stagedLevels.ContainsKey(id))
+        if (inTick || !StagedLevels.ContainsKey(id))
         {
             if (callback is not null)
-                stagedCallbacks.TryAdd(id, callback);
+                StagedCallbacks.TryAdd(id, callback);
             
             if (!blocking)
             {
@@ -201,73 +240,10 @@ public static class World
                 else
                 {
                     Logger.Engine($"Initiating blocking load for level {LdtkLevels[id].Identifier} ({id})");
-                    LoadLevelFromFile(LdtkLevels[id], blocking);
+                    LoadLevelFromFile(LdtkLevels[id]);
                 }
             }
-
-            return;
         }
-        
-        Logger.Engine($"Instantiating level {LdtkLevels[id].Identifier} ({id})");
-
-        var level = stagedLevels[id];
-        
-        LoadedLevels.Add(level.Iid, new Level(level));
-        
-        LoadedLevels[level.Iid].PreLoad();
-        
-        foreach (var ldtkLayer in level.LayerInstances.Reverse())
-        {
-            // Create layer if it doesn't already exist.
-            var layer = LoadedLevels[level.Iid].AddLayer(ldtkLayer.Identifier);
-
-            switch (ldtkLayer.Type)
-            {
-                case LDtkLayerType.Entities:
-                    foreach (var entity in ldtkLayer.EntityInstances)
-                    {
-                        var entityType = Type.GetType(EngineCore.ContentNamespace + "." + entity.Identifier);
-
-                        if (entityType is null)
-                        {
-                            Logger.Warn($"Unable to instantiate entity {entity.Iid} in level {level.Iid}: " +
-                                        $"Class {entity.Identifier} does not exist in {EngineCore.ContentNamespace}!");
-                        }
-                        else
-                        {
-                            Activator.CreateInstance(entityType, entity, level.WorldX + entity.Px[0], 
-                                level.WorldY + entity.Px[1], layer);
-                        }
-                    }
-                    break;
-                case LDtkLayerType.Tiles:
-                case LDtkLayerType.AutoLayer:
-                    // I have decided that doing asynchronous tile loading is dumb, because many games need to be able
-                    // to reliably access and modify tiles as soon as a room is loaded. Room loads themselves are
-                    // already asynchronous anyway, so this shouldn't really matter in the first place.
-                    // TODO: If this continues to work fine for the proof-of-concept game, remove async tile loading functionality altogether.
-                    PopulateTiles(level, ldtkLayer, true);
-                    break;
-                case LDtkLayerType.IntGrid:
-                    // Do nothing.
-                    // We don't want to crash on these because they're needed for AutoLayers, but I have no other use for them.
-                    // Yet.
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-        
-        LoadedLevels[level.Iid].PostLoad();
-
-        stagedLevels.TryRemove(id, out _);
-        if (stagedCallbacks.TryGetValue(id, out var finalCallback))
-        {
-            finalCallback?.Invoke(LoadedLevels[level.Iid]);
-            stagedCallbacks.TryRemove(id, out _);
-        }
-
-        PendingLevelIsBlocking[level.Iid] = false;
     }
 
     public static void InstantiateLevelByName(string name, Action<Level> callback = null, bool blocking = false)
@@ -433,30 +409,20 @@ public static class World
 
     private static void QueueLevelForDeactivation(Level level)
     {
-        if (!levelsToBeDeactivated.Contains(level))
-            levelsToBeDeactivated.Add(level);
+        if (!LevelsToBeDeactivated.Contains(level))
+            LevelsToBeDeactivated.Add(level);
     }
     
     private static void QueueLevelForActivation(Level level)
     {
-        if (!levelsToBeActivated.Contains(level))
-            levelsToBeActivated.Add(level);
+        if (!LevelsToBeActivated.Contains(level))
+            LevelsToBeActivated.Add(level);
     }
-    
-    private static void QueueLevelForInstantiation(LDtkLevelInstance level, bool blocking = false)
-    {
-        if (!levelsToBeInstantiated.Contains(level))
-        {
-            levelsToBeInstantiated.Enqueue(level);
 
-            PendingLevelIsBlocking[level.Iid] = blocking;
-        }
-    }
-    
     private static void QueueLevelForUninstantiation(Level level)
     {
-        if (!levelsToBeUninstantiated.Contains(level))
-            levelsToBeUninstantiated.Add(level);
+        if (!LevelsToBeUninstantiated.Contains(level))
+            LevelsToBeUninstantiated.Add(level);
     }
 
     internal static void PreTick(bool isFastForward)
@@ -484,28 +450,38 @@ public static class World
         
         OutOfTickCallbacks.Clear();
 
-        foreach (var level in levelsToBeDeactivated)
+        foreach (var level in LevelsToBeDeactivated)
             DeactivateLevel(level);
         
-        levelsToBeDeactivated.Clear();
+        LevelsToBeDeactivated.Clear();
 
-        foreach (var level in levelsToBeUninstantiated)
+        foreach (var level in LevelsToBeUninstantiated)
             UninstantiateLevel(level.Iid);
 
-        levelsToBeUninstantiated.Clear();
+        LevelsToBeUninstantiated.Clear();
 
-        foreach (var l in levelsToBeInstantiated)
+        foreach (var l in LoadingLevels)
         {
-            if (!levelsToBeInstantiated.TryDequeue(out var level))
+            if (!LoadingLevels.TryDequeue(out var level))
                 Logger.Warn($"Engine warning: level instantiation dequeue failed for {l.Iid}! Expecting catastrophic failure..." );
+            
+            var id = level.Iid;
 
-            InstantiateLevel(level.Iid, blocking: PendingLevelIsBlocking[level.Iid]);
+            LoadedLevels.Add(id, level);
+            level.PostLoad();
+
+            StagedLevels.TryRemove(id, out _);
+            if (StagedCallbacks.TryGetValue(id, out var finalCallback))
+            {
+                finalCallback?.Invoke(level);
+                StagedCallbacks.TryRemove(id, out _);
+            }
         }
 
-        foreach (var level in levelsToBeActivated)
+        foreach (var level in LevelsToBeActivated)
             ActivateLevel(level);
 
-        levelsToBeActivated.Clear();
+        LevelsToBeActivated.Clear();
     }
 
     public static LDtkReferenceToAnEntityInstance GetFirstFromToC(string identifier)
