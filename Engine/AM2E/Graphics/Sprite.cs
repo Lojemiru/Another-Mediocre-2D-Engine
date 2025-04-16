@@ -218,29 +218,46 @@ public sealed class Sprite
             subPos.Y -= cropOffsets![layer][frame][1];
         }
 
+        var flipH = (effects & SpriteEffects.FlipHorizontally) != 0;
+        var flipV = (effects & SpriteEffects.FlipVertically) != 0;
+
         if (subPos.X < pos.X)
         {
             var diff = (pos.X - subPos.X);
             subPos.Width -= diff;
-            drawPos.X += diff;
             subPos.X = pos.X;
+            
+            if (!flipH)
+                drawPos.X += diff;
         }
         
         var sub = (subPos.X + subPos.Width) - (pos.X + pos.Width);
         if (sub > 0)
+        {
             subPos.Width -= sub;
+            
+            if (flipH)
+                drawPos.X += sub;
+        }
 
         if (subPos.Y < pos.Y)
         {
             var diff = (pos.Y - subPos.Y);
             subPos.Height -= diff;
-            drawPos.Y += diff;
             subPos.Y = pos.Y;
+            
+            if (!flipV)
+                drawPos.Y += diff;
         }
 
         sub = (subPos.Y + subPos.Height) - (pos.Y + pos.Height);
         if (sub > 0)
+        {
             subPos.Height -= sub;
+            
+            if (flipV)
+                drawPos.Y += sub;
+        }
 
         scale.X = scaleX;
         scale.Y = scaleY;
