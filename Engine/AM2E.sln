@@ -1,13 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.3.32901.215
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "AM2E", "AM2E\AM2E.shproj", "{A0CDBD0E-3A41-42B7-9425-A838BC2C7383}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesktopBootstrapper", "DesktopBootstrapper\DesktopBootstrapper.csproj", "{D7A09176-8B18-4EE6-8E37-2DAD76DDD14D}"
-EndProject
-Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "GameContent", "..\GameContent\GameContent\GameContent.shproj", "{9BD371DB-7A12-41AC-9542-B06A6FE48024}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AM2E", "AM2E\AM2E.csproj", "{A2626DE3-EDDB-4677-8565-C8A3C33028FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,21 +8,9 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D7A09176-8B18-4EE6-8E37-2DAD76DDD14D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D7A09176-8B18-4EE6-8E37-2DAD76DDD14D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D7A09176-8B18-4EE6-8E37-2DAD76DDD14D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D7A09176-8B18-4EE6-8E37-2DAD76DDD14D}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {F84FB999-472E-459C-89A2-E18A1B2F46AB}
-	EndGlobalSection
-	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		..\GameContent\GameContent\GameContent.projitems*{9bd371db-7a12-41ac-9542-b06a6fe48024}*SharedItemsImports = 13
-		AM2E\AM2E.projitems*{a0cdbd0e-3a41-42b7-9425-a838bc2c7383}*SharedItemsImports = 13
-		AM2E\AM2E.projitems*{d7a09176-8b18-4ee6-8e37-2dad76ddd14d}*SharedItemsImports = 5
-		..\GameContent\GameContent\GameContent.projitems*{d7a09176-8b18-4ee6-8e37-2dad76ddd14d}*SharedItemsImports = 5
+		{A2626DE3-EDDB-4677-8565-C8A3C33028FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2626DE3-EDDB-4677-8565-C8A3C33028FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2626DE3-EDDB-4677-8565-C8A3C33028FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2626DE3-EDDB-4677-8565-C8A3C33028FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
