@@ -12,7 +12,7 @@ namespace AM2E;
 public sealed class EngineCore : Game
 {
     private Action entryPointCallback;
-    public static readonly string Version = "1.0.1";
+    public static readonly string Version = "1.0.2";
     public static GraphicsDeviceManager _graphics;
     private double updateAccumulator = 0d;
     private const double FRAME_ERROR_MARGIN = .0002;
@@ -21,7 +21,8 @@ public sealed class EngineCore : Game
     internal static GameWindow StaticWindow;
     internal static Server Server;
     internal static Client Client;
-    internal static string ContentNamespace;
+    internal static string ContentNamespaceHeader;
+    internal static string ContentNamespaceFooter;
     public static bool isNetworked = false;
     public static bool isServer;
     internal static int TileChunkSize;
@@ -41,9 +42,10 @@ public sealed class EngineCore : Game
     public static bool ImGuiActive = false;
     private ImGuiRenderer imGuiRenderer;
 
-    public EngineCore(string contentNamespace, AM2EConfig config, Action entryPointCallback)
+    public EngineCore(string contentNamespaceHeader, string contentNamespaceFooter, AM2EConfig config, Action entryPointCallback)
     {
-        ContentNamespace = contentNamespace;
+        ContentNamespaceHeader = contentNamespaceHeader;
+        ContentNamespaceFooter = contentNamespaceFooter;
         this.entryPointCallback = entryPointCallback;
         staticThis = this;
         StaticWindow = Window;

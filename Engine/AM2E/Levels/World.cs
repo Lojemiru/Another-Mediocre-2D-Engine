@@ -164,12 +164,12 @@ public static class World
                 case LDtkLayerType.Entities:
                     foreach (var entity in ldtkLayer.EntityInstances)
                     {
-                        var entityType = Type.GetType(EngineCore.ContentNamespace + "." + entity.Identifier);
+                        var entityType = Type.GetType(EngineCore.ContentNamespaceHeader + "." + entity.Identifier + EngineCore.ContentNamespaceFooter);
 
                         if (entityType is null)
                         {
                             Logger.Warn($"Unable to instantiate entity {entity.Iid} in level {levelInstance.Iid}: " +
-                                        $"Class {entity.Identifier} does not exist in {EngineCore.ContentNamespace}!");
+                                        $"Class {entity.Identifier} does not exist in {EngineCore.ContentNamespaceHeader}!");
                         }
                         else
                         {
