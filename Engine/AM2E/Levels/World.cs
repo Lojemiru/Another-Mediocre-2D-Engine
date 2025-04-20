@@ -192,8 +192,6 @@ public static class World
             }
         }
 
-        Threads[levelInstance.Iid] = null;
-        
         LoadingLevels.Enqueue(level);
     }
 
@@ -476,6 +474,8 @@ public static class World
                 finalCallback?.Invoke(level);
                 StagedCallbacks.TryRemove(id, out _);
             }
+            
+            Threads[level.Iid] = null;
         }
 
         foreach (var level in LevelsToBeActivated)
