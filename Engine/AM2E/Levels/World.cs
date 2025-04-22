@@ -27,6 +27,9 @@ public static class World
     private static readonly ConcurrentDictionary<string, Action<Level>> StagedCallbacks = new();
     private static readonly Dictionary<string, Thread> Threads = new();
 
+    private static bool unloadQueued = false;
+    private static Action unloadCallback = null;
+
     private static readonly List<Action> OutOfTickCallbacks = new();
 
     private static string currentPath;
@@ -34,7 +37,13 @@ public static class World
     public static int LevelUnitHeight => world.WorldGridHeight;
     public static int LevelUnitWidth => world.WorldGridWidth;
 
-    public static void Unload()
+    public static void Unload(Action callback = null)
+    {
+        unloadQueued = true;
+        unloadCallback = callback;
+    }
+
+    private static void UnloadInternal()
     {
         // Yeah, this is kinda crappy... but it's the best I've got to forcibly shut down all current loads. I think.
         foreach (var thread in Threads.Values)
@@ -56,11 +65,16 @@ public static class World
         LevelsToBeUninstantiated.Clear();
         StagedCallbacks.Clear();
         OutOfTickCallbacks.Clear();
+            
+        unloadCallback?.Invoke();
+        unloadCallback = null;
+
+        unloadQueued = false;
     }
 
-    public static void LoadWorld(string path)
+    public static void LoadWorld(string path, Action callback = null)
     {
-        Unload();
+        UnloadInternal();
 
         JsonSerializer serializer = new();
         using (var reader = File.OpenText(path))
@@ -482,6 +496,9 @@ public static class World
             ActivateLevel(level);
 
         LevelsToBeActivated.Clear();
+
+        if (unloadQueued)
+            UnloadInternal();
     }
 
     public static LDtkReferenceToAnEntityInstance GetFirstFromToC(string identifier)
