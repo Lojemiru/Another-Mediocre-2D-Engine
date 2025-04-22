@@ -43,7 +43,7 @@ public static class World
         unloadCallback = callback;
     }
 
-    private static void UnloadInternal()
+    private static void UnloadInternal(bool skipCallback = false)
     {
         // Yeah, this is kinda crappy... but it's the best I've got to forcibly shut down all current loads. I think.
         foreach (var thread in Threads.Values)
@@ -65,16 +65,19 @@ public static class World
         LevelsToBeUninstantiated.Clear();
         StagedCallbacks.Clear();
         OutOfTickCallbacks.Clear();
-            
-        unloadCallback?.Invoke();
-        unloadCallback = null;
+
+        if (!skipCallback)
+        {
+            unloadCallback?.Invoke();
+            unloadCallback = null;
+        }
 
         unloadQueued = false;
     }
 
     public static void LoadWorld(string path, Action callback = null)
     {
-        UnloadInternal();
+        UnloadInternal(true);
 
         JsonSerializer serializer = new();
         using (var reader = File.OpenText(path))
