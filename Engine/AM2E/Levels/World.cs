@@ -46,14 +46,30 @@ public static class World
     private static void UnloadInternal(bool skipCallback = false)
     {
         // Yeah, this is kinda crappy... but it's the best I've got to forcibly shut down all current loads. I think.
-        foreach (var thread in Threads.Values)
-        {
-            thread?.Join();
-        }
+        foreach (var thread in Threads)
+            thread.Value?.Join();
+        
         Threads.Clear();
 
         Tilesets.Clear();
+
+        // If we've somehow loaded a level but haven't processed it, we want to make sure it is gracefully unloaded to prevent unexpected end user code explosions.
+        foreach (var level in LoadedLevels.Values)
+            UninstantiateLevel(level.Iid);
+
         LoadedLevels.Clear();
+
+        // For any levels we just pulled out of the thread, we want to somewhat gracefully kill them.
+        foreach (var ll in LoadingLevels)
+        {
+            LoadingLevels.TryDequeue(out var level);
+
+            level.PostLoad();
+            level.PreUnload();
+            level.Dispose();
+            level.PostUnload();
+        }
+        
         LoadingLevels.Clear();
         ActiveLevels.Clear();
         LevelsToBeActivated.Clear();
