@@ -141,9 +141,9 @@ public abstract class Actor : ColliderBase, IDrawable
         Persistent = persistent;
         
         if (Persistent)
-            ActorManager.PersistentActors.Add(ID, this);
+            ActorManager.PersistentActors.TryAdd(ID, this);
         else
-            ActorManager.PersistentActors.Remove(ID);
+            ActorManager.PersistentActors.TryRemove(ID, out _);
     }
     
     #endregion

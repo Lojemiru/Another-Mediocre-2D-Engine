@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using AM2E.Levels;
 using AM2E.Networking;
 
@@ -18,7 +19,7 @@ namespace AM2E.Actors;
 
 public static class ActorManager
 {
-    internal static readonly Dictionary<string, Actor> PersistentActors = new();
+    internal static readonly ConcurrentDictionary<string, Actor> PersistentActors = new();
 
     internal static void UpdateActors(bool isFastForward)
     {
