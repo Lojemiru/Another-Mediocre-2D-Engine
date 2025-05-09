@@ -45,6 +45,9 @@ public class ParticleDefinition
     public float GravityDirection = 90;
     public float Gravity = 0;
 
+    public float ScaleMin = 1f;
+    public float ScaleMax = 1f;
+
     public ParticleDefinition(Sprite sprite)
     {
         Sprite = sprite;
