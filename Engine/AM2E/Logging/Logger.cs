@@ -128,17 +128,22 @@ v." + EngineCore.Version + "\n\nLogging started.");
             Cache.Dequeue();
     }
 
-    internal static void WriteException(Exception e)
+    internal static void WriteException(object sender, UnhandledExceptionEventArgs e)
     {
         DispatchWrite();
         thread.Join();
-        
+
+        FlushException((Exception)e.ExceptionObject);
+    }
+
+    private static void FlushException(Exception ex)
+    {
         streamWriter.WriteLine("[----------GAME CRASHED----------]");
         streamWriter.WriteLine(CrashMessages[RNG.Random(CrashMessages.Length - 1)]);
         streamWriter.WriteLine();
         streamWriter.WriteLine("Crash occurred at " + DateTime.Now.ToString("HH:mm:ss.ffff"));
         streamWriter.WriteLine();
-        streamWriter.WriteLine(e);
+        streamWriter.WriteLine(ex);
         streamWriter.WriteLine();
         streamWriter.WriteLine("Thank you for using Another Mediocre 2D Engine. Good luck debugging.");
         

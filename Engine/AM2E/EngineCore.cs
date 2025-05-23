@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using AM2E.Actors;
 using AM2E.Control;
-using System;
 using AM2E.Graphics;
 using AM2E.IO;
 using AM2E.Networking;
@@ -12,7 +11,7 @@ namespace AM2E;
 public sealed class EngineCore : Game
 {
     private Action entryPointCallback;
-    public static readonly string Version = "1.0.7";
+    public static readonly string Version = "1.0.8";
     public static GraphicsDeviceManager _graphics;
     private double updateAccumulator = 0d;
     private const double FRAME_ERROR_MARGIN = .0002;
@@ -44,6 +43,8 @@ public sealed class EngineCore : Game
 
     public EngineCore(string contentNamespaceHeader, string contentNamespaceFooter, AM2EConfig config, Action entryPointCallback)
     {
+        AppDomain.CurrentDomain.UnhandledException += Logger.WriteException;
+        
         ContentNamespaceHeader = contentNamespaceHeader;
         ContentNamespaceFooter = contentNamespaceFooter;
         this.entryPointCallback = entryPointCallback;
@@ -105,61 +106,53 @@ public sealed class EngineCore : Game
 
     protected override void Update(GameTime gameTime)
     {
-        try
+        var printDeltaTime = gameTime.ElapsedGameTime.TotalSeconds;
+
+        var oneOneTwentieth = 1.0 / (GameSpeed * 2);
+        var oneSixtieth = 1.0 / GameSpeed;
+        var oneThirtieth = 1.0 / (GameSpeed / 2f);
+
+        // https://medium.com/@tglaiel/how-to-make-your-game-run-at-60fps-24c61210fe75
+        var deltaTime = gameTime.ElapsedGameTime.TotalSeconds;
+
+        if (resetDeltaTime)
         {
-            var printDeltaTime = gameTime.ElapsedGameTime.TotalSeconds;
-
-            var oneOneTwentieth = 1.0 / (GameSpeed * 2);
-            var oneSixtieth = 1.0 / GameSpeed;
-            var oneThirtieth = 1.0 / (GameSpeed / 2f);
-
-            // https://medium.com/@tglaiel/how-to-make-your-game-run-at-60fps-24c61210fe75
-            var deltaTime = gameTime.ElapsedGameTime.TotalSeconds;
-
-            if (resetDeltaTime)
-            {
-                deltaTime = oneSixtieth;
-                updateAccumulator = 0;
-                resetDeltaTime = false;
-            }
-
-            if (Math.Abs(deltaTime - oneOneTwentieth) < FRAME_ERROR_MARGIN)
-            {
-                deltaTime = oneOneTwentieth;
-            }
-
-            if (Math.Abs(deltaTime - oneSixtieth) < FRAME_ERROR_MARGIN)
-            {
-                deltaTime = oneSixtieth;
-            }
-
-            if (Math.Abs(deltaTime - oneThirtieth) < FRAME_ERROR_MARGIN)
-            {
-                deltaTime = oneThirtieth;
-            }
-
-            updateAccumulator += deltaTime;
-            updateAccumulator = Math.Clamp(updateAccumulator, 0.0, 8.0 / GameSpeed);
-
-            while (updateAccumulator >= oneSixtieth)
-            {
-                NetworkUpdate();
-                FixedUpdate();
-                updateAccumulator -= oneSixtieth;
-            }
-
-            Audio.Update();
-
-            base.Update(gameTime);
-            
-            Logger.DispatchWrite();
-            Logger.UpdateCache();
+            deltaTime = oneSixtieth;
+            updateAccumulator = 0;
+            resetDeltaTime = false;
         }
-        catch (Exception e)
+
+        if (Math.Abs(deltaTime - oneOneTwentieth) < FRAME_ERROR_MARGIN)
         {
-            Logger.WriteException(e);
-            throw;
+            deltaTime = oneOneTwentieth;
         }
+
+        if (Math.Abs(deltaTime - oneSixtieth) < FRAME_ERROR_MARGIN)
+        {
+            deltaTime = oneSixtieth;
+        }
+
+        if (Math.Abs(deltaTime - oneThirtieth) < FRAME_ERROR_MARGIN)
+        {
+            deltaTime = oneThirtieth;
+        }
+
+        updateAccumulator += deltaTime;
+        updateAccumulator = Math.Clamp(updateAccumulator, 0.0, 8.0 / GameSpeed);
+
+        while (updateAccumulator >= oneSixtieth)
+        {
+            NetworkUpdate();
+            FixedUpdate();
+            updateAccumulator -= oneSixtieth;
+        }
+
+        Audio.Update();
+
+        base.Update(gameTime);
+        
+        Logger.DispatchWrite();
+        Logger.UpdateCache();
     }
     private static void FixedUpdate()
     {
@@ -184,22 +177,14 @@ public sealed class EngineCore : Game
 
     protected override void Draw(GameTime gameTime)
     {
-        try
-        {
-            Renderer.Render();
+        Renderer.Render();
 
-            if (!ImGuiActive) 
-                return;
-            
-            imGuiRenderer.BeforeLayout(gameTime);
-            OnImGuiRender();
-            imGuiRenderer.AfterLayout();
-        }
-        catch (Exception e)
-        {
-            Logger.WriteException(e);
-            throw;
-        }
+        if (!ImGuiActive) 
+            return;
+        
+        imGuiRenderer.BeforeLayout(gameTime);
+        OnImGuiRender();
+        imGuiRenderer.AfterLayout();
     }
 
     public static event Action OnImGuiRender = () =>
