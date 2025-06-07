@@ -224,6 +224,8 @@ public static class World
                     throw new ArgumentOutOfRangeException();
             }
         }
+        
+        level.AsyncPostLoad();
 
         LoadingLevels.Enqueue(level);
     }

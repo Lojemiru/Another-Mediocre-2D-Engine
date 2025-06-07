@@ -200,6 +200,11 @@ public sealed class Level
     
     internal void PostLoad()
         => PostLoadHook(this);
+
+    public static event Action<Level> AsyncPostLoadHook = _ => { };
+    
+    internal void AsyncPostLoad()
+        => AsyncPostLoadHook(this);
     
     public static event Action<Level> PreUnloadHook = _ => { };
     
