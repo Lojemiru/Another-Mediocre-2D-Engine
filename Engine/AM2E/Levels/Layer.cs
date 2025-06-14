@@ -17,7 +17,7 @@ public sealed class Layer
     private readonly List<GenericLevelElement> genericLevelElementsForRemoval = new();
     private readonly List<GenericLevelElement> genericLevelElementsForAddition = new();
 
-    private TileManager tileManager;
+    public TileManager? TileManager { get; private set; }
 
     internal bool InTick = false;
 
@@ -37,48 +37,45 @@ public sealed class Layer
 
     public void AddTile(int x, int y, Tile tile)
     {
-        tileManager ??= new TileManager(Level, tile.TilesetSprite, tile.Size);
+        TileManager ??= new TileManager(Level, tile.TilesetSprite, tile.Size);
         
-        tileManager.AddTile(x, y, tile);
+        TileManager.AddTile(x, y, tile);
     }
 
-    public Tile GetTile(int x, int y)
+    public Tile? GetTile(int x, int y)
     {
-        return tileManager?.GetTile(x, y);
+        return TileManager?.GetTile(x, y);
     }
 
-    public Tile[,] GetTiles()
+    public Tile[,]? GetTiles()
     {
-        if (tileManager is null)
-            return null;
-
-        return tileManager.Tiles;
+        return TileManager?.Tiles;
     }
 
-    public Sprite GetTilesetSprite()
+    public Sprite? GetTilesetSprite()
     {
-        return tileManager?.TilesetSprite;
+        return TileManager?.TilesetSprite;
     }
 
     public void DeleteTile(int x, int y)
     {
-        tileManager?.DeleteTile(x, y);
+        TileManager?.DeleteTile(x, y);
     }
 
     public void DeleteTiles(int x, int y, int numX, int numY)
     {
-        tileManager?.DeleteTiles(x, y, numX, numY);
+        TileManager?.DeleteTiles(x, y, numX, numY);
     }
 
     public void EradicateTiles()
     {
-        tileManager = null;
+        TileManager = null;
     }
 
     public void DoTileRender(SpriteBatch spriteBatch, int offsetX = 0, int offsetY = 0, int distancePastCamera = 0)
     {
         if (RenderTiles)
-            tileManager?.Draw(spriteBatch, offsetX, offsetY, distancePastCamera);
+            TileManager?.Draw(spriteBatch, offsetX, offsetY, distancePastCamera);
     }
 
     public void Add(IDrawable drawable)
@@ -298,6 +295,8 @@ public sealed class Layer
 
             actor.Step();
         }
+        
+        TileManager?.Step();
     }
 
     internal void PostTick(bool isFastForward)

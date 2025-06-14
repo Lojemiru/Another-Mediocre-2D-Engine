@@ -13,6 +13,19 @@ public sealed class TileManager
     private readonly int tilesX;
     private readonly int tilesY;
     private readonly Level level;
+    public int ImageIndex
+    {
+        get => (int)_imageIndex;
+        set
+        { 
+            _imageIndex = value;
+            WrapIndex();
+        }
+    }
+    
+    private float _imageIndex = 0;
+    
+    public float AnimationSpeed = 0;
 
     public readonly Sprite TilesetSprite;
 
@@ -67,6 +80,24 @@ public sealed class TileManager
             for (var j = 0; j < numY; j++)
                 DeleteTile(x + (i * tileSize), y + (j * tileSize));
     }
+    
+    private void WrapIndex()
+    {
+        if (_imageIndex < TilesetSprite.Length && _imageIndex >= 0) 
+            return;
+
+        while (_imageIndex >= TilesetSprite.Length)
+            _imageIndex -= TilesetSprite.Length;
+
+        while (_imageIndex < 0)
+            _imageIndex += TilesetSprite.Length;
+    }
+
+    public void Step()
+    {
+        _imageIndex += AnimationSpeed;
+        WrapIndex();
+    }
 
     public void Draw(SpriteBatch spriteBatch, int offsetX = 0, int offsetY = 0, int distancePastCamera = 0)
     {
@@ -79,7 +110,7 @@ public sealed class TileManager
         {
             for (var j = u; j < d; j++)
             {
-                Tiles[i, j]?.Draw(spriteBatch, (worldX + offsetX) + i * tileSize, (worldY + offsetY) + j * tileSize);
+                Tiles[i, j]?.Draw(spriteBatch, ImageIndex, (worldX + offsetX) + i * tileSize, (worldY + offsetY) + j * tileSize);
             }
         }
     }

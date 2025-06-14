@@ -27,13 +27,13 @@ public sealed class Tile
         this.flips = (SpriteEffects)flips;
     }
 
-    public void Draw(SpriteBatch spriteBatch, float x, float y)
+    public void Draw(SpriteBatch spriteBatch, int frame, float x, float y)
     {
-        TilesetSprite.Draw(spriteBatch, x, y, 0, tileRect, 0, flips);
+        TilesetSprite.Draw(spriteBatch, x, y, frame, tileRect, 0, flips);
     }
 
-    public void Draw(SpriteBatch spriteBatch, float x, float y, float scale)
+    public void Draw(SpriteBatch spriteBatch, int frame, float x, float y, float scale)
     {
-        TilesetSprite.Draw(spriteBatch, x, y, 0, tileRect, 0, flips, scaleX:scale, scaleY:scale);
+        TilesetSprite.Draw(spriteBatch, x, y, frame, tileRect, 0, flips, scaleX:scale, scaleY:scale);
     }
 }
