@@ -12,12 +12,16 @@ public sealed class Tile
     public readonly Sprite TilesetSprite;
     private readonly Rectangle tileRect;
     private readonly SpriteEffects flips;
+    private readonly int randomOffset = 0;
+    
+    private static readonly RNGInstance RNG = new();
 
     public Tile(LDtkTileInstance tile, Tileset tileset)
     {
         TilesetSprite = tileset.Sprite;
         tileRect = tileset.GetCachedTileRectangle(tile.Src[0] / tileset.GridSize, tile.Src[1] / tileset.GridSize);
         flips = (SpriteEffects)tile.F;
+        randomOffset = RNG.Random(TilesetSprite.Length);
     }
 
     public Tile(Sprite tilesetSprite, Rectangle tileBounds, byte flips)
@@ -25,15 +29,16 @@ public sealed class Tile
         TilesetSprite = tilesetSprite;
         tileRect = tileBounds;
         this.flips = (SpriteEffects)flips;
+        randomOffset = RNG.Random(TilesetSprite.Length);
     }
 
-    public void Draw(SpriteBatch spriteBatch, int frame, float x, float y)
+    public void Draw(SpriteBatch spriteBatch, int frame, float x, float y, bool random = false)
     {
-        TilesetSprite.Draw(spriteBatch, x, y, frame, tileRect, 0, flips);
+        TilesetSprite.Draw(spriteBatch, x, y, frame + (random ? randomOffset : 0), tileRect, 0, flips);
     }
 
-    public void Draw(SpriteBatch spriteBatch, int frame, float x, float y, float scale)
+    public void Draw(SpriteBatch spriteBatch, int frame, float x, float y, float scale, bool random = false)
     {
-        TilesetSprite.Draw(spriteBatch, x, y, frame, tileRect, 0, flips, scaleX:scale, scaleY:scale);
+        TilesetSprite.Draw(spriteBatch, x, y, frame + (random ? randomOffset : 0), tileRect, 0, flips, scaleX:scale, scaleY:scale);
     }
 }

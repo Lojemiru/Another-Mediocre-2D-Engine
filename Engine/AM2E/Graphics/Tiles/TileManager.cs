@@ -12,6 +12,8 @@ public sealed class TileManager
     private readonly int worldY;
     private readonly int tilesX;
     private readonly int tilesY;
+    private int widestPlacedTile = 0;
+    private int highestPlacedTile = 0;
     private readonly Level level;
     public int ImageIndex
     {
@@ -26,6 +28,12 @@ public sealed class TileManager
     private float _imageIndex = 0;
     
     public float AnimationSpeed = 0;
+
+    public bool Randomize = false;
+    public bool RepeatX = false;
+    public bool RepeatY = false;
+    public float ParallaxX = 0;
+    public float ParallaxY = 0;
 
     public readonly Sprite TilesetSprite;
 
@@ -49,6 +57,12 @@ public sealed class TileManager
         if (tX < 0 || tY < 0 || tX >= tilesX || tY >= tilesY)
             return;
         
+        if (tX > widestPlacedTile)
+            widestPlacedTile = tX;
+        
+        if (tY > highestPlacedTile)
+            highestPlacedTile = tY;
+        
         Tiles[tX, tY] = tile;
     }
 
@@ -70,6 +84,9 @@ public sealed class TileManager
         
         if (tX < 0 || tY < 0 || tX >= tilesX || tY >= tilesY)
             return;
+        
+        // TODO: This could stand to update widest/highest placed tiles. But I won't run into this on the current project
+        // so I don't care too much right now. Will fix when it's actually a problem for somebody.
         
         Tiles[tX, tY] = null;
     }
@@ -101,16 +118,28 @@ public sealed class TileManager
 
     public void Draw(SpriteBatch spriteBatch, int offsetX = 0, int offsetY = 0, int distancePastCamera = 0)
     {
-        var l = Math.Clamp((Camera.BoundLeft - distancePastCamera - level.X) / 16, 0, tilesX);
-        var u = Math.Clamp((Camera.BoundTop - distancePastCamera - level.Y) / 16, 0, tilesY);
-        var r = Math.Clamp((Camera.BoundRight + distancePastCamera - level.X) / 16 + 1, 0, tilesX);
-        var d = Math.Clamp((Camera.BoundBottom + distancePastCamera - level.Y) / 16 + 1, 0, tilesY);
+        // Parallax component
+        var paraX = (int)((Camera.BoundLeft - level.X) * ParallaxX);
+        var paraY = (int)((Camera.BoundTop - level.Y) * ParallaxY);
+        
+        var l = Math.Clamp((Camera.BoundLeft - distancePastCamera - level.X - paraX) / 16, 0, RepeatX ? int.MaxValue : widestPlacedTile);
+        var u = Math.Clamp((Camera.BoundTop - distancePastCamera - level.Y - paraY) / 16, 0, RepeatY ? int.MaxValue : highestPlacedTile);
+        var r = Math.Clamp((Camera.BoundRight + distancePastCamera - level.X - paraX) / 16 + 1, 0, RepeatX ? int.MaxValue : widestPlacedTile);
+        var d = Math.Clamp((paraY + Camera.BoundBottom + distancePastCamera - level.Y - paraY) / 16 + 1, 0, RepeatY ? int.MaxValue : highestPlacedTile);
         
         for (var i = l; i < r; i++)
         {
             for (var j = u; j < d; j++)
             {
-                Tiles[i, j]?.Draw(spriteBatch, ImageIndex, (worldX + offsetX) + i * tileSize, (worldY + offsetY) + j * tileSize);
+                var ii = i;
+                var jj = j;
+                if (ii > widestPlacedTile)
+                    ii %= widestPlacedTile + 1;
+                
+                if (jj > highestPlacedTile)
+                    jj %= highestPlacedTile + 1;
+                
+                Tiles[ii, jj]?.Draw(spriteBatch, ImageIndex, (worldX + offsetX + paraX) + i * tileSize, (worldY + offsetY + paraY) + j * tileSize, Randomize);
             }
         }
     }
