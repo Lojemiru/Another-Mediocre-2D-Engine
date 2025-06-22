@@ -121,11 +121,14 @@ public sealed class TileManager
         // Parallax component
         var paraX = (int)((Camera.BoundLeft - level.X) * ParallaxX);
         var paraY = (int)((Camera.BoundTop - level.Y) * ParallaxY);
+
+        var limX = RepeatX ? int.MaxValue : widestPlacedTile + 1;
+        var limY = RepeatY ? int.MaxValue : highestPlacedTile + 1;
         
-        var l = Math.Clamp((Camera.BoundLeft - distancePastCamera - level.X - paraX) / 16, 0, RepeatX ? int.MaxValue : widestPlacedTile);
-        var u = Math.Clamp((Camera.BoundTop - distancePastCamera - level.Y - paraY) / 16, 0, RepeatY ? int.MaxValue : highestPlacedTile);
-        var r = Math.Clamp((Camera.BoundRight + distancePastCamera - level.X - paraX) / 16 + 1, 0, RepeatX ? int.MaxValue : widestPlacedTile);
-        var d = Math.Clamp((paraY + Camera.BoundBottom + distancePastCamera - level.Y - paraY) / 16 + 1, 0, RepeatY ? int.MaxValue : highestPlacedTile);
+        var l = Math.Clamp((Camera.BoundLeft - distancePastCamera - level.X - paraX) / 16, 0, limX);
+        var u = Math.Clamp((Camera.BoundTop - distancePastCamera - level.Y - paraY) / 16, 0, limY);
+        var r = Math.Clamp((Camera.BoundRight + distancePastCamera - level.X - paraX) / 16 + 1, 0, limX);
+        var d = Math.Clamp((paraY + Camera.BoundBottom + distancePastCamera - level.Y - paraY) / 16 + 1, 0, limY);
         
         for (var i = l; i < r; i++)
         {
