@@ -150,7 +150,7 @@ public static class Audio
     /// </summary>
     /// <param name="eventName">Name of the event.</param>
     /// <param name="level">The <see cref="Level"/> to require active to play this event. If null, will always play.</param>
-    public static EventInstance? PlayEvent(string eventName, Level? level, string eventPrefix = "event:/", bool dontStart = false)
+    public static EventInstance? PlayEvent(string eventName, float x, float y, float z, Level? level, string eventPrefix = "event:/", bool dontStart = false)
     {
         ThrowIfUninitialized();
         
@@ -167,6 +167,7 @@ public static class Audio
         if (eventDictionary.TryGetValue(eventPath, out var value)) 
         {
             newInstance = value.CreateInstance(eventName);
+            newInstance.Set3DPosition(x, y, z);
             if (!dontStart)
             {
                 newInstance.Start();
@@ -182,8 +183,8 @@ public static class Audio
         return newInstance;
     }
     
-    public static EventInstance? PlaySnapshot(string snapshotName, Level? level, bool dontStart = false) {
-        return PlayEvent(snapshotName, level, "snapshot:/", dontStart);
+    public static EventInstance? PlaySnapshot(string snapshotName, float x, float y, float z, Level? level, bool dontStart = false) {
+        return PlayEvent(snapshotName, x, y, z, level, "snapshot:/", dontStart);
     }
     
     public static bool IsPlaying(string eventName) {
@@ -259,6 +260,7 @@ public static class Audio
         if (!initialized)
             return;
         
+        
         studio.update();
 
         playingEvents.RemoveAll(item =>
@@ -269,6 +271,14 @@ public static class Audio
                 item.DoOnStop(false);
 
             return stopped;
+        });
+    }
+
+    public static void SetListenerPosition(int index, int x, int y, int z)
+    {
+        studio.setListenerAttributes(index, new ATTRIBUTES_3D
+        {
+            position = new VECTOR { x = x, y = y, z = z }
         });
     }
     

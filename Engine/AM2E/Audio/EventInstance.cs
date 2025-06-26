@@ -1,4 +1,5 @@
 ﻿using System;
+using FMOD;
 using FMOD.Studio;
 
 namespace AM2E;
@@ -99,6 +100,19 @@ public class EventInstance
     // IntPtr parameterPtr)
     public void SetCallback(EVENT_CALLBACK callback, EVENT_CALLBACK_TYPE callbackType) {
         myEvent.setCallback(callback, callbackType);
+    }
+
+    public void Set3DPosition(float x, float y, float z)
+    {
+        myEvent.set3DAttributes(new ATTRIBUTES_3D
+        {
+            position = new VECTOR
+            {
+                x = x,
+                y = y,
+                z = z,
+            } 
+        });
     }
     
     #endregion
