@@ -1,7 +1,4 @@
 ﻿#nullable enable
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Runtime.InteropServices;
 using AM2E.IO;
 using AM2E.Levels;
@@ -260,7 +257,6 @@ public static class Audio
         if (!initialized)
             return;
         
-        
         studio.update();
 
         playingEvents.RemoveAll(item =>
@@ -276,7 +272,8 @@ public static class Audio
 
     public static void SetListenerPosition(int index, int x, int y, int z)
     {
-        studio.setListenerAttributes(index, new ATTRIBUTES_3D
+        studio.getListenerAttributes(index, out var attribs);
+        studio.setListenerAttributes(index, attribs with
         {
             position = new VECTOR { x = x, y = y, z = z }
         });

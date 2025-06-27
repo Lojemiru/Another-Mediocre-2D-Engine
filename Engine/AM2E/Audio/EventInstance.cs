@@ -104,14 +104,10 @@ public class EventInstance
 
     public void Set3DPosition(float x, float y, float z)
     {
-        myEvent.set3DAttributes(new ATTRIBUTES_3D
-        {
-            position = new VECTOR
-            {
-                x = x,
-                y = y,
-                z = z,
-            } 
+        myEvent.get3DAttributes(out var attribs);
+        myEvent.set3DAttributes(attribs with 
+        { 
+            position = new VECTOR { x = x, y = y, z = z, }
         });
     }
     
