@@ -29,5 +29,5 @@ public struct LDtkTileInstance
     /// The *Tile ID* in the corresponding tileset.
     /// </summary>
     [JsonProperty("t")]
-    public long T { get; set; }
+    public int T { get; set; }
 }

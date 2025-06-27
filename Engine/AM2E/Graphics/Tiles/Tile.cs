@@ -10,6 +10,8 @@ public sealed class Tile
     public int PosX => tileRect.X / tileRect.Width;
     public int PoxY => tileRect.Y / tileRect.Height;
     public readonly Sprite TilesetSprite;
+    public readonly string? EnumTag;
+    
     private readonly Rectangle tileRect;
     private readonly SpriteEffects flips;
     private readonly int randomOffset = 0;
@@ -22,6 +24,7 @@ public sealed class Tile
         tileRect = tileset.GetCachedTileRectangle(tile.Src[0] / tileset.GridSize, tile.Src[1] / tileset.GridSize);
         flips = (SpriteEffects)tile.F;
         randomOffset = RNG.Random(TilesetSprite.Length);
+        EnumTag = tileset.GetEnumTag(tile.T);
     }
 
     public Tile(Sprite tilesetSprite, Rectangle tileBounds, byte flips)
