@@ -19,8 +19,8 @@ public static class Logger
     public static bool WriteToConsole = false;
     public static bool TracePath = false;
     public static int CacheSize = 10;
-    public static readonly Queue<string> Cache = new();
-    private static readonly Queue<string> stagingCache = new();
+    public static readonly ConcurrentQueue<string> Cache = new();
+    private static readonly ConcurrentQueue<string> stagingCache = new();
 
     public static string[] CrashMessages =
     {
@@ -112,7 +112,7 @@ v." + EngineCore.Version + "\n\nLogging started.");
         Events.Enqueue(log);
         stagingCache.Enqueue(log);
         while (stagingCache.Count > CacheSize)
-            stagingCache.Dequeue();
+            stagingCache.TryDequeue(out _);
     }
 
     internal static void UpdateCache()
@@ -121,11 +121,12 @@ v." + EngineCore.Version + "\n\nLogging started.");
         for (var i = 0; i < size; i++)
         {
             stagingCache.TryDequeue(out var ev);
-            Cache.Enqueue(ev);
+            if (ev is not null)
+                Cache.Enqueue(ev);
         }
         
         while (Cache.Count > CacheSize)
-            Cache.Dequeue();
+            Cache.TryDequeue(out _);
     }
 
     internal static void WriteException(object sender, UnhandledExceptionEventArgs e)
