@@ -14,7 +14,7 @@ public static class World
     private static LDtkWorldInstance world;
     public static readonly Dictionary<string, LDtkLightweightLevelInstance> LdtkLevels = new();
     private static readonly ConcurrentDictionary<string, LDtkLevelInstance> StagedLevels = new();
-    private static readonly Dictionary<int, Tileset> Tilesets = new();
+    private static readonly ConcurrentDictionary<int, Tileset> Tilesets = new();
     private static readonly Dictionary<int, LDtkTilesetDefinition> LDtkTilesets = new();
     private static readonly Dictionary<int, LDtkCompositeBackgroundDefinition> LDtkBackgrounds = new();
     private static readonly Dictionary<string, Level> LoadedLevels = new();
@@ -144,7 +144,7 @@ public static class World
         {
             if (!Tilesets.ContainsKey(tileset.Uid))
             {
-                Tilesets.Add(tileset.Uid,
+                Tilesets.TryAdd(tileset.Uid,
                     new Tileset(TextureManager.GetSprite(pageIndex, tileset.Identifier), tileset));
             }
 
