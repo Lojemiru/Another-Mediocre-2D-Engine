@@ -125,7 +125,7 @@ public class EventInstance
         // Check if the event is playing
         myEvent.getPlaybackState(out var currentState);
 
-        return (currentState == PLAYBACK_STATE.PLAYING);
+        return (currentState != PLAYBACK_STATE.PLAYING);
     }
 
     public bool GetStopped() 
