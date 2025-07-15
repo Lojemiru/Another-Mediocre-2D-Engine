@@ -45,7 +45,7 @@ public abstract class RectangleHitboxBase : Hitbox
             return true;
 
         // Otherwise, the given line segment MUST intersect one of our diagonals if it is intersecting the rectangle.
-        return MathHelper.DoLinesIntersect(x1, y1, x2, y2, BoundLeft, BoundTop, BoundRight, BoundBottom) ||
-               MathHelper.DoLinesIntersect(x1, y1, x2, y2, BoundLeft, BoundBottom, BoundRight, BoundTop);
+        return MathHelper.DoLinesIntersect(x1, y1, x2, y2, BoundLeft, BoundTop, BoundRight + 0.9f, BoundBottom + 0.9f) ||
+               MathHelper.DoLinesIntersect(x1, y1, x2, y2, BoundLeft, BoundBottom + 0.9f, BoundRight + 0.9f, BoundTop);
     }
 }
