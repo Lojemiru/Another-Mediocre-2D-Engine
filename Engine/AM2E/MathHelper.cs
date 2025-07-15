@@ -114,8 +114,16 @@ public static class MathHelper
         var denominator = x12 * y34 - y12 * x34;
         var t = (x13 * y34 - y13 * x34) / denominator;
         var u = (x13 * y12 - y13 * x12) / denominator;
-
-        return (u is >= 0 and <= 1 && t is >= 0 and <= 1);
+		
+        return (u is >= 0 and <= 1 && t is >= 0 and <= 1) || PointIsOnLine(x1, y1, x3, y3, x4, y4) || PointIsOnLine(x2, y2, x3, y3, x4, y4) || PointIsOnLine(x3, y3, x1, y1, x2, y2) || PointIsOnLine(x4, y4, x1, y1, x2, y2);
+    }
+	
+    public static bool PointIsOnLine(float x, float y, float x1, float y1, float x2, float y2)
+    {
+        if (x < Math.Min(x1, x2) || x > Math.Max(x1, x2) || y < Math.Min(y1, y2) || y > Math.Max(y1, y2))
+            return false;
+		
+        return (x - x1) * (y2 - y1) - (y - y1) * (x2 - x1) == 0;
     }
     
     public static bool IsApproximatelyZero(double val, double precision = 0.1)
