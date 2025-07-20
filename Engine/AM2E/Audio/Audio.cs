@@ -157,8 +157,6 @@ public static class Audio
         
         EventInstance? newInstance = null;
         var eventPath = eventPrefix + eventName;
-        
-        Logger.Engine("FMOD Event played: " + eventName);
 
         // Check to see if the event exists
         if (eventDictionary.TryGetValue(eventPath, out var value)) 
