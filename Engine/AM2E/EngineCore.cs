@@ -11,7 +11,7 @@ namespace AM2E;
 public sealed class EngineCore : Game
 {
     private Action entryPointCallback;
-    public static readonly string Version = "1.4.9";
+    public static readonly string Version = "1.4.10";
     public static GraphicsDeviceManager _graphics;
     private double updateAccumulator = 0d;
     private const double FRAME_ERROR_MARGIN = .0002;
@@ -280,6 +280,16 @@ public sealed class EngineCore : Game
     public static void SetBorderless(bool status)
     {
         staticThis.Window.IsBorderless = status;
+    }
+
+    public static bool GetMouseVisible()
+    {
+        return staticThis.IsMouseVisible;
+    }
+
+    public static void SetMouseVisible(bool status)
+    {
+        staticThis.IsMouseVisible = status;
     }
 
     public static void StartServer(int port)
