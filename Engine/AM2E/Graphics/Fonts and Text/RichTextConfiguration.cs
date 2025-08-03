@@ -42,7 +42,7 @@ internal static class RichTextConfiguration
             {
                 try
                 {
-                    frame = MathHelper.Wrap(int.Parse(input[3]), 0, sprite.Layers);
+                    layer = MathHelper.Wrap(int.Parse(input[3]), 0, sprite.Layers);
                 }
                 catch
                 {
