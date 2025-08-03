@@ -13,6 +13,7 @@ internal static class RichTextConfiguration
         {
             var input = text.Split(":");
             var frame = 0;
+            var layer = 0;
 
             Sprite sprite;
 
@@ -36,8 +37,20 @@ internal static class RichTextConfiguration
                     throw new ArgumentException("Invalid index value in image embed tag: " + text);
                 }
             }
+            
+            if (input.Length > 3)
+            {
+                try
+                {
+                    frame = MathHelper.Wrap(int.Parse(input[3]), 0, sprite.Layers);
+                }
+                catch
+                {
+                    throw new ArgumentException("Invalid layer value in image embed tag: " + text);
+                }
+            }
 
-            return new BetterTextureFragment(sprite.TexturePage.Texture, sprite.Positions[0][frame]);
+            return new BetterTextureFragment(sprite.TexturePage.Texture, sprite.Positions[layer][frame]);
         };
     }
 }
