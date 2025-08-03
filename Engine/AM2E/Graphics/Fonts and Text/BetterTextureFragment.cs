@@ -33,6 +33,6 @@ public class BetterTextureFragment : IRenderable
 
     public void Draw(FSRenderContext context, Vector2 position, Color color)
     {
-        context.DrawImage(this.Texture, this.Region, position, this.Scale, color);
+        context.DrawImage(this.Texture, this.Region, new Vector2(position.X, position.Y + 1), this.Scale, color);
     }
 }
