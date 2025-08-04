@@ -7,7 +7,7 @@ namespace AM2E.Control;
 
 internal sealed class MouseInput : InputBase<MouseButtons, MouseState>
 {
-    internal MouseInput(MouseButtons input) : base(input) { }
+    internal MouseInput(MouseButtons input) : base(input, InputType.Mouse) { }
     
     [JsonConstructor]
     public MouseInput(List<MouseButtons> inputs) : base(inputs) { }

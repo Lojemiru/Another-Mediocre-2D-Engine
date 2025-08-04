@@ -7,15 +7,18 @@ internal abstract class InputBase<TInput, TState>
 {
     [JsonProperty("i")]
     public readonly List<TInput> Inputs = new();
+
+    protected InputType InputType;
     
     protected InputBase(List<TInput> inputs)
     {
         Inputs = inputs;
     }
 
-    protected InputBase(TInput input)
+    protected InputBase(TInput input, InputType inputType)
     {
         Inputs.Add(input);
+        InputType = inputType;
     }
 
     internal bool InputReleased { get; private set; } = false;
@@ -37,6 +40,9 @@ internal abstract class InputBase<TInput, TState>
         InputReleased = !InputHeld && inputPressedLast;
 
         inputPressedLast = InputHeld;
+        
+        if (InputHeld)
+            InputManager.LastReadInputType = InputType;
     }
     
     protected void ProcessInput(bool input)

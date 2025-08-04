@@ -6,7 +6,7 @@ namespace AM2E.Control;
 
 internal sealed class KeyboardInput : InputBase<Keys, KeyboardState>
 {
-    internal KeyboardInput(Keys input) : base(input) { }
+    internal KeyboardInput(Keys input) : base(input, InputType.Keyboard) { }
     
     [JsonConstructor]
     public KeyboardInput(List<Keys> input) : base(input) { }

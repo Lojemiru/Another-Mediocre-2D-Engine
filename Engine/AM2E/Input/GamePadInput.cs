@@ -7,7 +7,7 @@ namespace AM2E.Control;
 
 internal sealed class GamePadInput : InputBase<Buttons, GamePadState>
 {
-    internal GamePadInput(Buttons input) : base(input) { }
+    internal GamePadInput(Buttons input) : base(input, InputType.GamePad) { }
     
     [JsonConstructor]
     public GamePadInput(List<Buttons> inputs) : base(inputs) { }

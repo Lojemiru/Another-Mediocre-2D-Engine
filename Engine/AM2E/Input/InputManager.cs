@@ -66,6 +66,8 @@ public static class InputManager
     /// Whether to accept controller input when the window is not focused.
     /// </summary>
     public static bool AcceptBackgroundInput = true;
+
+    public static InputType LastReadInputType { get; internal set; } = InputType.Keyboard;
     
     public static int GamePadIndex { get; private set; } = 2;
     private static int vibrationTicks = 0;
