@@ -9,7 +9,7 @@ internal sealed class KeyboardInput : InputBase<Keys, KeyboardState>
     internal KeyboardInput(Keys input) : base(input, InputType.Keyboard) { }
     
     [JsonConstructor]
-    public KeyboardInput(List<Keys> input) : base(input) { }
+    public KeyboardInput(List<Keys> input) : base(input, InputType.Keyboard) { }
     
     protected override void Poll(KeyboardState state, Keys input) => ProcessInput(state.IsKeyDown(input));
 }

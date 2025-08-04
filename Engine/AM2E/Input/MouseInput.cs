@@ -10,7 +10,7 @@ internal sealed class MouseInput : InputBase<MouseButtons, MouseState>
     internal MouseInput(MouseButtons input) : base(input, InputType.Mouse) { }
     
     [JsonConstructor]
-    public MouseInput(List<MouseButtons> inputs) : base(inputs) { }
+    public MouseInput(List<MouseButtons> inputs) : base(inputs, InputType.Mouse) { }
     
     private int wheelLast;
 

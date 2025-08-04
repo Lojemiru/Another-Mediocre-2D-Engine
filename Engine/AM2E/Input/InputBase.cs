@@ -10,9 +10,10 @@ internal abstract class InputBase<TInput, TState>
 
     protected InputType InputType;
     
-    protected InputBase(List<TInput> inputs)
+    protected InputBase(List<TInput> inputs, InputType inputType)
     {
         Inputs = inputs;
+        InputType = inputType;
     }
 
     protected InputBase(TInput input, InputType inputType)

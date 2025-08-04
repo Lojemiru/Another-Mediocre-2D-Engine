@@ -10,7 +10,7 @@ internal sealed class GamePadInput : InputBase<Buttons, GamePadState>
     internal GamePadInput(Buttons input) : base(input, InputType.GamePad) { }
     
     [JsonConstructor]
-    public GamePadInput(List<Buttons> inputs) : base(inputs) { }
+    public GamePadInput(List<Buttons> inputs) : base(inputs, InputType.GamePad) { }
 
     protected override void Poll(GamePadState state, Buttons input)
     {
