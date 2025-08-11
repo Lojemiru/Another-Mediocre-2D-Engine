@@ -298,7 +298,7 @@ public static class World
     }
 
     public static void UninstantiateLevel(string iid) 
-        => UninstantiateLevel(iid, true);
+        => UninstantiateLevel(iid, false);
     
     private static void UninstantiateLevel(string iid, bool collect)
     {
