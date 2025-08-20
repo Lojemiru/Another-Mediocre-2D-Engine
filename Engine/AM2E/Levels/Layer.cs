@@ -28,6 +28,9 @@ public sealed class Layer
     public event Action<SpriteBatch, Layer> OnPreRender = (_, _) => { };
 
     public event Action<SpriteBatch, Layer> OnPostRender = (_, _) => { };
+    
+    public static Func<bool> DefaultTilePauseCondition = () => false;
+    public Func<bool>? TilePauseCondition = null;
 
     public Layer(string name, Level level)
     {
@@ -296,7 +299,8 @@ public sealed class Layer
             actor.Step();
         }
         
-        TileManager?.Step();
+        if (!TilePauseCondition?.Invoke() ?? !DefaultTilePauseCondition())
+            TileManager?.Step();
     }
 
     internal void PostTick(bool isFastForward)
