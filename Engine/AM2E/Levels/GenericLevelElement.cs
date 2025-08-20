@@ -39,6 +39,7 @@ public abstract class GenericLevelElement
     public Layer Layer { get; internal set; }
     public Level Level { get; internal set; }
     private bool exists = true;
+    private bool deprecated = false;
 
     protected GenericLevelElement(int x, int y, Layer layer, string id = null)
     {
@@ -48,7 +49,13 @@ public abstract class GenericLevelElement
         X = x;
         Y = y;
         ID = id ?? Guid.NewGuid().ToString();
-        AllElements.TryAdd(ID, this);
+        if (!AllElements.TryAdd(ID, this))
+        {
+            Logger.Warn($"Level Element with ID {ID} already exists. This may cause catastrophic failures! Applying safety fallback: replacing global ID reference to original Element.");
+            AllElements[ID].deprecated = true;
+            AllElements[ID] = this;
+        }
+
         if (EngineCore.isNetworked)
         {
             EngineCore.Server?.RegisterElement(this);
@@ -66,7 +73,10 @@ public abstract class GenericLevelElement
         exists = false;
         if (!fromLayer)
             Layer?.RemoveGeneric(this);
-        AllElements.Remove(ID, out _);
+        
+        if (!deprecated)
+            AllElements.Remove(ID, out _);
+        
         if (EngineCore.isNetworked)
         {
             EngineCore.Server?.DeleteObject(ID, this);
