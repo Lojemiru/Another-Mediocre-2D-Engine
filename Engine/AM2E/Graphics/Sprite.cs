@@ -193,8 +193,9 @@ public sealed class Sprite
     /// <param name="scaleY">The Y-axis scale with which to draw.</param>
     /// <param name="color">The color with which to draw.</param>
     /// <param name="layer">The layer to draw.</param>
+    /// <param name="rectOrigin">The origin with which to draw the rectangle.</param>
     public void Draw(SpriteBatch batch, float x, float y, int frame, Rectangle subRectangle, float rotation = 0,
-        SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1, Color color = default, int layer = 0)
+        SpriteEffects effects = SpriteEffects.None, float alpha = 1, float scaleX = 1, float scaleY = 1, Color color = default, int layer = 0, Vector2? rectOrigin = null)
     {
         // Constrain frame to safe indices.
         frame = MathHelper.Wrap(frame, 0, Length);
@@ -267,7 +268,7 @@ public sealed class Sprite
 
         // Draw!
         batch.Draw(TexturePage.Texture, drawPos, subPos, color * alpha,
-            Microsoft.Xna.Framework.MathHelper.ToRadians(rotation), Vector2.Zero, scale, effects, 0);
+            Microsoft.Xna.Framework.MathHelper.ToRadians(rotation), rectOrigin ?? Vector2.Zero, scale, effects, 0);
     }
     
     /// <summary>

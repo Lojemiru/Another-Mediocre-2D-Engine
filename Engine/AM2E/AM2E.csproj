@@ -13,7 +13,7 @@
         <PackageLicenseUrl>https://github.com/Lojemiru/Another-Mediocre-2D-Engine/blob/main/LICENSE</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/Lojemiru/Another-Mediocre-2D-Engine</RepositoryUrl>
         <RepositoryType>Git</RepositoryType>
-        <Version>1.6.0</Version>
+        <Version>1.7.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
