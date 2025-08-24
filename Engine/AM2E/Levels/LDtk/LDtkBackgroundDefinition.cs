@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 
 namespace AM2E.Levels;
@@ -43,4 +44,8 @@ public struct LDtkBackgroundDefinition
     /// </summary>
     [JsonProperty("uid")]
     public int Uid { get; set; }
+
+    public float? AnimationSpeed { get; set; }
+    
+    public Action<SpriteBatch, int, int, int, int>? OnDraw { get; set; }
 }

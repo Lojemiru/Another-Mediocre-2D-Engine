@@ -24,7 +24,7 @@ namespace AM2E.Levels;
 
 #endregion
 
-internal readonly struct Background
+public class Background
 {
     private readonly Sprite sprite;
 
@@ -34,8 +34,13 @@ internal readonly struct Background
     private readonly float pivotY;
     private readonly bool repeatX;
     private readonly bool repeatY;
+    
+    private float imageIndex = 0;
+    
+    public float AnimationSpeed = 0;
+    public Action<SpriteBatch, int, int, int, int>? OnDraw { get; set; }
 
-    public Background(LDtkBackgroundDefinition def)
+    internal Background(LDtkBackgroundDefinition def)
     {
         var path = def.RelPath.Split('/');
         var name = path[^1].Split('.')[0];
@@ -47,9 +52,29 @@ internal readonly struct Background
         pivotY = def.PivotY;
         repeatX = def.RepeatX;
         repeatY = def.RepeatY;
+        AnimationSpeed = def.AnimationSpeed ?? 0;
+        OnDraw = def.OnDraw;
     }
 
-    public void Draw(SpriteBatch spriteBatch, Level level, int layer)
+    internal void Step()
+    {
+        imageIndex += AnimationSpeed;
+        WrapIndex();
+    }
+    
+    private void WrapIndex()
+    {
+        if (imageIndex < sprite.Length && imageIndex >= 0) 
+            return;
+
+        while (imageIndex >= sprite.Length)
+            imageIndex -= sprite.Length;
+
+        while (imageIndex < 0)
+            imageIndex += sprite.Length;
+    }
+
+    internal void Draw(SpriteBatch spriteBatch, Level level, int layer)
     {
         // Parallax component
         var paraX = ((Camera.BoundLeft - level.X) * parallaxX);
@@ -79,7 +104,9 @@ internal readonly struct Background
                 sprite.Draw(spriteBatch,
                     (int)posX + (sprite.Width * i),
                     (int)posY + (sprite.Height * j), 
-                    0, layer: layer);
+                    (int)imageIndex, layer: layer);
+                
+                OnDraw?.Invoke(spriteBatch, (int)posX + (sprite.Width * i), (int)posY + (sprite.Height * j), (int)imageIndex, layer);
             }
         }
     }

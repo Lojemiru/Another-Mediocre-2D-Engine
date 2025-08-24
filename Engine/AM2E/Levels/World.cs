@@ -11,7 +11,7 @@ public static class World
     private static readonly ConcurrentDictionary<string, LDtkLevelInstance> StagedLevels = new();
     private static readonly ConcurrentDictionary<int, Tileset> Tilesets = new();
     private static readonly Dictionary<int, LDtkTilesetDefinition> LDtkTilesets = new();
-    private static readonly Dictionary<int, LDtkCompositeBackgroundDefinition> LDtkBackgrounds = new();
+    public static readonly Dictionary<int, LDtkCompositeBackgroundDefinition> LDtkBackgrounds = new();
     private static readonly Dictionary<string, Level> LoadedLevels = new();
     private static readonly ConcurrentQueue<Level> LoadingLevels = new();
     private static readonly Dictionary<string, Level> ActiveLevels = new();

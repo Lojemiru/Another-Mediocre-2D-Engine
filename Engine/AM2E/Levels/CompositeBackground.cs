@@ -21,6 +21,8 @@ public sealed class CompositeBackground
         get => layer;
         set => layer = Math.Max(0, value);
     }
+    
+    public static Func<bool> DefaultPauseCondition = () => false;
 
     internal CompositeBackground(int uid)
     {
@@ -33,6 +35,15 @@ public sealed class CompositeBackground
             backgrounds[i] = new Background(bgDef);
             i--;
         }
+    }
+
+    internal void Step()
+    {
+        if (DefaultPauseCondition())
+            return;
+        
+        foreach (var bg in backgrounds)
+            bg.Step();
     }
 
     internal void Draw(SpriteBatch spriteBatch, Level level)

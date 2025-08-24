@@ -16,15 +16,15 @@ public sealed class TileManager
     private readonly Level level;
     public int ImageIndex
     {
-        get => (int)_imageIndex;
+        get => (int)imageIndex;
         set
         { 
-            _imageIndex = value;
+            imageIndex = value;
             WrapIndex();
         }
     }
     
-    private float _imageIndex = 0;
+    private float imageIndex = 0;
     
     public float AnimationSpeed = 0;
 
@@ -99,19 +99,19 @@ public sealed class TileManager
     
     private void WrapIndex()
     {
-        if (_imageIndex < TilesetSprite.Length && _imageIndex >= 0) 
+        if (imageIndex < TilesetSprite.Length && imageIndex >= 0) 
             return;
 
-        while (_imageIndex >= TilesetSprite.Length)
-            _imageIndex -= TilesetSprite.Length;
+        while (imageIndex >= TilesetSprite.Length)
+            imageIndex -= TilesetSprite.Length;
 
-        while (_imageIndex < 0)
-            _imageIndex += TilesetSprite.Length;
+        while (imageIndex < 0)
+            imageIndex += TilesetSprite.Length;
     }
 
     public void Step()
     {
-        _imageIndex += AnimationSpeed;
+        imageIndex += AnimationSpeed;
         WrapIndex();
     }
 

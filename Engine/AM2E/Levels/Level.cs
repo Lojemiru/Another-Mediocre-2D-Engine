@@ -14,9 +14,8 @@ public sealed class Level
     public readonly Dictionary<string, Layer> Layers = new();
     public readonly string Iid;
     public bool Active { get; internal set; } = false;
-    public readonly CompositeBackground Background;
+    public readonly CompositeBackground? Background;
     private readonly SpriteBatch bgBatch;
-    private readonly bool hasBackground = false;
     private readonly SpriteBatch spriteBatch = new(EngineCore._graphics.GraphicsDevice);
 
     public readonly LDtkFieldInstance[] FieldInstances;
@@ -33,7 +32,6 @@ public sealed class Level
         {
             Background = new CompositeBackground((int)level.BackgroundUid);
             bgBatch = new SpriteBatch(EngineCore._graphics.GraphicsDevice);
-            hasBackground = true;
         }
 
         FieldInstances = level.FieldInstances;
@@ -57,7 +55,7 @@ public sealed class Level
         return Layers[name];
     }
 
-    public Layer GetLayer(string name)
+    public Layer? GetLayer(string name)
     {
         try
         {
@@ -71,19 +69,19 @@ public sealed class Level
 
     public void Add(string layerName, Tile tile, int x, int y)
     {
-        if (!Layers.ContainsKey(layerName))
+        if (!Layers.TryGetValue(layerName, out var value))
             throw new ArgumentException("No layer with the specified name \"" + layerName + "\" exists in level \"" + Name + "\"");
         
-        Layers[layerName].AddTile(x, y, tile);
+        value.AddTile(x, y, tile);
     }
     
 
     public void Add(string layerName, IDrawable drawable)
     {
-        if (!Layers.ContainsKey(layerName))
+        if (!Layers.TryGetValue(layerName, out var value))
             throw new ArgumentException("No layer with the specified name \"" + layerName + "\" exists in level \"" + Name + "\"");
         
-        Layers[layerName].Add(drawable);
+        value.Add(drawable);
     }
     
     public void Add(string layerName, Actor actor)
@@ -98,7 +96,7 @@ public sealed class Level
 
     internal void Draw()
     {
-        if (hasBackground)
+        if (Background is not null)
         {
             bgBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp,
                 transformMatrix: Camera.Transform, blendState: BlendState.AlphaBlend);
@@ -145,6 +143,8 @@ public sealed class Level
         {
             layer.PostTick(isFastForward);
         }
+        
+        Background?.Step();
     }
 
     internal void Activate()
