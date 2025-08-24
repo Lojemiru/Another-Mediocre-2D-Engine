@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using AM2E.Graphics;
 
 namespace AM2E.Collision;

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using AM2E.Graphics;
-using System;
 using Microsoft.Xna.Framework;
 
 namespace AM2E;

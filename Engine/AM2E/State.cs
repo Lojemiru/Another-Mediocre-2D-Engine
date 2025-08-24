@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AM2E;
+﻿namespace AM2E;
 
 public class State
 {

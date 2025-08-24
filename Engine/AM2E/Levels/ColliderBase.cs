@@ -1,4 +1,3 @@
-using System;
 using AM2E.Actors;
 using AM2E.Collision;
 

@@ -1,4 +1,3 @@
-using System;
 using AM2E.Graphics;
 using Microsoft.Xna.Framework.Graphics;
 

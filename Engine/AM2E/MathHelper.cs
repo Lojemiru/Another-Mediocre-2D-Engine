@@ -1,5 +1,3 @@
-using System;
-
 namespace AM2E;
 
 public static class MathHelper

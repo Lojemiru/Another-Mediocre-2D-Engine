@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -91,10 +90,8 @@ public sealed class CircleHitbox : Hitbox
         {
             for (var j = 0; j < (BoundBottom - BoundTop) + 1; j++)
             {
-                DrawPosition.X = BoundLeft + i;
-                DrawPosition.Y = BoundTop + j;
                 if (ContainsPoint(BoundLeft + i, BoundTop + j))
-                    spriteBatch.Draw(Pixel, DrawPosition, color);
+                    spriteBatch.Draw(Pixel, new Vector2(BoundLeft + i, BoundTop + j), color);
             }
         }
         

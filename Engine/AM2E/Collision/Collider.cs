@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using AM2E.Levels;
+﻿using AM2E.Levels;
 using RTree;
+// ReSharper disable MemberCanBePrivate.Global
 
 namespace AM2E.Collision;
 
 public sealed class Collider
 {
-    public Rectangle Bounds;
+    public Rectangle? Bounds;
     
     private enum Axis
     {
@@ -16,23 +14,23 @@ public sealed class Collider
         Y
     }
 
-    private int x;
-    private int y;
+    private int xInternal;
+    private int yInternal;
     public int X
     {
-        get => x;
+        get => xInternal;
         set
         {
-            x = value;
+            xInternal = value;
             SyncHitboxPositions();
         }
     }
     public int Y
     {
-        get => y;
+        get => yInternal;
         set
         {
-            y = value;
+            yInternal = value;
             SyncHitboxPositions();
         }
     }
@@ -45,10 +43,12 @@ public sealed class Collider
     private int checkX = 0;
     private int checkY = 0;
 
-    private static readonly CollisionDirection[] DirsH = { CollisionDirection.Left, CollisionDirection.None, CollisionDirection.Right };
-    private static readonly CollisionDirection[] DirsV = { CollisionDirection.Up, CollisionDirection.None, CollisionDirection.Down };
+    private static readonly CollisionDirection[] DirsH = [CollisionDirection.Left, CollisionDirection.None, CollisionDirection.Right
+    ];
+    private static readonly CollisionDirection[] DirsV = [CollisionDirection.Up, CollisionDirection.None, CollisionDirection.Down
+    ];
 
-    private readonly bool[] continueMovement = { true, true };
+    private readonly bool[] continueMovement = [true, true];
     public double SubVelX
     {
         get => subVel[0];
@@ -60,15 +60,17 @@ public sealed class Collider
         set => subVel[1] = value;
     }
 
-    private readonly double[] subVel = { 0d, 0d };
-    private readonly int[] vel = { 0, 0 };
+    private readonly double[] subVel = [0d, 0d];
+    private readonly int[] vel = [0, 0];
 
     public bool InMovement { get; private set; } = false;
 
     private bool disposed = false;
     
-    public Action OnSubstep { get; set; }
-    public Action AfterSubstep { get; set; } = () => { };
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
+    public Action? OnSubstep { get; set; }
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
+    public Action? AfterSubstep { get; set; }
 
     public CollisionDirection Direction { get; private set; } = CollisionDirection.None;
     
@@ -76,11 +78,11 @@ public sealed class Collider
     /// Records the hitbox that was last matched in a normal collision substep. Useful for filtering behavior based on
     /// which hitbox was matched.
     /// </summary>
-    public Hitbox CollidingHitbox = null;
+    public Hitbox? CollidingHitbox = null;
     
-    private readonly List<Hitbox> hitboxes = new();
+    private readonly List<Hitbox> hitboxes = [];
         
-    public Hitbox GetHitbox(int id)
+    public Hitbox? GetHitbox(int id)
     {
         return (0 <= id && id < hitboxes.Count) ? hitboxes[id] : null;
     }
@@ -118,7 +120,7 @@ public sealed class Collider
         // This has not broken yet, but I had a note here for concerns relating to addition/removal from the RTree.
         // If something is broken that's probably it :)
 
-        if (!first)
+        if (Bounds is not null)
             LOIC.RTree.Delete(Bounds, parent);
         
         FlippedX = xFlip;
@@ -144,8 +146,6 @@ public sealed class Collider
         Bounds = new Rectangle(l, u, r, d);
             
         LOIC.RTree.Add(Bounds, parent);
-
-        first = false;
     }
 
     public void ApplyRotation(float angle)
@@ -158,14 +158,13 @@ public sealed class Collider
     }
 
     private readonly ColliderBase parent;
-    private bool first = true;
     
     private void SyncHitboxPositions()
     {
         if (disposed)
             return;
         
-        if (!first)
+        if (Bounds is not null)
             LOIC.RTree.Delete(Bounds, parent);
 
         if (hitboxes.Count <= 0) 
@@ -189,8 +188,6 @@ public sealed class Collider
         Bounds = new Rectangle(l, u, r, d);
             
         LOIC.RTree.Add(Bounds, parent);
-
-        first = false;
     }
 
     internal void Dispose()
@@ -226,7 +223,7 @@ public sealed class Collider
         events.Add(typeof(T), callback);
     }
 
-    private static readonly int[] sign = { 0, 0 };
+    private static readonly int[] Sign = [0, 0];
     
     public void MoveAndCollide(double xVel, double yVel)
     {
@@ -275,8 +272,8 @@ public sealed class Collider
         var domCurrent = 0;
         var subCurrent = 0;
         
-        sign[0] = Math.Sign(vel[x]);
-        sign[1] = Math.Sign(vel[y]);
+        Sign[0] = Math.Sign(vel[x]);
+        Sign[1] = Math.Sign(vel[y]);
         
         var domAbs = Math.Abs(vel[domAxis]);
 
@@ -284,12 +281,12 @@ public sealed class Collider
         {
             if (continueMovement[domAxis] && (domCurrent != vel[domAxis]))
             {
-                Direction = (domAxis == x) ? DirsH[sign[x] + 1] : DirsV[sign[y] + 1];
+                Direction = (domAxis == x) ? DirsH[Sign[x] + 1] : DirsV[Sign[y] + 1];
 
-                CheckAndRunAll((domAxis == x) ? sign[x] : 0, (domAxis == y) ? sign[y] : 0);
+                CheckAndRunAll((domAxis == x) ? Sign[x] : 0, (domAxis == y) ? Sign[y] : 0);
 
                 // Process position
-                var domMult = continueMovement[domAxis] ? sign[domAxis] : 0;
+                var domMult = continueMovement[domAxis] ? Sign[domAxis] : 0;
                 domCurrent += domMult;
 
                 if (domAxis == x)
@@ -307,12 +304,12 @@ public sealed class Collider
 
             if ((subIncrement || !continueMovement[domAxis]) && continueMovement[subAxis] && (subCurrent != vel[subAxis]))
             {
-                Direction = (subAxis == x) ? DirsH[sign[x] + 1] : DirsV[sign[y] + 1];
+                Direction = (subAxis == x) ? DirsH[Sign[x] + 1] : DirsV[Sign[y] + 1];
 
-                CheckAndRunAll((subAxis == x) ? sign[x] : 0, (subAxis == y) ? sign[y] : 0);
+                CheckAndRunAll((subAxis == x) ? Sign[x] : 0, (subAxis == y) ? Sign[y] : 0);
 
                 // Process position
-                var subMult = continueMovement[subAxis] ? sign[subAxis] : 0;
+                var subMult = continueMovement[subAxis] ? Sign[subAxis] : 0;
                 subCurrent += subMult;
 
                 if (subAxis == x)
@@ -321,7 +318,7 @@ public sealed class Collider
                     Y += subMult;
             }
 
-            AfterSubstep();
+            AfterSubstep?.Invoke();
 
             // Early exit if stopped on both axes
             if (!continueMovement[x] && !continueMovement[y])
@@ -375,7 +372,7 @@ public sealed class Collider
     {
         checkX = x + X;
         checkY = y + Y;
-
+        
         OnSubstep?.Invoke();
     }
 
@@ -397,7 +394,7 @@ public sealed class Collider
         }
     }
         
-    public T IntersectsAt<T>(int x, int y) where T : class, ICollider
+    public T? IntersectsAt<T>(int x, int y) where T : class, ICollider
     {
         var prevX = X;
         var prevY = Y;

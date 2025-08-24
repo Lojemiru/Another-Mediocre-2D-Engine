@@ -1,7 +1,4 @@
 ﻿using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using AM2E.Graphics;
 using AM2E.IO;
 using Microsoft.Xna.Framework;

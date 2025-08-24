@@ -1,5 +1,4 @@
-﻿using System;
-using AM2E.Control;
+﻿using AM2E.Control;
 
 namespace AM2E.Networking;
 

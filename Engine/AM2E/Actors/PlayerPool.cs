@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using AM2E.Levels;
 
 namespace AM2E.Actors;

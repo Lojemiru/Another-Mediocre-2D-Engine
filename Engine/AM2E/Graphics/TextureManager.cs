@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-
-namespace AM2E.Graphics;
+﻿namespace AM2E.Graphics;
 
 public static class TextureManager
 {

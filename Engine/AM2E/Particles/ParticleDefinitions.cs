@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace AM2E.Particles;
 
 /// <summary>

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace AM2E;
+﻿namespace AM2E;
 
 /// <summary>
 /// An alarm class that will execute a custom function once its timer has reached zero, with possibilities for looping and a different restart timer.

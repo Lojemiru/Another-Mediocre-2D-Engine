@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Graphics;
 using AM2E.Collision;
 using AM2E.Graphics;
 using AM2E.Levels;

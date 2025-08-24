@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 // ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
@@ -9,10 +7,9 @@ namespace AM2E.Collision;
 
 public abstract class Hitbox
 {
-    protected static Vector2 DrawPosition = new();
     private protected static readonly Texture2D Pixel = new(EngineCore._graphics.GraphicsDevice, 1, 1);
     static Hitbox() 
-        => Pixel.SetData(new[] { Color.White });
+        => Pixel.SetData([Color.White]);
     public int OffsetX { get; protected set; } = 0;
     public int OffsetY { get; protected set; } = 0;
     protected int InitialOffsetX = 0;
@@ -41,8 +38,8 @@ public abstract class Hitbox
 
     public abstract void ApplyOffset(int x, int y);
         
-    private List<Type> boundInterfaces;
-    private List<Type> targetInterfaces;
+    private List<Type>? boundInterfaces;
+    private List<Type>? targetInterfaces;
 
     private bool isBound = true;
     private bool doTarget = true;
@@ -68,18 +65,26 @@ public abstract class Hitbox
     {
         isBound = false;
     }
+
+    public void Unbind<T>() where T : ICollider
+    {
+        if (boundInterfaces is null || !boundInterfaces.Contains(typeof(T)))
+            return;
+        
+        boundInterfaces.Remove(typeof(T));
+    }
     
     public void BindToInterface<T>() where T : ICollider
     {
         isBound = true;
-        boundInterfaces ??= new List<Type>();
+        boundInterfaces ??= [];
         boundInterfaces.Add(typeof(T));
     }
 
     public void BindToInterfaces(params Type[] types)
     {
         isBound = true;
-        boundInterfaces ??= new List<Type>();
+        boundInterfaces ??= [];
         foreach (var type in types)
             boundInterfaces.Add(type);
     }
@@ -105,18 +110,26 @@ public abstract class Hitbox
     {
         doTarget = false;
     }
+
+    public void Untarget<T>() where T : ICollider
+    {
+        if (targetInterfaces == null || !targetInterfaces.Contains(typeof(T)))
+            return;
+        
+        targetInterfaces.Remove(typeof(T));
+    }
         
     public void TargetInterface<T>() where T : ICollider
     {
         doTarget = true;
-        targetInterfaces ??= new List<Type>();
+        targetInterfaces ??= [];
         targetInterfaces.Add(typeof(T));
     }
 
     public void TargetInterfaces(params Type[] types)
     {
         doTarget = true;
-        targetInterfaces ??= new List<Type>();
+        targetInterfaces ??= [];
         foreach (var type in types)
             targetInterfaces.Add(type);
     }

@@ -1,5 +1,4 @@
-﻿using System;
-using FMOD;
+﻿using FMOD;
 using FMOD.Studio;
 
 namespace AM2E;

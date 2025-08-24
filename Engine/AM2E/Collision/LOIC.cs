@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using RTree;
+﻿using RTree;
+// ReSharper disable MemberCanBePrivate.Global
 
 // We do NOT want to use LINQ in the collision engine. This class is a bottleneck and we need it to run efficiently.
 // ReSharper disable ForeachCanBeConvertedToQueryUsingAnotherGetEnumerator
@@ -9,6 +9,7 @@ namespace AM2E.Collision;
 
 // The Technical Debt That I Deservioli
 
+// ReSharper disable once InconsistentNaming
 public static class LOIC
 {
     internal static readonly RTree<ICollider> RTree = new();
@@ -18,7 +19,7 @@ public static class LOIC
         return ColliderAtPoint<T>(x, y) is not null;
     }
 
-    public static T ColliderAtPoint<T>(int x, int y) where T : ICollider
+    public static T? ColliderAtPoint<T>(int x, int y) where T : ICollider
     {
         var check = RTree.Intersects(new Rectangle(x, y, x, y));
         foreach (var collider in check)
@@ -40,7 +41,7 @@ public static class LOIC
         return ColliderAtCircle<T>(x, y, radius) is not null;
     }
 
-    public static T ColliderAtCircle<T>(int x, int y, int radius) where T : ICollider
+    public static T? ColliderAtCircle<T>(int x, int y, int radius) where T : ICollider
     {
         var check = RTree.Intersects(new Rectangle(x - radius, y - radius, x + radius, y + radius));
         foreach (var collider in check)
@@ -71,7 +72,7 @@ public static class LOIC
         return ColliderAtRectangle<T>(x1, y1, x2, y2) is not null;
     }
 
-    public static T ColliderAtRectangle<T>(int x1, int y1, int x2, int y2) where T : ICollider
+    public static T? ColliderAtRectangle<T>(int x1, int y1, int x2, int y2) where T : ICollider
     {
         if (x2 < x1)
             (x1, x2) = (x2, x1);
@@ -114,7 +115,7 @@ public static class LOIC
         return ColliderAtLine<T>(x1, y1, x2, y2) is not null;
     }
     
-    public static T ColliderAtLine<T>(int x1, int y1, int x2, int y2) where T : class, ICollider
+    public static T? ColliderAtLine<T>(int x1, int y1, int x2, int y2) where T : class, ICollider
     {
         // TODO: Write custom method for checking a line within the tree??? This is going to hit a LOT of things we don't need to consider...
         var check = RTree.Intersects(new Rectangle(x1, y1, x2, y2));
@@ -136,7 +137,7 @@ public static class LOIC
     }
 
     // Static hitbox to save on instantiation/garbage collector spam.
-    private static readonly RectangleHitbox RectCheckHitbox = new RectangleHitbox(0, 0, 1, 1);
+    private static readonly RectangleHitbox RectCheckHitbox = new(0, 0, 1, 1);
     private static bool InternalCheckRectangle<T>(ICollider collider, int x1, int y1, int x2, int y2) where T : ICollider
     {
         if (!collider.CollisionActive || collider is not T)
@@ -164,7 +165,7 @@ public static class LOIC
         return collider.Collider.IsIntersectedBy<T>(CircleCheckHitbox);
     }
 
-    public static T CheckCollider<T>(Collider self) where T : class, ICollider
+    public static T? CheckCollider<T>(Collider self) where T : class, ICollider
     {
         // Return first (or null) Collider that matches interface and is intersected by input Collider.
         var check = RTree.Intersects(self.Bounds);

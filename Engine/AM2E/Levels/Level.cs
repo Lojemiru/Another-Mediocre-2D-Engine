@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using AM2E.Actors;
 using AM2E.Graphics;
 using Microsoft.Xna.Framework.Graphics;

@@ -1,4 +1,3 @@
-using System;
 using FontStashSharp.RichText;
 
 namespace AM2E.Graphics;

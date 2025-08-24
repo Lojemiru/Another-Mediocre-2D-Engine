@@ -6,10 +6,8 @@
 /* https://fmod.com/docs/2.03/api/core-api.html                                             */
 /* ======================================================================================== */
 
-using System;
 using System.Text;
 using System.Runtime.InteropServices;
-using System.Collections.Generic;
 
 namespace FMOD
 {

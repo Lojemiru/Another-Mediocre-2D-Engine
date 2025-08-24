@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -23,15 +22,10 @@ namespace AM2E.Collision;
 
 #endregion
 
-public sealed class PreciseHitbox : RectangleHitboxBase
+public sealed class PreciseHitbox(int x, int y, bool[,] mask, int offsetX = 0, int offsetY = 0)
+    : RectangleHitboxBase(x, y, mask.GetLength(0), mask.GetLength(1), offsetX, offsetY)
 {
-    public bool[, ] Mask { get; }
-
-    public PreciseHitbox(int x, int y, bool[,] mask, int offsetX = 0, int offsetY = 0) : 
-        base(x, y, mask.GetLength(0), mask.GetLength(1), offsetX, offsetY)
-    {
-        Mask = mask;
-    }
+    public bool[, ] Mask { get; } = mask;
 
     public override bool Intersects(RectangleHitbox hitbox)
     {
@@ -245,9 +239,7 @@ public sealed class PreciseHitbox : RectangleHitboxBase
                 if (!CheckPointInMask(i, j))
                     continue;
                 
-                DrawPosition.X = X - OffsetX + i;
-                DrawPosition.Y = Y - OffsetY + j;
-                spriteBatch.Draw(Pixel, DrawPosition, color);
+                spriteBatch.Draw(Pixel, new Vector2(X - OffsetX + i, Y - OffsetY + j), color);
             }
         }
     }

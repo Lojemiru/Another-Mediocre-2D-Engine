@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace AM2E;
+﻿namespace AM2E;
 
 public sealed class StateMachine <TKey, TState> where TState : State
 {

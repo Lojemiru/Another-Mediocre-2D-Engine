@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Microsoft.Xna.Framework.Graphics;
-using System.IO;
 using AM2E.IO;
 
 /*
