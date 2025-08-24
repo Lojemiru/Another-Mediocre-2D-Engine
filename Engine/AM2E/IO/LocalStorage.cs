@@ -35,25 +35,28 @@ public static class LocalStorage
         return File.Exists(GetPath() + "/" + name);
     }
 
-    public static void Write(string name, object data)
+    public static void Write(string name, object? data)
     {
         using var writer = File.CreateText(GetPath() + "/" + name);
         var serializer = new JsonSerializer();
         serializer.Serialize(writer, data);
     }
 
-    public static void WriteAsync(string name, object data, Action callback = null)
+    public static void WriteAsync(string name, object data, Action? callback = null)
     {
         var t = new Thread(() =>
         {
             Write(name, data);
             callback?.Invoke();
-        });
-        t.IsBackground = true;
+        })
+        {
+            IsBackground = true
+        };
+        
         t.Start();
     }
 
-    public static void Read<T>(string name, out T data)
+    public static void Read<T>(string name, out T? data)
     {
         if (!Exists(name))
         {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using AM2E.Actors;
-using AM2E.Control;
+using AM2E.Input;
 using AM2E.Graphics;
 using AM2E.IO;
 using AM2E.Networking;
@@ -11,7 +11,7 @@ namespace AM2E;
 public sealed class EngineCore : Game
 {
     private Action entryPointCallback;
-    public static readonly string Version = "1.9.0";
+    public static readonly string Version = "2.0.0";
     public static GraphicsDeviceManager _graphics;
     private double updateAccumulator = 0d;
     private const double FRAME_ERROR_MARGIN = .0002;

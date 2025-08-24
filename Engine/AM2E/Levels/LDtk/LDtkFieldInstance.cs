@@ -30,5 +30,5 @@ public struct LDtkFieldInstance
     /// array, then this `__value` will also be a JSON array.
     /// </summary>
     [JsonProperty("__value")]
-    public dynamic Value { get; set; }
+    public dynamic? Value { get; set; }
 }

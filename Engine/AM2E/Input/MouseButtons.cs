@@ -1,4 +1,4 @@
-namespace AM2E.Control;
+namespace AM2E.Input;
 
 public enum MouseButtons
 {

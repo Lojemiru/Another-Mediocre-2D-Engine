@@ -42,7 +42,7 @@ public abstract class ColliderBase : GenericLevelElement, ICollider
     
     public bool FlippedY { get; private set; } = false;
 
-    protected ColliderBase(int x, int y, Layer layer, Hitbox hitbox = null, bool flipX = false, bool flipY = false, string id = null) 
+    protected ColliderBase(int x, int y, Layer? layer, Hitbox? hitbox = null, bool flipX = false, bool flipY = false, string? id = null) 
         : base(x, y, layer, id)
     {
         Collider = new Collider(x, y, this);
@@ -51,7 +51,7 @@ public abstract class ColliderBase : GenericLevelElement, ICollider
         ApplyFlips(flipX, flipY);
     }
 
-    protected ColliderBase(LDtkEntityInstance entity, int x, int y, Layer layer, Hitbox hitbox = null)
+    protected ColliderBase(LDtkEntityInstance entity, int x, int y, Layer? layer, Hitbox? hitbox = null)
         : this(x, y, layer, hitbox, (entity.F & 1) != 0, (entity.F & 2) != 0, entity.Iid) { }
     
     /// <summary>

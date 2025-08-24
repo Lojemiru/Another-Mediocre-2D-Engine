@@ -12,10 +12,10 @@ public static class Camera
     public static Matrix Transform { get; private set; }
     public static int Width => Renderer.GameWidth;
     public static int Height => Renderer.GameHeight;
-    public static int BoundLeft => (int)X - Width / 2;
-    public static int BoundRight => (int)X + Width / 2;
-    public static int BoundTop => (int)Y - Height / 2;
-    public static int BoundBottom => (int)Y + Height / 2;
+    public static int BoundLeft => X - Width / 2;
+    public static int BoundRight => X + Width / 2;
+    public static int BoundTop => Y - Height / 2;
+    public static int BoundBottom => Y + Height / 2;
 
     static Camera()
     {

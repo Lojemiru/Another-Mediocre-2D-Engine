@@ -5,13 +5,13 @@ namespace AM2E.Graphics;
 
 public static class FontManager
 {
-    private static readonly Dictionary<string, FontSystem> fontSystems = new();
+    private static readonly Dictionary<string, FontSystem> FontSystems = new();
 
     public static FontSystem CreateFontSystem(string name, string fileName)
     {
         var system = new FontSystem();
         system.AddFont(File.ReadAllBytes(AssetManager.GetFontPath(fileName)));
-        fontSystems.Add(name, system);
+        FontSystems.Add(name, system);
 
         return system;
     }
@@ -20,29 +20,29 @@ public static class FontManager
     {
         var system = new FontSystem(settings);
         system.AddFont(File.ReadAllBytes(AssetManager.GetFontPath(fileName)));
-        fontSystems.Add(name, system);
+        FontSystems.Add(name, system);
 
         return system;
     }
 
     public static void UnloadAll()
     {
-        foreach (var font in fontSystems.Values)
+        foreach (var font in FontSystems.Values)
         {
             font.Dispose();
         }
-        fontSystems.Clear();
+        FontSystems.Clear();
         GC.Collect();
     }
 
     public static FontSystem GetFontSystem(string name)
     {
-        return fontSystems[name];
+        return FontSystems[name];
     }
 
     public static SpriteFontBase GetFont(string systemName, int fontSize)
     {
-        return fontSystems[systemName].GetFont(fontSize);
+        return FontSystems[systemName].GetFont(fontSize);
     }
 
     public static void FixedGlyphRenderer(int threshold, byte[] input, byte[] output, GlyphRenderOptions options)

@@ -20,10 +20,10 @@ public static class World
     private static readonly List<Level> LevelsToBeDeactivated = new();
     private static readonly List<Level> LevelsToBeUninstantiated = new();
     private static readonly ConcurrentDictionary<string, Action<Level>> StagedCallbacks = new();
-    private static readonly Dictionary<string, Thread> Threads = new();
+    private static readonly Dictionary<string, Thread?> Threads = new();
 
     private static bool unloadQueued = false;
-    private static Action unloadCallback = null;
+    private static Action? unloadCallback = null;
 
     private static readonly List<Action> OutOfTickCallbacks = new();
 
@@ -32,7 +32,7 @@ public static class World
     public static int LevelUnitHeight => world.WorldGridHeight;
     public static int LevelUnitWidth => world.WorldGridWidth;
 
-    public static void Unload(Action callback = null)
+    public static void Unload(Action? callback = null)
     {
         unloadQueued = true;
         unloadCallback = callback;
@@ -55,10 +55,13 @@ public static class World
         LoadedLevels.Clear();
 
         // For any levels we just pulled out of the thread, we want to somewhat gracefully kill them.
-        foreach (var ll in LoadingLevels)
+        foreach (var _ in LoadingLevels)
         {
             LoadingLevels.TryDequeue(out var level);
 
+            if (level is null) 
+                continue;
+            
             level.PostLoad();
             level.PreUnload();
             level.Dispose();
@@ -86,7 +89,7 @@ public static class World
         unloadQueued = false;
     }
 
-    public static void LoadWorld(string path, Action callback = null)
+    public static void LoadWorld(string path, Action? callback = null)
     {
         UnloadInternal(true);
 
@@ -135,7 +138,7 @@ public static class World
         var entries = tileset.RelPath.Split('/');
         var pageIndex = entries[^2];
 
-        Action<TexturePage> placeTiles = _ =>
+        Action<TexturePage?> placeTiles = _ =>
         {
             if (!Tilesets.ContainsKey(tileset.Uid))
             {
@@ -233,11 +236,11 @@ public static class World
     /// <br></br>WARNING: If multiple load calls are used, only the first defined callback will be used!</param>
     /// <param name="blocking">Whether to instantiate the level in a blocking fashion rather than asynchronously.</param>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public static void InstantiateLevel(string id, Action<Level> callback = null, bool blocking = false)
+    public static void InstantiateLevel(string id, Action<Level>? callback = null, bool blocking = false)
     {
-        if (LoadedLevels.ContainsKey(id))
+        if (LoadedLevels.TryGetValue(id, out var value))
         {
-            callback?.Invoke(LoadedLevels[id]);
+            callback?.Invoke(value);
             return;
         }
 
@@ -256,14 +259,14 @@ public static class World
                 {
                     IsBackground = true
                 };
-                Threads[id].Start();
+                Threads[id]!.Start();
             }
             else
             {
                 if (Threads[id] != null)
                 {
                     Logger.Engine($"Joining existing instantiation thread for level {LdtkLevels[id].Identifier} ({id})");
-                    Threads[id].Join();
+                    Threads[id]!.Join();
                 }
                 else
                 {
@@ -274,7 +277,7 @@ public static class World
         }
     }
 
-    public static void InstantiateLevelByName(string name, Action<Level> callback = null, bool blocking = false)
+    public static void InstantiateLevelByName(string name, Action<Level>? callback = null, bool blocking = false)
     {
         foreach (var level in LdtkLevels.Values)
         {
@@ -406,7 +409,7 @@ public static class World
         }
     }
 
-    public static Level GetLevelByName(string name)
+    public static Level? GetLevelByName(string name)
     {
         return LoadedLevels.Values.FirstOrDefault(level => level.Name == name);
     }
@@ -493,7 +496,7 @@ public static class World
             if (!LoadingLevels.TryDequeue(out var level))
                 Logger.Warn($"Engine warning: level instantiation dequeue failed for {l.Iid}! Expecting catastrophic failure..." );
             
-            var id = level.Iid;
+            var id = level!.Iid;
 
             LoadedLevels.Add(id, level);
             level.PostLoad();
@@ -528,7 +531,7 @@ public static class World
         return default;
     }
 
-    public static IEnumerable<LDtkReferenceToAnEntityInstance> GetAllFromToC(string identifier)
+    public static IEnumerable<LDtkReferenceToAnEntityInstance>? GetAllFromToC(string identifier)
     {
         foreach (var entry in world.TableOfContent)
         {
@@ -536,7 +539,7 @@ public static class World
                 return entry.Instances;
         }
 
-        return default;
+        return null;
     }
 
     public static void DoAfterThisTick(Action action)

@@ -10,7 +10,8 @@ public static class SpriteBatchExtensions
     /// </summary>
     /// <param name="spriteBatch">The <see cref="SpriteBatch"/> to modify.</param>
     /// <param name="blendState">The <see cref="BlendState"/> to use.</param>
-    public static void SwapBlendState(this SpriteBatch spriteBatch, BlendState blendState, SamplerState samplerState = null)
+    /// <param name="samplerState">The <see cref="SamplerState"/> to use.</param>
+    public static void SwapBlendState(this SpriteBatch spriteBatch, BlendState blendState, SamplerState? samplerState = null)
     {
         samplerState ??= SamplerState.PointClamp;
         spriteBatch.End();
@@ -28,7 +29,7 @@ public static class SpriteBatchExtensions
         spriteBatch.Begin(SpriteSortMode.Deferred, samplerState:SamplerState.PointClamp, transformMatrix: spriteBatch == Renderer.GuiBatch ? null : Camera.Transform);
     }
 
-    public static void SetShader(this SpriteBatch spriteBatch, Effect effect, BlendState blendState = null, SamplerState samplerState = null)
+    public static void SetShader(this SpriteBatch spriteBatch, Effect effect, BlendState? blendState = null, SamplerState? samplerState = null)
     {
         samplerState ??= SamplerState.PointClamp;
         spriteBatch.End();

@@ -3,7 +3,7 @@ using AM2E.Graphics;
 using AM2E.IO;
 using Microsoft.Xna.Framework;
 
-namespace AM2E.Control;
+namespace AM2E.Input;
 
 #region Design Notes
 
@@ -46,10 +46,10 @@ namespace AM2E.Control;
 
 public static class InputManager
 {
-    internal static readonly Dictionary<string, KeyboardInput> KeyboardListeners = new();
-    internal static readonly Dictionary<string, MouseInput> MouseListeners = new();
-    internal static readonly Dictionary<string, GamePadInput> GamePadListeners = new();
-    internal static readonly Dictionary<string, string> RebindGroupMappings = new();
+    private static readonly Dictionary<string, KeyboardInput> KeyboardListeners = new();
+    private static readonly Dictionary<string, MouseInput> MouseListeners = new();
+    private static readonly Dictionary<string, GamePadInput> GamePadListeners = new();
+    private static readonly Dictionary<string, string?> RebindGroupMappings = new();
     
     private const double PI_HALVES = Math.PI / 2;
     private const double PI_FOURTHS = Math.PI / 4;
@@ -110,7 +110,7 @@ public static class InputManager
         LocalStorage.Write(name, Serialize());
     }
     
-    public static void WriteAsync(string name, Action callback = null)
+    public static void WriteAsync(string name, Action? callback = null)
     {
         LocalStorage.WriteAsync(name, Serialize(), callback);
     }
@@ -382,7 +382,7 @@ public static class InputManager
         ValidateInputExists(inputName);
         
         // Then add the bind if we don't already have it in this group.
-        if (!RebindGroupMappings[inputName].Equals(groupName))
+        if (RebindGroupMappings[inputName] == null || !RebindGroupMappings[inputName]!.Equals(groupName))
             RebindGroupMappings[inputName] = groupName;
     }
 

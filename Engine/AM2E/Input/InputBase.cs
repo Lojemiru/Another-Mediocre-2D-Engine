@@ -1,24 +1,24 @@
 using Newtonsoft.Json;
 
-namespace AM2E.Control;
+namespace AM2E.Input;
 
 internal abstract class InputBase<TInput, TState>
 {
     [JsonProperty("i")]
-    public readonly List<TInput> Inputs = new();
+    public readonly List<TInput> Inputs = [];
 
-    protected InputType InputType;
+    private readonly InputType inputType;
     
     protected InputBase(List<TInput> inputs, InputType inputType)
     {
         Inputs = inputs;
-        InputType = inputType;
+        this.inputType = inputType;
     }
 
     protected InputBase(TInput input, InputType inputType)
     {
         Inputs.Add(input);
-        InputType = inputType;
+        this.inputType = inputType;
     }
 
     internal bool InputReleased { get; private set; } = false;
@@ -42,7 +42,7 @@ internal abstract class InputBase<TInput, TState>
         inputPressedLast = InputHeld;
         
         if (InputHeld)
-            InputManager.LastReadInputType = InputType;
+            InputManager.LastReadInputType = inputType;
     }
     
     protected void ProcessInput(bool input)

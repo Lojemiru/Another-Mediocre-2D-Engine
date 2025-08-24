@@ -17,7 +17,7 @@ public class LDtkGridPoint
     [JsonProperty("cy")]
     public int Y { get; private set; }
 
-    public static LDtkGridPoint FromDynamic(dynamic input)
+    public static LDtkGridPoint? FromDynamic(dynamic input)
     {
         try
         {
@@ -29,7 +29,7 @@ public class LDtkGridPoint
         }
         catch
         {
-            return default;
+            return null;
         }
     }
     

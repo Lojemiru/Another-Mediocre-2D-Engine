@@ -13,7 +13,8 @@ public sealed class RNGInstance
 
     public RNGInstance()
     {
-        SetSeed(0);
+        Seed = 0;
+        random = new Random(Seed);
     }
 
     public float RandomRange(float min, float max)
@@ -38,7 +39,7 @@ public sealed class RNGInstance
 
     public List<T> Shuffle<T>(List<T> list)
     {
-        return list.OrderBy(x => random.Next()).ToList();
+        return list.OrderBy(_ => random.Next()).ToList();
     }
 
     public T Choose<T>(params T[] items)

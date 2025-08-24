@@ -5,7 +5,7 @@ namespace AM2E.Graphics;
 
 public sealed class TileManager
 {
-    internal readonly Tile[,] Tiles;
+    internal readonly Tile?[,] Tiles;
     private readonly int tileSize;
     private readonly int worldX;
     private readonly int worldY;
@@ -65,7 +65,7 @@ public sealed class TileManager
         Tiles[tX, tY] = tile;
     }
 
-    public Tile GetTile(int x, int y)
+    public Tile? GetTile(int x, int y)
     {
         var tX = (x - worldX) / tileSize;
         var tY = (y - worldY) / tileSize;

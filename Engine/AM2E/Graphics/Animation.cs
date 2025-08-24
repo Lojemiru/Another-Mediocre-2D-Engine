@@ -2,18 +2,18 @@
 using AM2E.Graphics;
 using Microsoft.Xna.Framework;
 
-namespace AM2E;
+namespace AM2E.Graphics;
 
 public sealed class Animation
 {
     public Sprite Sprite { get; private set; }
-    private float _index = 0;
+    private float index = 0;
     public int Index
     {
-        get => (int)_index;
+        get => (int)index;
         set
         { 
-            _index = value;
+            index = value;
             WrapIndex(false);
         }
     }
@@ -28,10 +28,10 @@ public sealed class Animation
 
     public string SpriteName => Sprite.Name;
 
-    public Animation(Enum page, Enum sprite, float speed, Action onAnimationEnd = null)
+    public Animation(Enum page, Enum sprite, float speed, Action? onAnimationEnd = null)
         : this(page.ToString(), sprite.ToString(), speed, onAnimationEnd) { }
     
-    public Animation(string page, string sprite, float speed, Action onAnimationEnd = null)
+    public Animation(string page, string sprite, float speed, Action? onAnimationEnd = null)
     {
         Sprite = TextureManager.GetSprite(page, sprite);
         Speed = speed;
@@ -40,7 +40,7 @@ public sealed class Animation
 
     public void Step()
     {
-        _index += Speed;
+        index += Speed;
         WrapIndex();
     }
 
@@ -61,13 +61,13 @@ public sealed class Animation
 
     private void WrapIndex(bool runAnimEnd = true)
     {
-        if (_index < Sprite.Length && _index >= 0) return;
+        if (index < Sprite.Length && index >= 0) return;
 
-        while (_index >= Sprite.Length)
-            _index -= Sprite.Length;
+        while (index >= Sprite.Length)
+            index -= Sprite.Length;
 
-        while (_index < 0)
-            _index += Sprite.Length;
+        while (index < 0)
+            index += Sprite.Length;
 
         if (runAnimEnd)
             OnAnimationEnd();

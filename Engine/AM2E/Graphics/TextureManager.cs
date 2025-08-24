@@ -2,18 +2,17 @@
 
 public static class TextureManager
 {
-    private static readonly Dictionary<string, TexturePage> Pages = new();
+    private static readonly Dictionary<string, TexturePage?> Pages = new();
     private static readonly Dictionary<string, bool> IsLoadingPage = new();
     private static readonly Dictionary<string, bool> IsUnloadingPage = new();
     private static readonly Dictionary<string, Action<TexturePage>> LoadCallbacks = new();
-    private static readonly Dictionary<string, Thread> LoadingThreads = new();
+    private static readonly Dictionary<string, Thread?> LoadingThreads = new();
 
     private static void AddPageName(string page)
     {
-        if (Pages.ContainsKey(page))
+        if (!Pages.TryAdd(page, null))
             return;
-        
-        Pages.Add(page, null);
+
         LoadingThreads.Add(page, null);
         IsLoadingPage.Add(page, false);
         IsUnloadingPage.Add(page, false);
@@ -40,7 +39,7 @@ public static class TextureManager
 
         if (IsLoadingPage[index])
         {
-            LoadingThreads[index].Join();
+            LoadingThreads[index]?.Join();
         }
         else
         {
@@ -49,14 +48,14 @@ public static class TextureManager
         }
     }
 
-    public static void LoadPage(Enum index, Action<TexturePage> callback = null)
+    public static void LoadPage(Enum index, Action<TexturePage>? callback = null)
         => LoadPage(index.ToString(), callback);
     
-    public static void LoadPage(string index, Action<TexturePage> callback = null)
+    public static void LoadPage(string index, Action<TexturePage>? callback = null)
     {
         if (IsPageLoaded(index))
         {
-            callback?.Invoke(Pages[index]);
+            callback?.Invoke(Pages[index]!);
             return;
         }
 
@@ -73,9 +72,11 @@ public static class TextureManager
             DoLoad(index);
             if (IsUnloadingPage[index])
                 DoUnload(index);
-        });
-        
-        t.IsBackground = true;
+        })
+        {
+            IsBackground = true
+        };
+
         LoadingThreads[index] = t;
         
         t.Start();

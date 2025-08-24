@@ -27,6 +27,8 @@ public static class TextHelper
             case HorizontalTextAlignment.Right:
                 x = -size.X;
                 break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(alignment), alignment, null);
         }
 
         return x;
@@ -47,6 +49,8 @@ public static class TextHelper
             case VerticalTextAlignment.Bottom:
                 y = -size.Y;
                 break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(alignment), alignment, null);
         }
 
         return y;
@@ -90,6 +94,8 @@ public static class TextHelper
             case HorizontalTextAlignment.Right:
                 x = -width;
                 break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(alignment), alignment, null);
         }
 
         return x;
@@ -121,6 +127,8 @@ public static class TextHelper
             case VerticalTextAlignment.Bottom:
                 y = -height;
                 break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(alignment), alignment, null);
         }
 
         return y;

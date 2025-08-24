@@ -5,7 +5,7 @@
 /// </summary>
 /// <remarks>
 /// This is an alarm class, that allows one to manually specify when a custom function will be executed.
-/// In contrast to other alarms, <see cref="Alarm"/>s timer will only decrease by manually calling <see cref="Run(Alarm)"/>.
+/// In contrast to other alarms, <see cref="Alarm"/>s timer will only decrease by manually calling <see cref="Run()"/>.
 /// This allows for greater flexibility and is useful in cases where you don't want the alarm's timer to count down in certain situations. <br/>
 /// <example>
 /// Here is an example usage:
@@ -23,7 +23,7 @@
 public sealed class Alarm
 {
     /// <summary>
-    /// The time, in <see cref="Run(Alarm)"/> calls, before the callback should run.
+    /// The time, in <see cref="Run()"/> calls, before the callback should run.
     /// </summary>
     public int Time { get; private set; }
         
@@ -47,7 +47,7 @@ public sealed class Alarm
     /// <summary>
     /// Instantiates a new <see cref="Alarm"/>.
     /// </summary>
-    /// <param name="time">The time, in <see cref="Run(Alarm)"/> calls, before the <paramref name="callback"/> should run.</param>
+    /// <param name="time">The time, in <see cref="Run()"/> calls, before the <paramref name="callback"/> should run.</param>
     /// <param name="callback">The callback to run when the timer hits 0.</param>
     /// <param name="loop">Whether or not the <see cref="Alarm"/> should loop upon hitting 0.</param>
     /// <param name="restartTime">The value the timer should be reset to when calling <see cref="Restart()"/> or looping. If left as null, this will default to <paramref name="time"/>.</param>
@@ -80,24 +80,14 @@ public sealed class Alarm
     }
 
     /// <summary>
-    /// Safely runs the given <see cref="Alarm"/>.
-    /// Should <paramref name="alarm"/> be <see langword="null"/>, then this will do nothing.
-    /// </summary>
-    /// <param name="alarm">The <see cref="Alarm"/> to run.</param>
-    public static void Run(Alarm alarm)
-    {
-        alarm?.Run();
-    }
-
-    /// <summary>
     /// Safely runs the given enumerable of <see cref="Alarm"/>s.
     /// Should any entry within <paramref name="alarms"/> be <see langword="null"/>, then this will do nothing for that entry.
     /// </summary>
     /// <param name="alarms">The enumerable of <see cref="Alarm"/>s to run.</param>
-    public static void Run(IEnumerable<Alarm> alarms)
+    public static void Run(IEnumerable<Alarm?> alarms)
     {
         foreach (var alarm in alarms)
-            Run(alarm);
+            alarm?.Run();
     }
 
     /// <summary>

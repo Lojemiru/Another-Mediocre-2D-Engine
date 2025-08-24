@@ -48,7 +48,7 @@ public sealed class Layer
         return TileManager?.GetTile(x, y);
     }
 
-    public Tile[,]? GetTiles()
+    public Tile?[,]? GetTiles()
     {
         return TileManager?.Tiles;
     }

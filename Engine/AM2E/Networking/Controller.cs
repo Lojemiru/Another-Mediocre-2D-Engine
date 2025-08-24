@@ -1,4 +1,4 @@
-﻿using AM2E.Control;
+﻿using AM2E.Input;
 
 namespace AM2E.Networking;
 

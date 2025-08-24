@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using AM2E.Graphics;
 
-namespace AM2E;
+namespace AM2E.Graphics;
 
 public interface IDrawable
 {

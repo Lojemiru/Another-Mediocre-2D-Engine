@@ -4,9 +4,9 @@ namespace AM2E.Actors;
 
 public static class PlayerPool<T> where T : Actor
 {
-    private static readonly List<T> Players = new();
+    private static readonly List<T> Players = [];
 
-    public static T LocalPlayer;
+    public static T? LocalPlayer;
     
     public enum Side
     {
@@ -17,7 +17,7 @@ public static class PlayerPool<T> where T : Actor
     }
     
     /// <summary>
-    /// Adds the given <see cref="IPlayer"/> to the pool.
+    /// Adds the given <see cref="T"/> to the pool.
     /// </summary>
     /// <param name="player"></param>
     public static void Add(T player)
@@ -27,20 +27,19 @@ public static class PlayerPool<T> where T : Actor
     }
 
     /// <summary>
-    /// Removes the given <see cref="IPlayer"/> from the pool.
+    /// Removes the given <see cref="T"/> from the pool.
     /// </summary>
     /// <param name="player"></param>
     public static void Remove(T player)
     {
-        if (Players.Contains(player))
-            Players.Remove(player);
+        Players.Remove(player);
 
         if (LocalPlayer == player)
             LocalPlayer = null;
     }
 
     /// <summary>
-    /// Removes all <see cref="IPlayer"/>s from the pool.
+    /// Removes all <see cref="T"/>s from the pool.
     /// </summary>
     public static void Empty()
     {
@@ -48,19 +47,19 @@ public static class PlayerPool<T> where T : Actor
     }
     
     /// <summary>
-    /// Returns the first <see cref="IPlayer"/> in the pool.
+    /// Returns the first <see cref="T"/> in the pool.
     /// </summary>
-    public static T GetFirst()
+    public static T? GetFirst()
     {
         return (Players.Count > 0) ? Players[0] : null;
     }
     
     /// <summary>
-    /// Returns the closest <see cref="IPlayer"/> in the pool to the given position.
+    /// Returns the closest <see cref="T"/> in the pool to the given position.
     /// </summary>
     /// <param name="x">X position to base the check on.</param>
     /// <param name="y">Y position to base the check on.</param>
-    public static T GetClosest(int x, int y)
+    public static T? GetClosest(int x, int y)
     {
         if (Players.Count <= 1)
             return GetFirst();
@@ -77,7 +76,7 @@ public static class PlayerPool<T> where T : Actor
         return closest;
     }
     
-    public static T GetClosest(int x, int y, Level level)
+    public static T? GetClosest(int x, int y, Level level)
     {
         var playersInLevel = new List<T>();
 
@@ -107,18 +106,18 @@ public static class PlayerPool<T> where T : Actor
     }
 
     /// <summary>
-    /// Finds the closest <see cref="IPlayer"/> to the given position on the given <see cref="Side"/>.
+    /// Finds the closest <see cref="T"/> to the given position on the given <see cref="Side"/>.
     /// </summary>
     /// <param name="x">X position to base the check on.</param>
     /// <param name="y">Y position to base the check on.</param>
     /// <param name="side">The side to check.</param>
-    /// <returns>The closest <see cref="IPlayer"/> on the given <see cref="Side"/>, if it exists; otherwise null.</returns>
-    public static T GetClosestOnSide(int x, int y, Side side)
+    /// <returns>The closest <see cref="T"/> on the given <see cref="Side"/>, if it exists; otherwise null.</returns>
+    public static T? GetClosestOnSide(int x, int y, Side side)
     {
         if (Players.Count < 1)
             return null;
         
-        T closest = null;
+        T? closest = null;
         var distance = 0f;
         
         foreach (var player in Players)

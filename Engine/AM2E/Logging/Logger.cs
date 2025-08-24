@@ -6,7 +6,7 @@ namespace AM2E;
 public static class Logger
 {
     private static readonly ConcurrentQueue<string> Events = new();
-    private static string[] Prefixes = { "ENGINE", "DEBUG", "INFO", "WARN" };
+    private static readonly string[] Prefixes = ["ENGINE", "DEBUG", "INFO", "WARN"];
     private static StreamWriter streamWriter;
     private static Thread thread;
 
@@ -15,10 +15,10 @@ public static class Logger
     public static bool TracePath = false;
     public static int CacheSize = 10;
     public static readonly ConcurrentQueue<string> Cache = new();
-    private static readonly ConcurrentQueue<string> stagingCache = new();
+    private static readonly ConcurrentQueue<string> StagingCache = new();
 
     public static string[] CrashMessages =
-    {
+    [
         "When in doubt, blame the engine.",
         "Tell the developer that they can override AM2E.Logger.CrashMessages with their own set of snarky remarks. It's a nice distraction from the fact that their code just blew up.",
         "Yes, these messages are just a thing because I grew up dealing with Minecraft crash outputs. Cope.",
@@ -33,14 +33,14 @@ public static class Logger
         "You can do anything you want with code, except whatever you just tried to do.",
         "Error: programmer frustrated successfully.",
         "Works on my machine.",
-        "Another happy landing!",
-    };
+        "Another happy landing!"
+    ];
 
     internal static void Init()
     {
         var logsFolder = "Logs";
         var logPath = logsFolder + "/" + DateTime.Now.ToString("MM-dd-yyyy (HH.mm.ss)") + ".log";
-        const int LOGS_COUNT = 5;
+        const int logsCount = 5;
 
         if (!Directory.Exists(logsFolder))
             Directory.CreateDirectory(logsFolder);
@@ -52,21 +52,23 @@ public static class Logger
             .OrderBy(x => x.CreationTime)
             .ToList();
 
-        while (fileInfos.Count > LOGS_COUNT)
+        while (fileInfos.Count > logsCount)
         {
             File.Delete(fileInfos[0].FullName);
             fileInfos.RemoveAt(0);
         }
         
-        streamWriter.WriteLine(@"  ___                        _   _                  __  __          _ _                        ___  _____     ______             _              ___ 
- |  _|     /\               | | | |                |  \/  |        | (_)                      |__ \|  __ \   |  ____|           (_)            |_  |
- | |      /  \   _ __   ___ | |_| |__   ___ _ __   | \  / | ___  __| |_  ___   ___ _ __ ___      ) | |  | |  | |__   _ __   __ _ _ _ __   ___    | |
- | |     / /\ \ | '_ \ / _ \| __| '_ \ / _ \ '__|  | |\/| |/ _ \/ _` | |/ _ \ / __| '__/ _ \    / /| |  | |  |  __| | '_ \ / _` | | '_ \ / _ \   | |
- | |    / ____ \| | | | (_) | |_| | | |  __/ |     | |  | |  __/ (_| | | (_) | (__| | |  __/   / /_| |__| |  | |____| | | | (_| | | | | |  __/   | |
- | |_  /_/    \_\_| |_|\___/ \__|_| |_|\___|_|     |_|  |_|\___|\__,_|_|\___/ \___|_|  \___|  |____|_____/   |______|_| |_|\__, |_|_| |_|\___|  _| |
- |___|                                                                                                                      __/ |              |___|
-                                                                                                                           |___/                    
-v." + EngineCore.Version + "\n\nLogging started.");
+        streamWriter.WriteLine("""
+                                 ___                        _   _                  __  __          _ _                        ___  _____     ______             _              ___ 
+                                |  _|     /\               | | | |                |  \/  |        | (_)                      |__ \|  __ \   |  ____|           (_)            |_  |
+                                | |      /  \   _ __   ___ | |_| |__   ___ _ __   | \  / | ___  __| |_  ___   ___ _ __ ___      ) | |  | |  | |__   _ __   __ _ _ _ __   ___    | |
+                                | |     / /\ \ | '_ \ / _ \| __| '_ \ / _ \ '__|  | |\/| |/ _ \/ _` | |/ _ \ / __| '__/ _ \    / /| |  | |  |  __| | '_ \ / _` | | '_ \ / _ \   | |
+                                | |    / ____ \| | | | (_) | |_| | | |  __/ |     | |  | |  __/ (_| | | (_) | (__| | |  __/   / /_| |__| |  | |____| | | | (_| | | | | |  __/   | |
+                                | |_  /_/    \_\_| |_|\___/ \__|_| |_|\___|_|     |_|  |_|\___|\__,_|_|\___/ \___|_|  \___|  |____|_____/   |______|_| |_|\__, |_|_| |_|\___|  _| |
+                                |___|                                                                                                                      __/ |              |___|
+                                                                                                                                                          |___/                    
+                               v.
+                               """ + EngineCore.Version + "\n\nLogging started.");
         
         streamWriter.Flush();
         
@@ -105,17 +107,17 @@ v." + EngineCore.Version + "\n\nLogging started.");
             log += " | " + path + ":" + lineNumber;
 
         Events.Enqueue(log);
-        stagingCache.Enqueue(log);
-        while (stagingCache.Count > CacheSize)
-            stagingCache.TryDequeue(out _);
+        StagingCache.Enqueue(log);
+        while (StagingCache.Count > CacheSize)
+            StagingCache.TryDequeue(out _);
     }
 
     internal static void UpdateCache()
     {
-        var size = stagingCache.Count;
+        var size = StagingCache.Count;
         for (var i = 0; i < size; i++)
         {
-            stagingCache.TryDequeue(out var ev);
+            StagingCache.TryDequeue(out var ev);
             if (ev is not null)
                 Cache.Enqueue(ev);
         }

@@ -1,36 +1,26 @@
 using Newtonsoft.Json;
 
-namespace AM2E.Control;
+namespace AM2E.Input;
 
-internal struct InputSerialization
+[method: JsonConstructor]
+internal struct InputSerialization(
+    Dictionary<string, KeyboardInput> keyboardListeners,
+    Dictionary<string, MouseInput> mouseListeners,
+    Dictionary<string, GamePadInput> gamePadListeners,
+    float rightCenterDeadZone,
+    float leftCenterDeadZone,
+    float angularAxisDeadZone)
 {
     [JsonProperty("kls")]
-    public Dictionary<string, KeyboardInput> KeyboardListeners;
+    public Dictionary<string, KeyboardInput> KeyboardListeners = keyboardListeners;
     [JsonProperty("mls")]
-    public Dictionary<string, MouseInput> MouseListeners;
+    public Dictionary<string, MouseInput> MouseListeners = mouseListeners;
     [JsonProperty("gls")]
-    public Dictionary<string, GamePadInput> GamePadListeners;
+    public Dictionary<string, GamePadInput> GamePadListeners = gamePadListeners;
     [JsonProperty("rdz")]
-    public float RightCenterDeadZone;
+    public float RightCenterDeadZone = rightCenterDeadZone;
     [JsonProperty("ldz")]
-    public float LeftCenterDeadZone;
+    public float LeftCenterDeadZone = leftCenterDeadZone;
     [JsonProperty("adz")]
-    public float AngularAxisDeadZone;
-
-    [JsonConstructor]
-    public InputSerialization(
-        Dictionary<string, KeyboardInput> keyboardListeners, 
-        Dictionary<string, MouseInput> mouseListeners,
-        Dictionary<string, GamePadInput> gamePadListeners,
-        float rightCenterDeadZone,
-        float leftCenterDeadZone,
-        float angularAxisDeadZone)
-    {
-        KeyboardListeners = keyboardListeners;
-        MouseListeners = mouseListeners;
-        GamePadListeners = gamePadListeners;
-        RightCenterDeadZone = rightCenterDeadZone;
-        LeftCenterDeadZone = leftCenterDeadZone;
-        AngularAxisDeadZone = angularAxisDeadZone;
-    }
+    public float AngularAxisDeadZone = angularAxisDeadZone;
 }

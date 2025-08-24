@@ -18,7 +18,7 @@ namespace AM2E.Levels;
  *      incredibly costly.
  *
  * Because we must defer GenericLevelElement creation/destruction to the end of a given game tick, the Exists() method
- *      is provided as a means of checking whether or not the provided GenericLevelElement was destroyed this tick.
+ *      is provided as a means of checking whether the provided GenericLevelElement was destroyed this tick.
  */
 
 #endregion
@@ -34,12 +34,12 @@ public abstract class GenericLevelElement
     
     public int X { get; set; } = 0;
     public int Y { get; set; } = 0;
-    public Layer Layer { get; internal set; }
-    public Level Level { get; internal set; }
+    public Layer? Layer { get; internal set; }
+    public Level? Level { get; internal set; }
     private bool exists = true;
     private bool deprecated = false;
 
-    protected GenericLevelElement(int x, int y, Layer layer, string id = null)
+    protected GenericLevelElement(int x, int y, Layer? layer, string? id = null)
     {
         Layer = layer;
         Layer?.AddGeneric(this);
@@ -60,7 +60,7 @@ public abstract class GenericLevelElement
         }
     }
 
-    protected GenericLevelElement(LDtkEntityInstance entity, int x, int y, Layer layer) 
+    protected GenericLevelElement(LDtkEntityInstance entity, int x, int y, Layer? layer) 
         : this(x, y, layer, entity.Iid) { }
 
     public void Dispose() => Dispose(false);
@@ -84,17 +84,17 @@ public abstract class GenericLevelElement
     protected virtual void OnDispose() { }
 
     /// <summary>
-    /// Returns whether or not the given <see cref="GenericLevelElement"/> exists.
+    /// Returns whether the given <see cref="GenericLevelElement"/> exists.
     /// </summary>
     /// <param name="element"></param>
     /// <returns></returns>
-    public static bool Exists(GenericLevelElement element)
+    public static bool Exists(GenericLevelElement? element)
     {
         return element?.exists ?? false;
     }
     
-    public static GenericLevelElement GetElement(string id)
+    public static GenericLevelElement? GetElement(string id)
     {
-        return AllElements.ContainsKey(id) ? AllElements[id] : null;
+        return AllElements.GetValueOrDefault(id);
     }
 }

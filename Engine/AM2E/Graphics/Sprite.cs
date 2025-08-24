@@ -1,5 +1,4 @@
-﻿#nullable enable
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Newtonsoft.Json;
 
@@ -58,11 +57,6 @@ public sealed class Sprite
     /// The attach points defined for this <see cref="Sprite"/>.
     /// </summary>
     private readonly Dictionary<string, int[][]> attachPoints;
-
-    /// <summary>
-    /// Indicates whether <see cref="cropOffsets"/> are null for drawing purposes.
-    /// </summary>
-    private readonly bool cropsAreNotNull;
     
     /// <summary>
     /// The offsets required to draw each cropped frame correctly.
@@ -110,7 +104,6 @@ public sealed class Sprite
         Width = width;
         Height = height;
         this.cropOffsets = cropOffsets;
-        cropsAreNotNull = cropOffsets is not null;
         Layers = positions.Length;
     }
     
@@ -150,10 +143,10 @@ public sealed class Sprite
         var originX = Origin.X;
         var originY = Origin.Y;
         
-        if (cropsAreNotNull)
+        if (cropOffsets is not null)
         {
-            originX -= cropOffsets![layer][frame][0];
-            originY -= cropOffsets![layer][frame][1];
+            originX -= cropOffsets[layer][frame][0];
+            originY -= cropOffsets[layer][frame][1];
         }
 
         // ...and then apply the origin flips. 
@@ -211,10 +204,10 @@ public sealed class Sprite
         subPos.Width = subRectangle.Width;
         subPos.Height = subRectangle.Height;
 
-        if (cropsAreNotNull)
+        if (cropOffsets is not null)
         {
-            subPos.X -= cropOffsets![layer][frame][0];
-            subPos.Y -= cropOffsets![layer][frame][1];
+            subPos.X -= cropOffsets[layer][frame][0];
+            subPos.Y -= cropOffsets[layer][frame][1];
         }
 
         var flipH = (effects & SpriteEffects.FlipHorizontally) != 0;
@@ -279,10 +272,10 @@ public sealed class Sprite
     /// otherwise an empty <see cref="Vector2"/>.</returns>
     public int[] GetAttachPoint(string name, int frame, float angle = 0)
     {
-        if (!attachPoints.ContainsKey(name))
-            return new[] { 0, 0 };
+        if (!attachPoints.TryGetValue(name, out var value))
+            return [0, 0];
 
-        var point = (int[])attachPoints[name][Math.Min(frame, attachPoints[name].Length - 1)].Clone();
+        var point = (int[])value[Math.Min(frame, value.Length - 1)].Clone();
         
         point[0] -= (int)Origin.X;
         point[1] -= (int)Origin.Y;

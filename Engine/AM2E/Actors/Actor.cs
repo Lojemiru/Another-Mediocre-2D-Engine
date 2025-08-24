@@ -38,7 +38,7 @@ public abstract class Actor : ColliderBase, IDrawable
 
     public bool UsePauseCondition = true;
 
-    public Func<bool> PauseCondition = null;
+    public Func<bool>? PauseCondition = null;
 
     private float alpha = 1;
     public float Alpha
@@ -65,8 +65,8 @@ public abstract class Actor : ColliderBase, IDrawable
     /// <param name="flipX"></param>
     /// <param name="flipY"></param>
     /// <param name="id"></param>
-    protected Actor(int x, int y, Layer layer, Hitbox hitbox = null, bool flipX = false, bool flipY = false,
-        string id = null)
+    protected Actor(int x, int y, Layer layer, Hitbox? hitbox = null, bool flipX = false, bool flipY = false,
+        string? id = null)
         : base(x, y, layer, hitbox, flipX, flipY, id) { }
 
     /// <summary>
@@ -77,7 +77,7 @@ public abstract class Actor : ColliderBase, IDrawable
     /// <param name="y"></param>
     /// <param name="layer"></param>
     /// <param name="hitbox"></param>
-    protected Actor(LDtkEntityInstance entity, int x, int y, Layer layer, Hitbox hitbox = null)
+    protected Actor(LDtkEntityInstance entity, int x, int y, Layer layer, Hitbox? hitbox = null)
         : this(x, y, layer, hitbox, (entity.F & 1) != 0, (entity.F & 2) != 0, entity.Iid) { }
     
     
@@ -117,14 +117,13 @@ public abstract class Actor : ColliderBase, IDrawable
         OnDraw(spriteBatch);
     }
     
-    public static Actor GetActor(string id)
+    public static Actor? GetActor(string id)
     {
-        var element = GenericLevelElement.GetElement(id);
-        return element is Actor actor ? actor : null;
+        return GetElement(id) as Actor;
     }
     
     /// <summary>
-    /// Returns the appropriate <see cref="SpriteEffects"/> for the current values of <see cref="FlippedX"/> and <see cref="FlippedY"/>.
+    /// Returns the appropriate <see cref="SpriteEffects"/> for the current values of <see cref="ColliderBase.FlippedX"/> and <see cref="ColliderBase.FlippedY"/>.
     /// </summary>
     /// <returns>The corresponding member of <see cref="SpriteEffects"/>, including an "overflow" value for simultaneous horizontal and vertical.</returns>
     public SpriteEffects GetSpriteFlips()

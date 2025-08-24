@@ -1,6 +1,6 @@
 ﻿namespace AM2E;
 
-public sealed class StateMachine <TKey, TState> where TState : State
+public sealed class StateMachine <TKey, TState> where TState : State where TKey : notnull
 {
     /// <summary>
     /// A key-state dictionary, which lists all possible states of the state machine. 
@@ -37,7 +37,7 @@ public sealed class StateMachine <TKey, TState> where TState : State
     /// </summary>
     /// <param name="initialState">The key of the <see cref="TState"/> within which this <see cref="StateMachine{TKey,TState}"/> should start.</param>
     /// <param name="states">The <see cref="Dictionary{TKey,TState}"/> this <see cref="StateMachine{TKey,TState}"/> should utilize.</param>
-    public StateMachine(TKey initialState, Dictionary<TKey, TState> states = null)
+    public StateMachine(TKey initialState, Dictionary<TKey, TState>? states = null)
     {
         CurrentKey = initialState;
         PreviousKey = initialState;

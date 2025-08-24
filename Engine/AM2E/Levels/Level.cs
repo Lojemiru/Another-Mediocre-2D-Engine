@@ -214,12 +214,12 @@ public sealed class Level
     internal void PostUnload()
         => PostUnloadHook(this);
     
-    public dynamic GetFieldInstance(string identifier)
+    public dynamic? GetFieldInstance(string identifier)
         => FieldInstances.GetFieldInstance(identifier);
 
     public T? GetFieldInstance<T>(string identifier) where T : struct, Enum
         => FieldInstances.GetFieldInstance<T>(identifier);
 
-    public T[] GetFieldInstanceArray<T>(string identifier)
+    public T[]? GetFieldInstanceArray<T>(string identifier)
         => FieldInstances.GetFieldInstanceArray<T>(identifier);
 }

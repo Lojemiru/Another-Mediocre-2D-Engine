@@ -1,7 +1,7 @@
 using Microsoft.Xna.Framework.Input;
 using Newtonsoft.Json;
 
-namespace AM2E.Control;
+namespace AM2E.Input;
 
 internal sealed class MouseInput : InputBase<MouseButtons, MouseState>
 {

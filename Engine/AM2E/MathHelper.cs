@@ -74,10 +74,10 @@ public static class MathHelper
         return MathF.Sqrt((x * x) + (y * y));
     }
 
-    private static float pointAngleSubtractor = MathF.Atan2(0, 0);
+    private static readonly float PointAngleSubtractor = MathF.Atan2(0, 0);
     public static float PointAngle(float x1, float y1, float x2, float y2)
     {
-        return (MathF.Atan2(y2 - y1, x2 - x1) - pointAngleSubtractor);
+        return (MathF.Atan2(y2 - y1, x2 - x1) - PointAngleSubtractor);
     }
 
     public static float ToRadians(float degrees)
