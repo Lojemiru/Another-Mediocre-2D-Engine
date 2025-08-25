@@ -31,10 +31,11 @@ public sealed class CircleHitbox : Hitbox
         Radius = radius;
     }
 
-    public override void ApplyOffset(int x, int y)
+    public override void UpdateOrigin(int x, int y)
     {
         OriginX = x;
         OriginY = y;
+        Collider?.SyncHitboxPositions();
     }
 
     // Defer to RectangleHitbox, check has more to do with the rectangle.

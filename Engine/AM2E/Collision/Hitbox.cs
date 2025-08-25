@@ -35,6 +35,8 @@ public abstract class Hitbox
     public bool FlippedY { get; private set; } = false;
 
     public string Tag = "";
+
+    internal Collider? Collider;
     
     // This SHOULD disallow publicly inheriting from this class. I think. Sorry guys, no custom Hitboxes :P
     private protected Hitbox() { }
@@ -45,7 +47,7 @@ public abstract class Hitbox
         FlippedY = yFlip;
     }
 
-    public abstract void ApplyOffset(int x, int y);
+    public abstract void UpdateOrigin(int x, int y);
         
     private List<Type>? boundInterfaces;
     private List<Type>? targetInterfaces;

@@ -26,14 +26,16 @@ public abstract class RectangleHitboxBase : Hitbox
         base.ApplyFlips(xFlip, yFlip);
         OriginX = FlippedX ? (Width - 1) - InitialOriginX : InitialOriginX;
         OriginY = FlippedY ? (Height - 1) - InitialOriginY : InitialOriginY;
+        Collider?.SyncHitboxPositions();
     }
 
-    public sealed override void ApplyOffset(int x, int y)
+    public sealed override void UpdateOrigin(int x, int y)
     {
         InitialOriginX = x;
         InitialOriginY = y;
         OriginX = FlippedX ? (Width - 1) - InitialOriginX : InitialOriginX;
         OriginY = FlippedY ? (Height - 1) - InitialOriginY : InitialOriginY;
+        Collider?.SyncHitboxPositions();
     }
 
     public override bool IntersectsLine(int x1, int y1, int x2, int y2)

@@ -69,7 +69,7 @@ public class PolygonHitbox : Hitbox
         ApplyTransform();
     }
 
-    public override void ApplyOffset(int x, int y)
+    public override void UpdateOrigin(int x, int y)
     {
         for (var i = 0; i < untranslatedPoints.Length; i++)
         {
@@ -126,6 +126,8 @@ public class PolygonHitbox : Hitbox
             else if (points[i].Y > furthestBottom)
                 furthestBottom = points[i].Y;
         }
+        
+        Collider?.SyncHitboxPositions();
     }
 
     private bool IsLeft(Point lineStart, Point lineEnd, float targetX, float targetY)

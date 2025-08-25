@@ -90,6 +90,7 @@ public sealed class Collider
     public int AddHitbox(Hitbox hitbox)
     {
         hitboxes.Add(hitbox);
+        hitbox.Collider = this;
         hitbox.X = X;
         hitbox.Y = Y;
         hitbox.ApplyFlips(FlippedX, FlippedY);
@@ -102,6 +103,8 @@ public sealed class Collider
     public void RemoveHitbox(Hitbox hitbox)
     {
         hitboxes.Remove(hitbox);
+        hitbox.Collider = null;
+        SyncHitboxPositions();
     }
         
     public bool FlippedX { get; private set; } = false;
@@ -150,16 +153,36 @@ public sealed class Collider
 
     public void ApplyRotation(float angle)
     {
+        if (disposed)
+            return;
+        
+        if (Bounds is not null)
+            LOIC.RTree.Delete(Bounds, parent);
+        
+        var l = int.MaxValue;
+        var r = int.MinValue;
+        var u = int.MaxValue;
+        var d = int.MinValue;
+        
         foreach (var hitbox in hitboxes)
         {
             if (hitbox is PolygonHitbox p)
                 p.ApplyRotation(angle);
+            
+            l = Math.Min(l, hitbox.BoundLeft);
+            r = Math.Max(r, hitbox.BoundRight);
+            u = Math.Min(u, hitbox.BoundTop);
+            d = Math.Max(d, hitbox.BoundBottom);
         }
+        
+        Bounds = new Rectangle(l, u, r, d);
+            
+        LOIC.RTree.Add(Bounds, parent);
     }
 
     private readonly ColliderBase parent;
     
-    private void SyncHitboxPositions()
+    internal void SyncHitboxPositions()
     {
         if (disposed)
             return;
