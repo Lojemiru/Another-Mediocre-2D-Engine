@@ -504,7 +504,7 @@ public sealed class Collider
         return false;
     }
 
-    private static RectangleHitbox testRectangle = new(0, 0, 1, 1);
+    private static RectangleHitbox testRectangle = new(1, 1);
     
     public bool IntersectsRectangle<T>(int x1, int y1, int x2, int y2) where T : ICollider
     {

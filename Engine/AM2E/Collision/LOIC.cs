@@ -137,7 +137,7 @@ public static class LOIC
     }
 
     // Static hitbox to save on instantiation/garbage collector spam.
-    private static readonly RectangleHitbox RectCheckHitbox = new(0, 0, 1, 1);
+    private static readonly RectangleHitbox RectCheckHitbox = new(1, 1);
     private static bool InternalCheckRectangle<T>(ICollider collider, int x1, int y1, int x2, int y2) where T : ICollider
     {
         if (!collider.CollisionActive || collider is not T)
@@ -151,7 +151,7 @@ public static class LOIC
         return collider.Collider.IsIntersectedBy<T>(RectCheckHitbox);
     }
 
-    private static readonly CircleHitbox CircleCheckHitbox = new(0, 0, 1);
+    private static readonly CircleHitbox CircleCheckHitbox = new(1);
 
     private static bool InternalCheckCircle<T>(ICollider collider, int x, int y, int radius) where T : ICollider
     {
