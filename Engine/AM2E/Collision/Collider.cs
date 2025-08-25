@@ -126,15 +126,15 @@ public sealed class Collider
         
         // This has not broken yet, but I had a note here for concerns relating to addition/removal from the RTree.
         // If something is broken that's probably it :)
-
-        if (!first)
-            LOIC.RTree.Delete(Bounds, parent);
         
         FlippedX = xFlip;
         FlippedY = yFlip;
         
         if (hitboxes.Count <= 0) 
             return;
+        
+        if (!first)
+            LOIC.RTree.Delete(Bounds, parent);
 
         syncing = true;
         
@@ -164,11 +164,11 @@ public sealed class Collider
         if (disposed)
             return;
         
-        if (!first)
-            LOIC.RTree.Delete(Bounds, parent);
-        
         if (hitboxes.Count <= 0) 
             return;
+        
+        if (!first)
+            LOIC.RTree.Delete(Bounds, parent);
 
         syncing = true;
         
@@ -200,11 +200,11 @@ public sealed class Collider
         if (disposed || syncing)
             return;
         
-        if (!first)
-            LOIC.RTree.Delete(Bounds, parent);
-
         if (hitboxes.Count <= 0) 
             return;
+        
+        if (!first)
+            LOIC.RTree.Delete(Bounds, parent);
 
         syncing = true;
         
