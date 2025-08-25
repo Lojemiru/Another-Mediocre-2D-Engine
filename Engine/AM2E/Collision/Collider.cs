@@ -81,6 +81,10 @@ public sealed class Collider
     public Hitbox? CollidingHitbox = null;
     
     private readonly List<Hitbox> hitboxes = [];
+    
+    private readonly ColliderBase parent;
+    private bool first = true;
+    private bool syncing = false;
         
     public Hitbox? GetHitbox(int id)
     {
@@ -131,6 +135,8 @@ public sealed class Collider
         
         if (hitboxes.Count <= 0) 
             return;
+
+        syncing = true;
         
         var l = int.MaxValue;
         var r = int.MinValue;
@@ -150,6 +156,7 @@ public sealed class Collider
             
         LOIC.RTree.Add(Bounds, parent);
         first = false;
+        syncing = false;
     }
 
     public void ApplyRotation(float angle)
@@ -159,6 +166,11 @@ public sealed class Collider
         
         if (!first)
             LOIC.RTree.Delete(Bounds, parent);
+        
+        if (hitboxes.Count <= 0) 
+            return;
+
+        syncing = true;
         
         var l = int.MaxValue;
         var r = int.MinValue;
@@ -180,14 +192,12 @@ public sealed class Collider
             
         LOIC.RTree.Add(Bounds, parent);
         first = false;
+        syncing = false;
     }
-
-    private readonly ColliderBase parent;
-    private bool first = true;
     
     internal void SyncHitboxPositions()
     {
-        if (disposed)
+        if (disposed || syncing)
             return;
         
         if (!first)
@@ -195,6 +205,8 @@ public sealed class Collider
 
         if (hitboxes.Count <= 0) 
             return;
+
+        syncing = true;
         
         var l = int.MaxValue;
         var r = int.MinValue;
@@ -215,6 +227,7 @@ public sealed class Collider
             
         LOIC.RTree.Add(Bounds, parent);
         first = false;
+        syncing = false;
     }
 
     internal void Dispose()
