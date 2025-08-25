@@ -3,8 +3,8 @@ namespace AM2E.Collision;
 
 public sealed class QuadrilateralHitbox : PolygonHitbox
 {
-    public QuadrilateralHitbox(int x, int y, int width, int height, int offsetX = 0, int offsetY = 0) 
-        : base(4, x, y, offsetX, offsetY)
+    public QuadrilateralHitbox(int width, int height, int originX = 0, int originY = 0) 
+        : base(4, originX, originY)
     {
         SetPoint(0, 0, 0);
         SetPoint(1, width, 0);

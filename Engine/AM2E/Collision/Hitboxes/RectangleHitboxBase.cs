@@ -5,37 +5,35 @@ public abstract class RectangleHitboxBase : Hitbox
     public int Width { get; protected set; }
     public int Height { get; protected set; }
 
-    public sealed override int BoundLeft => X - OffsetX;
+    public sealed override int BoundLeft => X - OriginX;
 
     public sealed override int BoundRight => BoundLeft + Width - 1;
 
-    public sealed override int BoundTop => Y - OffsetY;
+    public sealed override int BoundTop => Y - OriginY;
 
     public sealed override int BoundBottom => BoundTop + Height - 1;
 
-    private protected RectangleHitboxBase(int x, int y, int w, int h, int offsetX = 0, int offsetY = 0)
+    private protected RectangleHitboxBase(int w, int h, int originX = 0, int originY = 0)
     {
-        X = x;
-        Y = y;
         Width = w;
         Height = h;
-        OffsetX = InitialOffsetX = offsetX;
-        OffsetY = InitialOffsetY = offsetY;
+        OriginX = InitialOriginX = originX;
+        OriginY = InitialOriginY = originY;
     }
 
     public sealed override void ApplyFlips(bool xFlip, bool yFlip)
     {
         base.ApplyFlips(xFlip, yFlip);
-        OffsetX = FlippedX ? (Width - 1) - InitialOffsetX : InitialOffsetX;
-        OffsetY = FlippedY ? (Height - 1) - InitialOffsetY : InitialOffsetY;
+        OriginX = FlippedX ? (Width - 1) - InitialOriginX : InitialOriginX;
+        OriginY = FlippedY ? (Height - 1) - InitialOriginY : InitialOriginY;
     }
 
     public sealed override void ApplyOffset(int x, int y)
     {
-        InitialOffsetX = x;
-        InitialOffsetY = y;
-        OffsetX = FlippedX ? (Width - 1) - InitialOffsetX : InitialOffsetX;
-        OffsetY = FlippedY ? (Height - 1) - InitialOffsetY : InitialOffsetY;
+        InitialOriginX = x;
+        InitialOriginY = y;
+        OriginX = FlippedX ? (Width - 1) - InitialOriginX : InitialOriginX;
+        OriginY = FlippedY ? (Height - 1) - InitialOriginY : InitialOriginY;
     }
 
     public override bool IntersectsLine(int x1, int y1, int x2, int y2)

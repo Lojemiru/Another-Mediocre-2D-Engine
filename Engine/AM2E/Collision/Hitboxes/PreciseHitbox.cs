@@ -22,8 +22,8 @@ namespace AM2E.Collision;
 
 #endregion
 
-public sealed class PreciseHitbox(int x, int y, bool[,] mask, int offsetX = 0, int offsetY = 0)
-    : RectangleHitboxBase(x, y, mask.GetLength(0), mask.GetLength(1), offsetX, offsetY)
+public sealed class PreciseHitbox(bool[,] mask, int originX = 0, int originY = 0)
+    : RectangleHitboxBase(mask.GetLength(0), mask.GetLength(1), originX, originY)
 {
     public bool[, ] Mask { get; } = mask;
 
@@ -189,7 +189,7 @@ public sealed class PreciseHitbox(int x, int y, bool[,] mask, int offsetX = 0, i
         {
             for (var j = startY; j < endY; ++j)
             {
-                if (CheckPointInMask(i, j) && hitbox.ContainsPoint(X - OffsetX + i, Y - OffsetY + j))
+                if (CheckPointInMask(i, j) && hitbox.ContainsPoint(X - OriginX + i, Y - OriginY + j))
                     return true;
             }
         }
@@ -200,7 +200,7 @@ public sealed class PreciseHitbox(int x, int y, bool[,] mask, int offsetX = 0, i
     public override bool ContainsPoint(int x, int y)
     {
         // Check base, then return value of array cell
-        return ContainsPointInBounds(x, y) && CheckPointInMask(x - (X - OffsetX), y - (Y - OffsetY));
+        return ContainsPointInBounds(x, y) && CheckPointInMask(x - (X - OriginX), y - (Y - OriginY));
     }
         
     private bool CheckPointInMask(int x, int y)
@@ -239,7 +239,7 @@ public sealed class PreciseHitbox(int x, int y, bool[,] mask, int offsetX = 0, i
                 if (!CheckPointInMask(i, j))
                     continue;
                 
-                spriteBatch.Draw(Pixel, new Vector2(X - OffsetX + i, Y - OffsetY + j), color);
+                spriteBatch.Draw(Pixel, new Vector2(X - OriginX + i, Y - OriginY + j), color);
             }
         }
     }

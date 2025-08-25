@@ -10,10 +10,19 @@ public abstract class Hitbox
     private protected static readonly Texture2D Pixel = new(EngineCore._graphics.GraphicsDevice, 1, 1);
     static Hitbox() 
         => Pixel.SetData([Color.White]);
-    public int OffsetX { get; protected set; } = 0;
-    public int OffsetY { get; protected set; } = 0;
-    protected int InitialOffsetX = 0;
-    protected int InitialOffsetY = 0;
+    
+    /// <summary>
+    /// Point on the hitbox used as the X-axis anchor for <see cref="Collider"/> alignment and hitbox rotation.
+    /// </summary>
+    public int OriginX { get; protected set; } = 0;
+    
+    /// <summary>
+    /// Point on the hitbox used as the Y-axis anchor for <see cref="Collider"/> alignment and hitbox rotation.
+    /// </summary>
+    public int OriginY { get; protected set; } = 0;
+    
+    protected int InitialOriginX = 0;
+    protected int InitialOriginY = 0;
     public int X { get; set; } = 0;
     public int Y { get; set; } = 0;
 

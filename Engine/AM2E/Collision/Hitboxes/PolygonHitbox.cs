@@ -31,17 +31,15 @@ public class PolygonHitbox : Hitbox
     public sealed override int BoundBottom 
         => Y + furthestBottom;
 
-    public PolygonHitbox(int x, int y, IList<Point> points, int offsetX = 0, int offsetY = 0)
+    public PolygonHitbox(IList<Point> points, int originX = 0, int originY = 0)
     {
         if (points.Count < 3)
             throw new ArgumentOutOfRangeException(nameof(points), "Points collection must be at least length 3!");
         
-        X = x;
-        Y = y;
         this.points = new Point[points.Count];
         untranslatedPoints = new Point[points.Count];
-        OffsetX = offsetX;
-        OffsetY = offsetY;
+        OriginX = originX;
+        OriginY = originY;
 
         for (var i = 0; i < points.Count; i++)
             SetPoint(i, points[i].X, points[i].Y);
@@ -49,20 +47,18 @@ public class PolygonHitbox : Hitbox
         RecalculateBounds();
     }
 
-    protected PolygonHitbox(int size, int x, int y, int offsetX = 0, int offsetY = 0)
+    protected PolygonHitbox(int size, int originX = 0, int originY = 0)
     {
-        X = x;
-        Y = y;
         points = new Point[size];
         untranslatedPoints = new Point[size];
-        OffsetX = offsetX;
-        OffsetY = offsetY;
+        OriginX = originX;
+        OriginY = originY;
     }
     
     private protected void SetPoint(int index, int x, int y)
     {
-        x -= OffsetX;
-        y -= OffsetY;
+        x -= OriginX;
+        y -= OriginY;
         points[index] = new Point(x, y);
         untranslatedPoints[index] = new Point(x, y);
     }
@@ -78,11 +74,11 @@ public class PolygonHitbox : Hitbox
         for (var i = 0; i < untranslatedPoints.Length; i++)
         {
             var point = untranslatedPoints[i];
-            untranslatedPoints[i] = new Point(point.X + OffsetX - x, point.Y + OffsetY - y);
+            untranslatedPoints[i] = new Point(point.X + OriginX - x, point.Y + OriginY - y);
         }
 
-        OffsetX = x;
-        OffsetY = y;
+        OriginX = x;
+        OriginY = y;
         
         ApplyTransform();
     }
@@ -164,7 +160,7 @@ public class PolygonHitbox : Hitbox
             return false;
         
         // Either a) circle center is in polygon...
-        if (ContainsPoint(hitbox.X - hitbox.OffsetX, hitbox.Y - hitbox.OffsetY))
+        if (ContainsPoint(hitbox.X - hitbox.OriginX, hitbox.Y - hitbox.OriginY))
             return true;
 
         // ...or b) an edge intersects.

@@ -5,8 +5,8 @@ namespace AM2E.Collision;
 
 public sealed class RectangleHitbox : RectangleHitboxBase
 {
-    public RectangleHitbox(int x, int y, int w, int h, int offsetX = 0, int offsetY = 0) : 
-        base(x, y, w, h, offsetX, offsetY) { }
+    public RectangleHitbox(int w, int h, int originX = 0, int originY = 0) : 
+        base(w, h, originX, originY) { }
     
     public void Resize(int width, int height)
     {
@@ -17,8 +17,8 @@ public sealed class RectangleHitbox : RectangleHitboxBase
     public void Resize(int width, int height, int offsetX, int offsetY)
     {
         Resize(width, height);
-        OffsetX = offsetX;
-        OffsetY = offsetY;
+        OriginX = offsetX;
+        OriginY = offsetY;
     }
 
     // Defer to general bounds intersection.
@@ -30,7 +30,7 @@ public sealed class RectangleHitbox : RectangleHitboxBase
             return false;
         
         // Only two conditions: circle center is in rectangle...
-        if (ContainsPoint(hitbox.X - hitbox.OffsetX, hitbox.Y - hitbox.OffsetY)) 
+        if (ContainsPoint(hitbox.X - hitbox.OriginX, hitbox.Y - hitbox.OriginY)) 
             return true;
 
         // Or the circle intersects one of our edges.

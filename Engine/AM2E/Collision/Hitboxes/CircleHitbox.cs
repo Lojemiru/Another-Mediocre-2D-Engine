@@ -8,24 +8,22 @@ public sealed class CircleHitbox : Hitbox
     public int Radius { get; private set; }
 
     public override int BoundLeft 
-        => X - OffsetX - Radius;
+        => X - OriginX - Radius;
 
     public override int BoundRight 
-        => X - OffsetX + Radius;
+        => X - OriginX + Radius;
 
     public override int BoundTop 
-        => Y - OffsetY - Radius;
+        => Y - OriginY - Radius;
 
     public override int BoundBottom 
-        => Y - OffsetY + Radius;
+        => Y - OriginY + Radius;
 
-    public CircleHitbox(int x, int y, int radius, int offsetX = 0, int offsetY = 0)
+    public CircleHitbox(int radius, int originX = 0, int originY = 0)
     {
-        X = x;
-        Y = y;
         Radius = radius;
-        OffsetX = offsetX;
-        OffsetY = offsetY;
+        OriginX = originX;
+        OriginY = originY;
     }
 
     public void Resize(int radius)
@@ -35,8 +33,8 @@ public sealed class CircleHitbox : Hitbox
 
     public override void ApplyOffset(int x, int y)
     {
-        OffsetX = x;
-        OffsetY = y;
+        OriginX = x;
+        OriginY = y;
     }
 
     // Defer to RectangleHitbox, check has more to do with the rectangle.
@@ -46,7 +44,7 @@ public sealed class CircleHitbox : Hitbox
     public override bool Intersects(CircleHitbox hitbox)
     {
         // Add radii, compare to distance between both centers
-        return (Radius + hitbox.Radius + 1) > MathHelper.PointDistance(X - OffsetX, Y - OffsetY, hitbox.X - hitbox.OffsetX, hitbox.Y - hitbox.OffsetY);
+        return (Radius + hitbox.Radius + 1) > MathHelper.PointDistance(X - OriginX, Y - OriginY, hitbox.X - hitbox.OriginX, hitbox.Y - hitbox.OriginY);
     }
 
     // Defer to PreciseHitbox.
@@ -59,7 +57,7 @@ public sealed class CircleHitbox : Hitbox
 
     public override bool ContainsPoint(int x, int y)
     {
-        return ContainsPointInBounds(x, y) && (MathHelper.PointDistance(X - OffsetX, Y - OffsetY, x, y) - Radius < 0.5f);
+        return ContainsPointInBounds(x, y) && (MathHelper.PointDistance(X - OriginX, Y - OriginY, x, y) - Radius < 0.5f);
     }
 
     private const float PI_HALVES = (float)Math.PI / 2;
@@ -78,7 +76,7 @@ public sealed class CircleHitbox : Hitbox
         var y = MathHelper.LineComponentY(angle, Radius + 0.5f);
 
         // And return whether or not our perpendicular diameter and the input line intersect.
-        return MathHelper.DoLinesIntersect(X - OffsetX - x, Y - OffsetY - y, X - OffsetX + x, Y - OffsetY + y, x1, y1, x2, y2);
+        return MathHelper.DoLinesIntersect(X - OriginX - x, Y - OriginY - y, X - OriginX + x, Y - OriginY + y, x1, y1, x2, y2);
     }
     
     public override void DebugRender(SpriteBatch spriteBatch, Color color = default)
@@ -95,6 +93,6 @@ public sealed class CircleHitbox : Hitbox
             }
         }
         
-        spriteBatch.Draw(Pixel, new Vector2(X - OffsetX, Y - OffsetY), Color.Lime);
+        spriteBatch.Draw(Pixel, new Vector2(X - OriginX, Y - OriginY), Color.Lime);
     }
 }
