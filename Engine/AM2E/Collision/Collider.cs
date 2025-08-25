@@ -123,7 +123,7 @@ public sealed class Collider
         // This has not broken yet, but I had a note here for concerns relating to addition/removal from the RTree.
         // If something is broken that's probably it :)
 
-        if (Bounds is not null)
+        if (!first)
             LOIC.RTree.Delete(Bounds, parent);
         
         FlippedX = xFlip;
@@ -149,6 +149,7 @@ public sealed class Collider
         Bounds = new Rectangle(l, u, r, d);
             
         LOIC.RTree.Add(Bounds, parent);
+        first = false;
     }
 
     public void ApplyRotation(float angle)
@@ -156,7 +157,7 @@ public sealed class Collider
         if (disposed)
             return;
         
-        if (Bounds is not null)
+        if (!first)
             LOIC.RTree.Delete(Bounds, parent);
         
         var l = int.MaxValue;
@@ -178,16 +179,18 @@ public sealed class Collider
         Bounds = new Rectangle(l, u, r, d);
             
         LOIC.RTree.Add(Bounds, parent);
+        first = false;
     }
 
     private readonly ColliderBase parent;
+    private bool first = true;
     
     internal void SyncHitboxPositions()
     {
         if (disposed)
             return;
         
-        if (Bounds is not null)
+        if (!first)
             LOIC.RTree.Delete(Bounds, parent);
 
         if (hitboxes.Count <= 0) 
@@ -211,6 +214,7 @@ public sealed class Collider
         Bounds = new Rectangle(l, u, r, d);
             
         LOIC.RTree.Add(Bounds, parent);
+        first = false;
     }
 
     internal void Dispose()
