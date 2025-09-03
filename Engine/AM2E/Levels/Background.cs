@@ -59,19 +59,6 @@ public class Background
     internal void Step()
     {
         imageIndex += AnimationSpeed;
-        WrapIndex();
-    }
-    
-    private void WrapIndex()
-    {
-        if (imageIndex < sprite.Length && imageIndex >= 0) 
-            return;
-
-        while (imageIndex >= sprite.Length)
-            imageIndex -= sprite.Length;
-
-        while (imageIndex < 0)
-            imageIndex += sprite.Length;
     }
 
     internal void Draw(SpriteBatch spriteBatch, Level level, int layer)
