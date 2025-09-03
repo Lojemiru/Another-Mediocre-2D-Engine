@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace AM2E.Levels;
 
-public struct LDtkCompositeBackgroundDefinition
+public class LDtkCompositeBackgroundDefinition
 {
     /// <summary>
     /// The Backgrounds contained by this CompositeBackground

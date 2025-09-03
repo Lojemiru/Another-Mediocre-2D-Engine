@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace AM2E.Levels;
 
-public struct LDtkBackgroundDefinition
+public class LDtkBackgroundDefinition
 {
     /// <summary>
     /// User defined unique identifier
