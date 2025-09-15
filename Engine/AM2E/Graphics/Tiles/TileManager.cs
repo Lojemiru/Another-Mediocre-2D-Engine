@@ -27,6 +27,10 @@ public sealed class TileManager
     private float imageIndex = 0;
     
     public float AnimationSpeed = 0;
+    public float ScrollSpeedX = 0;
+    public float ScrollSpeedY = 0;
+    private float scrollX = 0;
+    private float scrollY = 0;
 
     public bool Randomize = false;
     public bool RepeatX = false;
@@ -112,14 +116,16 @@ public sealed class TileManager
     public void Step()
     {
         imageIndex += AnimationSpeed;
+        scrollX += ScrollSpeedX;
+        scrollY += ScrollSpeedY;
         WrapIndex();
     }
 
     public void Draw(SpriteBatch spriteBatch, int offsetX = 0, int offsetY = 0, int distancePastCamera = 0)
     {
         // Parallax component
-        var paraX = (int)((Camera.BoundLeft - level.X) * ParallaxX);
-        var paraY = (int)((Camera.BoundTop - level.Y) * ParallaxY);
+        var paraX = (int)((Camera.BoundLeft - level.X) * ParallaxX + scrollX);
+        var paraY = (int)((Camera.BoundTop - level.Y) * ParallaxY + scrollY);
 
         var limX = RepeatX ? int.MaxValue : widestPlacedTile + 1;
         var limY = RepeatY ? int.MaxValue : highestPlacedTile + 1;
