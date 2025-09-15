@@ -129,11 +129,13 @@ public sealed class TileManager
 
         var limX = RepeatX ? int.MaxValue : widestPlacedTile + 1;
         var limY = RepeatY ? int.MaxValue : highestPlacedTile + 1;
+        var limLX = RepeatX ? -int.MaxValue : 0;
+        var limLY = RepeatY ? -int.MaxValue : 0;
         
-        var l = Math.Clamp((Camera.BoundLeft - distancePastCamera - level.X - paraX) / 16, 0, limX);
-        var u = Math.Clamp((Camera.BoundTop - distancePastCamera - level.Y - paraY) / 16, 0, limY);
-        var r = Math.Clamp((Camera.BoundRight + distancePastCamera - level.X - paraX) / 16 + 1, 0, limX);
-        var d = Math.Clamp((paraY + Camera.BoundBottom + distancePastCamera - level.Y - paraY) / 16 + 1, 0, limY);
+        var l = Math.Clamp((Camera.BoundLeft - distancePastCamera - level.X - paraX) / 16, limLX, limX);
+        var u = Math.Clamp((Camera.BoundTop - distancePastCamera - level.Y - paraY) / 16, limLY, limY);
+        var r = Math.Clamp((Camera.BoundRight + distancePastCamera - level.X - paraX) / 16 + 1, limLX, limX);
+        var d = Math.Clamp((paraY + Camera.BoundBottom + distancePastCamera - level.Y - paraY) / 16 + 1, limLY, limY);
         
         for (var i = l; i < r; i++)
         {
@@ -141,10 +143,14 @@ public sealed class TileManager
             {
                 var ii = i;
                 var jj = j;
-                if (ii > widestPlacedTile)
+                if (ii < 0)
+                    ii += widestPlacedTile + 1;
+                else if (ii > widestPlacedTile)
                     ii %= widestPlacedTile + 1;
-                
-                if (jj > highestPlacedTile)
+
+                if (jj < 0)
+                    jj += highestPlacedTile + 1;
+                else if (jj > highestPlacedTile)
                     jj %= highestPlacedTile + 1;
                 
                 Tiles[ii, jj]?.Draw(spriteBatch, ImageIndex, (worldX + offsetX + paraX) + i * tileSize, (worldY + offsetY + paraY) + j * tileSize, Randomize);
