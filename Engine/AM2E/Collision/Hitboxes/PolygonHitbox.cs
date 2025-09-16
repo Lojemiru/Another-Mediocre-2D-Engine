@@ -11,7 +11,7 @@ public class PolygonHitbox : Hitbox
     
     private readonly Point[] untranslatedPoints;
     private readonly Point[] points;
-
+    
     private int furthestLeft;
     private int furthestRight;
     private int furthestTop;
@@ -57,8 +57,6 @@ public class PolygonHitbox : Hitbox
     
     private protected void SetPoint(int index, int x, int y)
     {
-        x -= OriginX;
-        y -= OriginY;
         points[index] = new Point(x, y);
         untranslatedPoints[index] = new Point(x, y);
     }
@@ -71,12 +69,6 @@ public class PolygonHitbox : Hitbox
 
     public override void UpdateOrigin(int x, int y)
     {
-        for (var i = 0; i < untranslatedPoints.Length; i++)
-        {
-            var point = untranslatedPoints[i];
-            untranslatedPoints[i] = new Point(point.X + OriginX - x, point.Y + OriginY - y);
-        }
-
         OriginX = x;
         OriginY = y;
         
@@ -94,10 +86,10 @@ public class PolygonHitbox : Hitbox
             var x = untranslatedPoints[i].X * multX;
             var y = untranslatedPoints[i].Y * multY;
 
-            var distance = Math.Round(MathHelper.PointDistance(0f, 0, x, y));
-            var originalAngle = MathHelper.PointAngle(0, 0, x, y);
+            var distance = Math.Round(MathHelper.PointDistance(0f, 0f, x, y));
+            var originalAngle = MathHelper.PointAngle(0f, 0f, x, y);
 
-            points[i] = new Point((int)Math.Round(Math.Cos(originalAngle + radAngle) * distance), (int)Math.Round(Math.Sin(originalAngle + radAngle) * distance));
+            points[i] = new Point((int)Math.Round(Math.Cos(originalAngle + radAngle) * distance) + OriginX, (int)Math.Round(Math.Sin(originalAngle + radAngle) * distance) + OriginY);
         }
         
         RecalculateBounds();
