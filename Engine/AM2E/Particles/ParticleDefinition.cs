@@ -47,6 +47,8 @@ public class ParticleDefinition
 
     public float ScaleMin = 1f;
     public float ScaleMax = 1f;
+    public float ScaleRateMin = 0;
+    public float ScaleRateMax = 0;
 
     public ParticleDefinition(Sprite sprite)
     {

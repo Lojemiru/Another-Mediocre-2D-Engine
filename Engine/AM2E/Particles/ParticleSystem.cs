@@ -41,11 +41,12 @@ public sealed class ParticleSystem
     private const int P_FADE_DELAY = 14;
     private const int P_LAYER = 15;
     private const int P_SCALE = 16;
+    private const int P_SCALE_RATE = 17;
 
     private const float TO_RADIANS = (float)Math.PI / 180f;
 
-    // lifetime, x, y, angle, rotation, speed, accel, direction, turn, index, animate, alpha, fade, gravity, fade delay, layer, scale
-    private const int DATA_SCALE = 17;
+    // lifetime, x, y, angle, rotation, speed, accel, direction, turn, index, animate, alpha, fade, gravity, fade delay, layer, scale, scale rate
+    private const int DATA_SCALE = 18;
     
     public ParticleSystem(string definition, int size) 
         : this(size, ParticleDefinitions.Definitions[definition])
@@ -85,6 +86,7 @@ public sealed class ParticleSystem
         particles[index][P_FADE_DELAY] = Definition.FadeDelay;
         particles[index][P_LAYER] = layer < 0 ? this.layer : layer;
         particles[index][P_SCALE] = Rng.RandomRange(Definition.ScaleMin, Definition.ScaleMax);
+        particles[index][P_SCALE_RATE] = Rng.RandomRange(Definition.ScaleRateMin, Definition.ScaleRateMax);
         
         index = MathHelper.Wrap(index + 1, 0, Size);
     }
@@ -144,6 +146,8 @@ public sealed class ParticleSystem
             }
 
             p[P_GRAVITY] += Definition.Gravity;
+
+            p[P_SCALE] += p[P_SCALE_RATE];
 
             var rads = p[P_DIRECTION] * TO_RADIANS;
             p[P_X] += MathHelper.LineComponentX(rads, p[P_SPEED]);
