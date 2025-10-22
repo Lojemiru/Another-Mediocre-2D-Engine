@@ -62,26 +62,6 @@ public sealed class Sprite
     /// The offsets required to draw each cropped frame correctly.
     /// </summary>
     private readonly int[][][]? cropOffsets;
-
-    /// <summary>
-    /// Static <see cref="Vector2"/> used to translate int/int positions for <see cref="SpriteBatch"/> draw calls.
-    /// </summary>
-    private static Vector2 drawPos;
-    
-    /// <summary>
-    /// Static <see cref="Vector2"/> used to set the transform-respecting origin for each draw call.
-    /// </summary>
-    private static Vector2 origin;
-
-    /// <summary>
-    /// Static <see cref="Vector2"/> used to translate x/y scale values for <see cref="SpriteBatch"/> draw calls.
-    /// </summary>
-    private static Vector2 scale;
-    
-    /// <summary>
-    /// Static <see cref="Rectangle"/> used to translate sub-rectangles for sub-rectangle draw calls.
-    /// </summary>
-    private static Rectangle subPos;
     
     /// <summary>
     /// Numeric constant for converting degrees to radians.
@@ -135,8 +115,6 @@ public sealed class Sprite
         // Constrain layer to safe indices.
         layer = Math.Clamp(layer, 0, Layers - 1);
         
-        PrepareDraw(x, y, scaleX, scaleY);
-        
         var currentFrame = Positions[layer][frame];
         
         // Calculate the unflipped origin...
@@ -150,21 +128,19 @@ public sealed class Sprite
         }
 
         // ...and then apply the origin flips. 
-        origin.X = ((effects & SpriteEffects.FlipHorizontally) == SpriteEffects.FlipHorizontally) 
-            ? (currentFrame.Width - (flipOnCorner ? 1 : 0) - originX) : originX;
-        
-        origin.Y = ((effects & SpriteEffects.FlipVertically) == SpriteEffects.FlipVertically)
-            ? (currentFrame.Height - (flipOnCorner ? 1 : 0) - originY) : originY;
-
-        scale.X = scaleX;
-        scale.Y = scaleY;
+        var origin = new Vector2(
+            (effects & SpriteEffects.FlipHorizontally) == SpriteEffects.FlipHorizontally 
+            ? (currentFrame.Width - (flipOnCorner ? 1 : 0) - originX) : originX,
+            (effects & SpriteEffects.FlipVertically) == SpriteEffects.FlipVertically
+                ? (currentFrame.Height - (flipOnCorner ? 1 : 0) - originY) : originY
+                );
 
         if (color == default)
             color = Color.White;
         
         // Finally, draw!
-        batch.Draw(TexturePage.Texture, drawPos, currentFrame, color * alpha,
-            Microsoft.Xna.Framework.MathHelper.ToRadians(rotation), origin, scale, effects, 0);
+        batch.Draw(TexturePage.Texture, new Vector2(x, y), currentFrame, color * alpha,
+            Microsoft.Xna.Framework.MathHelper.ToRadians(rotation), origin, new Vector2(scaleX, scaleY), effects, 0);
     }
 
     /// <summary>
@@ -194,72 +170,67 @@ public sealed class Sprite
         // Constrain layer to safe indices.
         layer = Math.Clamp(layer, 0, Layers - 1);
 
-        PrepareDraw(x, y, scaleX, scaleY);
-
         var pos = Positions[layer][frame];
 
         // Figure out the bounds of our sub-rectangle.
-        subPos.X = Positions[layer][frame].X + subRectangle.X;
-        subPos.Y = Positions[layer][frame].Y + subRectangle.Y;
-        subPos.Width = subRectangle.Width;
-        subPos.Height = subRectangle.Height;
+        var subPosX = Positions[layer][frame].X + subRectangle.X;
+        var subPosY = Positions[layer][frame].Y + subRectangle.Y;
+        var subPosWidth = subRectangle.Width;
+        var subPosHeight = subRectangle.Height;
 
         if (cropOffsets is not null)
         {
-            subPos.X -= cropOffsets[layer][frame][0];
-            subPos.Y -= cropOffsets[layer][frame][1];
+            subPosX -= cropOffsets[layer][frame][0];
+            subPosY -= cropOffsets[layer][frame][1];
         }
 
         var flipH = (effects & SpriteEffects.FlipHorizontally) != 0;
         var flipV = (effects & SpriteEffects.FlipVertically) != 0;
 
-        if (subPos.X < pos.X)
+        if (subPosX < pos.X)
         {
-            var diff = (pos.X - subPos.X);
-            subPos.Width -= diff;
-            subPos.X = pos.X;
+            var diff = (pos.X - subPosX);
+            subPosWidth -= diff;
+            subPosX = pos.X;
             
             if (!flipH)
-                drawPos.X += diff;
+                x += diff;
         }
         
-        var sub = (subPos.X + subPos.Width) - (pos.X + pos.Width);
+        var sub = (subPosX + subPosWidth) - (pos.X + pos.Width);
         if (sub > 0)
         {
-            subPos.Width -= sub;
+            subPosWidth -= sub;
             
             if (flipH)
-                drawPos.X += sub;
+                x += sub;
         }
 
-        if (subPos.Y < pos.Y)
+        if (subPosY < pos.Y)
         {
-            var diff = (pos.Y - subPos.Y);
-            subPos.Height -= diff;
-            subPos.Y = pos.Y;
+            var diff = (pos.Y - subPosY);
+            subPosHeight -= diff;
+            subPosY = pos.Y;
             
             if (!flipV)
-                drawPos.Y += diff;
+                y += diff;
         }
 
-        sub = (subPos.Y + subPos.Height) - (pos.Y + pos.Height);
+        sub = (subPosY + subPosHeight) - (pos.Y + pos.Height);
         if (sub > 0)
         {
-            subPos.Height -= sub;
+            subPosHeight -= sub;
             
             if (flipV)
-                drawPos.Y += sub;
+                y += sub;
         }
-
-        scale.X = scaleX;
-        scale.Y = scaleY;
         
         if (color == default)
             color = Color.White;
 
         // Draw!
-        batch.Draw(TexturePage.Texture, drawPos, subPos, color * alpha,
-            Microsoft.Xna.Framework.MathHelper.ToRadians(rotation), rectOrigin ?? Vector2.Zero, scale, effects, 0);
+        batch.Draw(TexturePage.Texture, new Vector2(x, y), new Rectangle(subPosX, subPosY, subPosWidth, subPosHeight), color * alpha,
+            Microsoft.Xna.Framework.MathHelper.ToRadians(rotation), rectOrigin ?? Vector2.Zero, new Vector2(scaleX, scaleY), effects, 0);
     }
     
     /// <summary>
@@ -334,13 +305,4 @@ public sealed class Sprite
     }
     
     #endregion
-    
-    private static void PrepareDraw(float x, float y, float scaleX, float scaleY)
-    {
-        drawPos.X = x;
-        drawPos.Y = y;
-        
-        scale.X = scaleX;
-        scale.Y = scaleY;
-    }
 }

@@ -13,12 +13,10 @@ public static class Renderer
     private static Rectangle guiSpace = new();
     private static SpriteBatch applicationBatch;
     internal static SpriteBatch GuiBatch;
-    private static Vector2 posVector = new(0, 0);
     public static int GameWidth;
     public static int GameHeight;
     public static float OffsetX = 0;
     public static float OffsetY = 0;
-    private static Rectangle finalApplicationSpace = new();
 
     internal static int UpscaleAmount { get; private set; } = 1;
 
@@ -148,7 +146,7 @@ public static class Renderer
         var texelX = ApplicationSpace.Width / GameWidth;
         var texelY = ApplicationSpace.Height / GameHeight;
 
-        finalApplicationSpace = new Rectangle(ApplicationSpace.X + (int)Math.Floor(OffsetX * texelX), ApplicationSpace.Y + (int)Math.Floor(OffsetY * texelY), ApplicationSpace.Width, ApplicationSpace.Height);
+        var finalApplicationSpace = new Rectangle(ApplicationSpace.X + (int)Math.Floor(OffsetX * texelX), ApplicationSpace.Y + (int)Math.Floor(OffsetY * texelY), ApplicationSpace.Width, ApplicationSpace.Height);
         
         // Render application and GUI surfaces into drawable application space.
         applicationBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
@@ -170,11 +168,11 @@ public static class Renderer
         GraphicsDeviceManager.GraphicsDevice.Clear(Color.Transparent);
         
         spriteBatch.Begin();
-        spriteBatch.Draw(ApplicationSurface, posVector, Color.White);
+        spriteBatch.Draw(ApplicationSurface, Vector2.Zero, Color.White);
         spriteBatch.End();
         
         GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(ApplicationSurface);
         spriteBatch.Begin();
-        spriteBatch.Draw(target, posVector, Color.White);
+        spriteBatch.Draw(target, Vector2.Zero, Color.White);
     }
 }
