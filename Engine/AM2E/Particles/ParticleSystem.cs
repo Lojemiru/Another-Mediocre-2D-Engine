@@ -42,11 +42,13 @@ public sealed class ParticleSystem
     private const int P_LAYER = 15;
     private const int P_SCALE = 16;
     private const int P_SCALE_RATE = 17;
+    private const int P_FADE_IN = 18;
+    private const int P_FADED_IN = 19;
 
     private const float TO_RADIANS = (float)Math.PI / 180f;
 
-    // lifetime, x, y, angle, rotation, speed, accel, direction, turn, index, animate, alpha, fade, gravity, fade delay, layer, scale, scale rate
-    private const int DATA_SCALE = 18;
+    // lifetime, x, y, angle, rotation, speed, accel, direction, turn, index, animate, alpha, fade, gravity, fade delay, layer, scale, scale rate, fade in amount, faded in
+    private const int DATA_SCALE = 20;
     
     public ParticleSystem(string definition, int size) 
         : this(size, ParticleDefinitions.Definitions[definition])
@@ -87,6 +89,8 @@ public sealed class ParticleSystem
         particles[index][P_LAYER] = layer < 0 ? this.layer : layer;
         particles[index][P_SCALE] = Rng.RandomRange(Definition.ScaleMin, Definition.ScaleMax);
         particles[index][P_SCALE_RATE] = Rng.RandomRange(Definition.ScaleRateMin, Definition.ScaleRateMax);
+        particles[index][P_FADE_IN] = Rng.RandomRange(Definition.FadeInMin, Definition.FadeInMin);
+        particles[index][P_FADED_IN] = 0;
         
         index = MathHelper.Wrap(index + 1, 0, Size);
     }
@@ -99,8 +103,14 @@ public sealed class ParticleSystem
             
             if (p[P_LIFE] <= 0)
                 continue;
-            
-            if (p[P_FADE_DELAY] <= 0)
+
+            if (p[P_FADED_IN] == 0)
+            {
+                p[P_ALPHA] += p[P_FADE_IN];
+                if (p[P_ALPHA] >= 1)
+                    p[P_FADED_IN] = 1;
+            }
+            else if (p[P_FADE_DELAY] <= 0)
                 p[P_ALPHA] -= p[P_FADE];
 
             if (p[P_ALPHA] < 0)
@@ -110,7 +120,9 @@ public sealed class ParticleSystem
             }
 
             p[P_LIFE] -= 1;
-            p[P_FADE_DELAY] -= 1;
+            
+            if (p[P_FADED_IN] > 0)
+                p[P_FADE_DELAY] -= 1;
 
             p[P_ANGLE] += p[P_ROTATION];
             p[P_SPEED] += p[P_ACCEL];
