@@ -89,7 +89,7 @@ public sealed class ParticleSystem
         particles[index][P_LAYER] = layer < 0 ? this.layer : layer;
         particles[index][P_SCALE] = Rng.RandomRange(Definition.ScaleMin, Definition.ScaleMax);
         particles[index][P_SCALE_RATE] = Rng.RandomRange(Definition.ScaleRateMin, Definition.ScaleRateMax);
-        particles[index][P_FADE_IN] = Rng.RandomRange(Definition.FadeInMin, Definition.FadeInMin);
+        particles[index][P_FADE_IN] = Rng.RandomRange(Definition.FadeInMin, Definition.FadeInMax);
         particles[index][P_FADED_IN] = 0;
         
         index = MathHelper.Wrap(index + 1, 0, Size);

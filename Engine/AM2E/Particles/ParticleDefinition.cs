@@ -42,7 +42,7 @@ public class ParticleDefinition
     public float FadeMax = 0;
     public float FadeDelay = 0;
     public float FadeInMin = 0;
-    public float FadeOutMax = 0;
+    public float FadeInMax = 0;
     
     public float GravityDirection = 90;
     public float Gravity = 0;
