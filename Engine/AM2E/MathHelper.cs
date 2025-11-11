@@ -1,3 +1,5 @@
+using Microsoft.Xna.Framework;
+
 namespace AM2E;
 
 public static class MathHelper
@@ -122,6 +124,24 @@ public static class MathHelper
             return false;
 		
         return (x - x1) * (y2 - y1) - (y - y1) * (x2 - x1) == 0;
+    }
+    
+    public static Vector2 NearestPositionOnLine(Vector2 lineEnd1, Vector2 lineEnd2, Vector2 point)
+    {
+        // Special thanks to 13-year-old Stackoverflow post, user N.Shilke's Answer.
+        // https://stackoverflow.com/questions/3120357/get-closest-point-to-a-line 
+        var ap = point - lineEnd1;
+        var ab = lineEnd2 - lineEnd1;
+        
+        var distance = Vector2.Dot(ap, ab) / ab.LengthSquared();
+
+        if (distance < 0)   
+            return lineEnd1;
+        
+        if (distance > 1)
+            return lineEnd2;
+        
+        return lineEnd1 + ab * distance;
     }
     
     public static bool IsApproximatelyZero(double val, double precision = 0.1)
