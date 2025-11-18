@@ -53,11 +53,6 @@ public abstract class GenericLevelElement
             AllElements[ID].deprecated = true;
             AllElements[ID] = this;
         }
-
-        if (EngineCore.isNetworked)
-        {
-            EngineCore.Server?.RegisterElement(this);
-        }
     }
 
     protected GenericLevelElement(LDtkEntityInstance entity, int x, int y, Layer? layer) 
@@ -74,11 +69,6 @@ public abstract class GenericLevelElement
         
         if (!deprecated)
             AllElements.Remove(ID, out _);
-        
-        if (EngineCore.isNetworked)
-        {
-            EngineCore.Server?.DeleteObject(ID, this);
-        }
     }
     
     protected virtual void OnDispose() { }

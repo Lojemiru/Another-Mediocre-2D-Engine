@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using AM2E.Actors;
 using AM2E.Graphics;
-using AM2E.Networking;
 
 namespace AM2E.Levels;
 
@@ -274,26 +273,20 @@ public sealed class Layer
         OnPostRender(spriteBatch, this);
     }
 
-    internal void PreTick(bool isFastForward)
+    internal void PreTick()
     {
         InTick = true;
         
         foreach (var actor in Actors)
         {
-            if (isFastForward && actor is not INetSynced)
-                continue;
-
             actor.PreStep();
         }
     }
 
-    internal void Tick(bool isFastForward)
+    internal void Tick()
     {
         foreach (var actor in Actors)
         {
-            if (isFastForward && actor is not INetSynced)
-                continue;
-
             actor.Step();
         }
         
@@ -301,13 +294,10 @@ public sealed class Layer
             TileManager?.Step();
     }
 
-    internal void PostTick(bool isFastForward)
+    internal void PostTick()
     {
         foreach (var actor in Actors)
         {
-            if (isFastForward && actor is not INetSynced)
-                continue;
-
             actor.PostStep();
         }
         

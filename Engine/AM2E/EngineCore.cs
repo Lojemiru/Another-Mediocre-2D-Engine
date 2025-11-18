@@ -4,7 +4,6 @@ using AM2E.Actors;
 using AM2E.Input;
 using AM2E.Graphics;
 using AM2E.IO;
-using AM2E.Networking;
 
 namespace AM2E;
 
@@ -18,8 +17,6 @@ public sealed class EngineCore : Game
     private bool resetDeltaTime = false;
     private static EngineCore staticThis;
     internal static GameWindow StaticWindow;
-    internal static Server Server;
-    internal static Client Client;
     internal static string ContentNamespaceHeader;
     internal static string ContentNamespaceFooter;
     public static bool isNetworked = false;
@@ -142,7 +139,6 @@ public sealed class EngineCore : Game
 
         while (updateAccumulator >= oneSixtieth)
         {
-            NetworkUpdate();
             FixedUpdate();
             updateAccumulator -= oneSixtieth;
         }
@@ -157,22 +153,7 @@ public sealed class EngineCore : Game
     private static void FixedUpdate()
     {
         InputManager.Update();
-        ActorManager.UpdateActors(false);
-    }
-
-    private static void NetworkUpdate()
-    {
-        if (!isNetworked)
-            return;
-        
-        if (isServer)
-        {
-            Server.Update();
-        }
-        else
-        {
-            Client.Update();
-        }
+        ActorManager.UpdateActors();
     }
 
     protected override void Draw(GameTime gameTime)
@@ -290,20 +271,6 @@ public sealed class EngineCore : Game
     public static void SetMouseVisible(bool status)
     {
         staticThis.IsMouseVisible = status;
-    }
-
-    public static void StartServer(int port)
-    {
-        Server = new Server(port);
-        isNetworked = true;
-        isServer = true;
-    }
-
-    public static void StartClient(string ip, int port)
-    {
-        Client = new Client(ip, port);
-        isNetworked = true;
-        isServer = false;
     }
 
     public static void GracefulExit()
