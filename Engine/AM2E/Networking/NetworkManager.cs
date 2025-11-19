@@ -1,4 +1,5 @@
-﻿using ENet;
+﻿using AM2E.Actors;
+using ENet;
 
 namespace AM2E.Networking;
 
@@ -48,7 +49,7 @@ public static class NetworkManager
 
 		host.Create();
 
-		peer = host.Connect(address);
+		host.Connect(address);
 		Logger.Debug("Started client");
 	}
 
@@ -90,6 +91,45 @@ public static class NetworkManager
 		}
 	}
 
+	public static void SendPacketToRemoteActor(Guid actorId, byte[] data)
+	{
+		if (!isNetworking)
+		{
+			return;
+		}
+
+		Logger.Debug($"Beginning packet send to {actorId}");
+		using var ms = new MemoryStream();
+		var guidBytes = actorId.ToByteArray();
+		ms.Write(guidBytes);
+		ms.Write(data);
+		var packet = default(Packet);
+		packet.Create(ms.ToArray(), PacketFlags.Reliable);
+		host!.Broadcast(0, ref packet);
+	}
+
+	static void HandlePacket(Packet packet)
+	{
+		var buffer = new byte[packet.Length];
+		packet.CopyTo(buffer);
+		using var ms = new MemoryStream(buffer);
+		var guidBytes = new byte[16];
+		ms.ReadExactly(guidBytes, 0, 16);
+		var guid = new Guid(guidBytes);
+		var data = new byte[packet.Length - 16];
+		ms.ReadExactly(data);
+
+		Logger.Debug($"Received guid: {guid}");
+		var actor = Actor.GetActor(guid.ToString()) as INetworkedActor;
+		if (actor is not null)
+		{
+			actor.OnPacketReceive(data);
+		}
+		
+
+		packet.Dispose();
+	}
+
 	static void ServerTick()
 	{
 		while (host!.Service(0, out var netEvent) > 0)
@@ -97,12 +137,16 @@ public static class NetworkManager
 			switch (netEvent.Type)
 			{
 				case EventType.Connect:
-					connectedPeers.Add(netEvent.Peer.ID, peer);
-					Logger.Debug("Peer connected");
+					connectedPeers.Add(netEvent.Peer.ID, netEvent.Peer);
+					Logger.Debug($"Peer connected with ID: {netEvent.Peer.ID}");
 					break;
 				case EventType.Disconnect:
 					connectedPeers.Remove(netEvent.Peer.ID);
 					Logger.Debug("Peer disconnected");
+					break;
+				case EventType.Receive:
+					Logger.Debug("Packet received");
+					HandlePacket(netEvent.Packet);
 					break;
 			}
 		}
@@ -116,9 +160,14 @@ public static class NetworkManager
 			{
 				case EventType.Connect:
 					Logger.Debug("Peer connected");
+					peer = netEvent.Peer;
 					break;
 				case EventType.Disconnect:
 					Logger.Debug("Peer disconnected");
+					break;
+				case EventType.Receive:
+					Logger.Debug("Packet received");
+					HandlePacket(netEvent.Packet);
 					break;
 			}
 		}
