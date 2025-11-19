@@ -4,6 +4,7 @@ using AM2E.Actors;
 using AM2E.Input;
 using AM2E.Graphics;
 using AM2E.IO;
+using AM2E.Networking;
 
 namespace AM2E;
 
@@ -139,6 +140,7 @@ public sealed class EngineCore : Game
 
         while (updateAccumulator >= oneSixtieth)
         {
+            NetworkUpdate();
             FixedUpdate();
             updateAccumulator -= oneSixtieth;
         }
@@ -154,6 +156,11 @@ public sealed class EngineCore : Game
     {
         InputManager.Update();
         ActorManager.UpdateActors();
+    }
+
+    private static void NetworkUpdate()
+    {
+        NetworkManager.NetworkTick();
     }
 
     protected override void Draw(GameTime gameTime)
