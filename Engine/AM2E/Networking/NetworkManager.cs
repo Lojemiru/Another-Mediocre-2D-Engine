@@ -11,6 +11,8 @@ public static class NetworkManager
 
 	public static bool IsServer { get; private set; }
 
+	public static int RemotePeerId { get; private set; } = -1;
+
 	public static event Action<int>? PeerConnected;
 	
 	public static event Action<int>? PeerDisconnected;
@@ -44,6 +46,7 @@ public static class NetworkManager
 		host = new Host();
 		IsServer = true;
 		IsConnected = true;
+		RemotePeerId = -1;
 		var address = new Address() { Port = (ushort)port };
 		host.Create(address, maxClients, 2);
 		Logger.Debug("Started server");
@@ -140,12 +143,11 @@ public static class NetworkManager
 
 	public static void SendPacketToRemoteActor(Guid actorId, byte[] data, bool isReliable, List<int>? targetPeers = null)
 	{
-		if (!IsNetworking || !IsConnected)
+		targetPeers ??= [];
+		if (!IsNetworking || !IsConnected || targetPeers.Count == 1 && targetPeers[0] == RemotePeerId)
 		{
 			return;
 		}
-
-		targetPeers ??= [];
 
 		Logger.Debug($"Beginning packet send to {actorId}");
 
@@ -334,6 +336,7 @@ public static class NetworkManager
 					ConnectedToServer?.Invoke(remotePeerId);
 					Logger.Debug($"Finished connecting to server, remote peer id: {remotePeerId}");
 					IsConnected = true;
+					RemotePeerId = remotePeerId;
 					break;
 				}
 		}
