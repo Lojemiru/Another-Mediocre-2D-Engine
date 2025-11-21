@@ -2,5 +2,5 @@
 
 public interface INetworkedActor
 {
-	public void OnPacketReceive(byte[] data);
+	public void OnPacketReceive(byte[] data, int senderId);
 }
