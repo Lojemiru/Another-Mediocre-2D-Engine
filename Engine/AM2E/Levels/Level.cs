@@ -121,27 +121,27 @@ public sealed class Level
         spriteBatch.End();
     }
 
-    internal void PreTick(bool isFastForward)
+    internal void PreTick()
     {
         foreach (var layer in Layers.Values)
         {
-            layer.PreTick(isFastForward);
+            layer.PreTick();
         }
     }
     
-    internal void Tick(bool isFastForward)
+    internal void Tick()
     {
         foreach (var layer in Layers.Values)
         {
-            layer.Tick(isFastForward);
+            layer.Tick();
         }
     }
 
-    internal void PostTick(bool isFastForward)
+    internal void PostTick()
     {
         foreach (var layer in Layers.Values)
         {
-            layer.PostTick(isFastForward);
+            layer.PostTick();
         }
         
         Background?.Step();
