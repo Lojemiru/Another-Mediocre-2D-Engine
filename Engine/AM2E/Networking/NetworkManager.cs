@@ -19,6 +19,8 @@ public static class NetworkManager
 
 	public static event Action<int>? ConnectedToServer;
 
+	public static event Action? DisconnectedFromServer;
+
 	const byte ServerPeerId = 255;
 
 	enum PacketTypes
@@ -363,10 +365,10 @@ public static class NetworkManager
 					try
 					{
 						var remotePeerId = ms.ReadByte();
-						ConnectedToServer?.Invoke(remotePeerId);
 						Logger.Debug($"Finished connecting to server, remote peer id: {remotePeerId}");
 						IsConnected = true;
 						RemotePeerId = remotePeerId;
+						ConnectedToServer?.Invoke(remotePeerId);
 					}
 					catch (Exception ex)
 					{
@@ -476,11 +478,13 @@ public static class NetworkManager
 			{
 				case EventType.Connect:
 					connectedPeers.Add(netEvent.Peer.ID, netEvent.Peer);
-					Logger.Debug($"Connected to server");
+					Logger.Debug($"Server acknowledged connection, waiting for full connection to be established");
 					break;
 				case EventType.Disconnect:
 					connectedPeers.Remove(netEvent.Peer.ID);
 					Logger.Debug("Server disconnected");
+					StopClient();
+					DisconnectedFromServer?.Invoke();
 					break;
 				case EventType.Receive:
 					{
@@ -491,6 +495,8 @@ public static class NetworkManager
 				case EventType.Timeout:
 					connectedPeers.Remove(netEvent.Peer.ID);
 					Logger.Debug("Server timed out");
+					StopClient();
+					DisconnectedFromServer?.Invoke();
 					break;
 			}
 		}
