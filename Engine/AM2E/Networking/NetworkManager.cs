@@ -63,6 +63,7 @@ public static class NetworkManager
 			throw new InvalidOperationException("Tried to stop client through StopServer method");
 		}
 		StopNetworking();
+		Logger.Debug("Stopped server");
 	}
 
 	public static void StartClient(string ip, int port)
@@ -96,6 +97,7 @@ public static class NetworkManager
 			throw new InvalidOperationException("Tried to stop server through StopClient method");
 		}
 		StopNetworking();
+		Logger.Debug("Stopped client");
 	}
 
 	private static void InitializeNetworking()
@@ -148,8 +150,6 @@ public static class NetworkManager
 		{
 			return;
 		}
-
-		Logger.Debug($"Beginning packet send to {actorId}");
 
 		if (IsServer)
 		{
@@ -217,14 +217,14 @@ public static class NetworkManager
 
 	private static void HandleDataPacket(Guid id, byte[] data, int senderId)
 	{
-		for (var i = 0; i < data.Length; i++)
-		{
-			Logger.Debug($"Packet data i: {data[i]}");
-		}
 		var actor = Actor.GetActor(id.ToString()) as INetworkedActor;
 		if (actor is not null)
 		{
 			actor.OnPacketReceive(data, senderId);
+		}
+		else
+		{
+			Logger.Debug($"Received packet for id: {id} but there was no local actor for that id");
 		}
 	}
 
@@ -266,7 +266,6 @@ public static class NetworkManager
 		ms.ReadExactly(data);
 		var rebroadcastData = CreateRebroadcastData(data, peerId);
 		var rebroadcastPacket = default(Packet);
-		Logger.Debug($"Packet is reliable: {channelId == 1}");
 		var flags = channelId == 1 ? PacketFlags.Reliable : PacketFlags.None;
 		rebroadcastPacket.Create(rebroadcastData, flags);
 
@@ -404,7 +403,6 @@ public static class NetworkManager
 					break;
 				case EventType.Receive:
 					{
-						Logger.Debug("Packet received");
 						using var packet = netEvent.Packet;
 						ServerHandlePacket(packet, (int)netEvent.Peer.ID, netEvent.ChannelID);
 						break;
@@ -435,7 +433,6 @@ public static class NetworkManager
 					break;
 				case EventType.Receive:
 					{
-						Logger.Debug("Packet received");
 						using var packet = netEvent.Packet;
 						ClientHandlePacket(packet);
 						break;
