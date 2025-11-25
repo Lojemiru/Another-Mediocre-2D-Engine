@@ -103,6 +103,15 @@ public static class TextureManager
         return Pages[page].Sprites[sprite];
     }
 
+    public static TexturePage GetPage(Enum page) => GetPage(page.ToString());
+
+    public static TexturePage GetPage(string page)
+    {
+        LoadPageBlocking(page);
+
+        return Pages[page];
+    }
+
     public static void UnloadPage(Enum index)
         => UnloadPage(index.ToString());
     
