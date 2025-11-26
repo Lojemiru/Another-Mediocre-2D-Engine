@@ -1,5 +1,6 @@
 ﻿using AM2E.Actors;
 using ENet;
+using System.Text;
 
 namespace AM2E.Networking;
 
@@ -153,6 +154,17 @@ public static class NetworkManager
 		}
 	}
 
+	// We don't want our streams closed randomly
+	private static BinaryReader GetBinaryReader(Stream stream)
+	{
+		return new BinaryReader(stream, Encoding.UTF8, true);
+	}
+
+	private static BinaryWriter GetBinaryWriter(Stream stream)
+	{
+		return new BinaryWriter(stream, Encoding.UTF8, true);
+	}
+
 	internal static void RegisterStaticActor(int networkId, StaticNetworkedActor actor)
 	{
 		staticNetworkedActors.Add(networkId, actor);
@@ -223,7 +235,7 @@ public static class NetworkManager
 			packetStream.WriteByte((byte)peerId);
 		}
 		packetStream.WriteByte((byte)IdTypes.Static);
-		using var bw = new BinaryWriter(packetStream);
+		using var bw = GetBinaryWriter(packetStream);
 		bw.Write(networkId);
 		bw.Flush();
 	}
@@ -233,7 +245,7 @@ public static class NetworkManager
 		packetStream.WriteByte((byte)PacketTypes.Data);
 		packetStream.WriteByte(ServerPeerId);
 		packetStream.WriteByte((byte)IdTypes.Static);
-		using var bw = new BinaryWriter(packetStream);
+		using var bw = GetBinaryWriter(packetStream);
 		bw.Write(networkId);
 		bw.Flush();
 	}
@@ -360,7 +372,7 @@ public static class NetworkManager
 
 	private static void ServerHandleStaticPacket(MemoryStream dataStream, int senderId)
 	{
-		using var br = new BinaryReader(dataStream);
+		using var br = GetBinaryReader(dataStream);
 		var networkId = 0;
 		try
 		{
@@ -450,7 +462,7 @@ public static class NetworkManager
 	{
 		try
 		{
-			using var br = new BinaryReader(packetStream);
+			using var br = GetBinaryReader(packetStream);
 
 			var networkId = br.ReadInt32();
 			var data = new byte[packetStream.Length - packetStream.Position];
