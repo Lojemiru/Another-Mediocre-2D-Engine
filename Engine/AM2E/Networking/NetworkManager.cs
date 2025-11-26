@@ -1,5 +1,6 @@
 ﻿using AM2E.Actors;
 using ENet;
+using System.Net.Sockets;
 
 namespace AM2E.Networking;
 
@@ -240,28 +241,54 @@ public static class NetworkManager
 		return ms.ToArray();
 	}
 
+	private static (List<Peer>?, bool) TryGetTargetPeers(Stream packetStream)
+	{
+		try
+		{
+			var peerCount = packetStream.ReadByte();
+			var packetIsForServer = peerCount == 0;
+			var peers = new List<Peer>();
+			for (var i = 0; i < peerCount; i++)
+			{
+				var peer = packetStream.ReadByte();
+				if (peer == ServerPeerId)
+				{
+					packetIsForServer = true;
+				}
+				else
+				{
+					peers.Add(connectedPeers.GetValueOrDefault((uint)peer));
+				}
+			}
+			return (peers, packetIsForServer);
+		}
+		catch (Exception ex)
+		{
+			Logger.Warn($"Error when parsing packet header:\n{ex}");
+			return (null, false);
+		}
+	}
+
 	private static void ServerHandlePacket(Packet packet, int peerId, byte channelId)
 	{
 		var bytes = new byte[packet.Length];
 		packet.CopyTo(bytes);
 
 		using var ms = new MemoryStream(bytes);
-		var peerCount = ms.ReadByte();
-		var isBroadcast = peerCount == 0;
-		var packetIsForServer = isBroadcast;
-		var rebroadcastPeers = new List<Peer>();
-		var sendingPeer = connectedPeers.GetValueOrDefault((uint)peerId);
-		for (var i = 0; i < peerCount; i++)
+		var (rebroadcastPeers, packetIsForServer) = TryGetTargetPeers(ms);
+		if (rebroadcastPeers is null)
 		{
-			var peer = ms.ReadByte();
-			if (peer == ServerPeerId)
-			{
-				packetIsForServer = true;
-			}
-			else
-			{
-				rebroadcastPeers.Add(connectedPeers.GetValueOrDefault((uint)peer));
-			}
+			Logger.Warn($"Packet of length: {packet.Length} failed to parse");
+			return;
+		}
+
+		var sendingPeer = connectedPeers.GetValueOrDefault((uint)peerId);
+		var isBroadcast = rebroadcastPeers.Count == 0;
+
+		if (packet.Length - ms.Position < 16)
+		{
+			Logger.Warn("Failed to parse packet body, too little data");
+			return;
 		}
 
 		var data = new byte[packet.Length - ms.Position];
@@ -273,7 +300,7 @@ public static class NetworkManager
 
 		if (isBroadcast)
 		{
-			host!.Broadcast(channelId, ref rebroadcastPacket, sendingPeer);
+			host!.Broadcast(channelId, ref rebroadcastPacket, excludedPeer: sendingPeer);
 		}
 		else if (rebroadcastPeers.Count > 0)
 		{
@@ -285,6 +312,32 @@ public static class NetworkManager
 			var guidBytes = data.Take(16).ToArray();
 			var guid = new Guid(guidBytes);
 			HandleDataPacket(guid, data.Skip(16).ToArray(), peerId);
+		}
+		
+	}
+
+	private static (Guid, byte[], int)? ParseDataPacket(Stream packetStream, int packetLength)
+	{
+		try
+		{
+			var senderId = packetStream.ReadByte();
+			if (senderId == ServerPeerId)
+			{
+				senderId = -1;
+			}
+
+			var guidBytes = new byte[16];
+			packetStream.ReadExactly(guidBytes);
+			var guid = new Guid(guidBytes);
+
+			var data = new byte[packetLength - packetStream.Position];
+			packetStream.ReadExactly(data);
+			return (guid, data, senderId);
+		}
+		catch (Exception ex)
+		{
+			Logger.Warn($"Error when reading data packet:\n{ex}");
+			return null;
 		}
 	}
 
@@ -306,75 +359,52 @@ public static class NetworkManager
 		{
 			case PacketTypes.Data:
 				{
-					try
+					var parsedData = ParseDataPacket(ms, packet.Length);
+					if (!parsedData.HasValue)
 					{
-						var senderId = ms.ReadByte();
-						if (senderId == ServerPeerId)
-						{
-							senderId = -1;
-						}
-
-						var guidBytes = new byte[16];
-						ms.ReadExactly(guidBytes);
-						var guid = new Guid(guidBytes);
-
-						var data = new byte[packet.Length - ms.Position];
-						ms.ReadExactly(data);
-
-						HandleDataPacket(guid, data, senderId);
+						return;
 					}
-					catch (Exception ex)
-					{
-						Logger.Warn($"Error when reading data packet:\n{ex}");
-					}
-					
+					var (guid, data, senderId) = parsedData.Value;
+
+					HandleDataPacket(guid, data, senderId);
 					break;
 				}
 			case PacketTypes.Disconnect:
 				{
-					try
+					var disconnectedPeerId = ms.ReadByte();
+					if (disconnectedPeerId == -1)
 					{
-						var disconnectedPeerId = ms.ReadByte();
-						PeerDisconnected?.Invoke(disconnectedPeerId);
-						Logger.Debug($"Client disconnected with ID: {disconnectedPeerId}");
+						Logger.Warn("Error: Malformed disconnect packet");
+						return;
 					}
-					catch (Exception ex)
-					{
-						Logger.Warn($"Error when reading disconnect packet:\n{ex}");
-					}
-					
+					Logger.Debug($"Client disconnected with ID: {disconnectedPeerId}");
+					PeerDisconnected?.Invoke(disconnectedPeerId);
 					break;
 				}
 			case PacketTypes.Connect:
 				{
-					try
+					var connectedPeerId = ms.ReadByte();
+					if (connectedPeerId == -1)
 					{
-						var connectedPeerId = ms.ReadByte();
-						PeerConnected?.Invoke(connectedPeerId);
-						Logger.Debug($"Client connected with ID: {connectedPeerId}");
+						Logger.Warn($"Error: Malformed connect packet");
+						return;
 					}
-					catch (Exception ex)
-					{
-						Logger.Warn($"Error when reading connect packet:\n{ex}");
-					}
-
+					PeerConnected?.Invoke(connectedPeerId);
+					Logger.Debug($"Client connected with ID: {connectedPeerId}");
 					break;
 				}
 			case PacketTypes.ConnectionEstablished:
 				{
-					try
+					var remotePeerId = ms.ReadByte();
+					if (remotePeerId == -1)
 					{
-						var remotePeerId = ms.ReadByte();
-						Logger.Debug($"Finished connecting to server, remote peer id: {remotePeerId}");
-						IsConnected = true;
-						RemotePeerId = remotePeerId;
-						ConnectedToServer?.Invoke(remotePeerId);
+						Logger.Warn($"Error: Malformed connection established packt");
+						return;
 					}
-					catch (Exception ex)
-					{
-						Logger.Warn($"Error when reading connection established packet:\n{ex}");
-					}
-					
+					Logger.Debug($"Finished connecting to server, remote peer id: {remotePeerId}");
+					IsConnected = true;
+					RemotePeerId = remotePeerId;
+					ConnectedToServer?.Invoke(remotePeerId);
 					break;
 				}
 			default:
@@ -448,16 +478,7 @@ public static class NetworkManager
 				case EventType.Receive:
 					{
 						using var packet = netEvent.Packet;
-						try
-						{
-							ServerHandlePacket(packet, (int)netEvent.Peer.ID, netEvent.ChannelID);
-						}
-						catch (Exception ex)
-						{
-							Logger.Warn($"Error when handling packet:\n{ex}");
-							Logger.Warn($"Packet length: {packet.Length}");
-						}
-						
+						ServerHandlePacket(packet, (int)netEvent.Peer.ID, netEvent.ChannelID);
 						break;
 					}
 				case EventType.Timeout:
