@@ -40,6 +40,19 @@ public abstract class Actor : ColliderBase, IDrawable
 
     public Func<bool>? PauseCondition = null;
 
+    private Guid? guidId;
+    public Guid GuidId
+    {
+        get
+        {
+            if (!guidId.HasValue)
+            {
+                guidId = Guid.Parse(ID);
+            }
+            return guidId.Value;
+        }
+    }
+
     private float alpha = 1;
     public float Alpha
     {
