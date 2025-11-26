@@ -662,7 +662,7 @@ public static class NetworkManager
 					Logger.Debug("Server disconnected");
 					StopClient();
 					DisconnectedFromServer?.Invoke();
-					break;
+					return;
 				case EventType.Receive:
 					{
 						using var packet = netEvent.Packet;
@@ -674,7 +674,7 @@ public static class NetworkManager
 					Logger.Debug("Server timed out");
 					StopClient();
 					DisconnectedFromServer?.Invoke();
-					break;
+					return;
 			}
 		}	
 	}
