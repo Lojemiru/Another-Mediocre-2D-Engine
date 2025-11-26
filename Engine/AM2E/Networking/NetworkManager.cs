@@ -1,6 +1,5 @@
 ﻿using AM2E.Actors;
 using ENet;
-using System.Net.Sockets;
 
 namespace AM2E.Networking;
 
@@ -32,9 +31,17 @@ public static class NetworkManager
 		ConnectionEstablished = 3
 	}
 
+	enum IdTypes
+	{
+		Guid = 0,
+		Static = 1
+	}
+
 	static Host? host;
 
 	readonly static Dictionary<uint, Peer> connectedPeers = [];
+
+	readonly static Dictionary<int, StaticNetworkedActor> staticNetworkedActors = [];
 
 	const int DEFAULT_MAX_CLIENTS = 32;
 
@@ -146,7 +153,17 @@ public static class NetworkManager
 		}
 	}
 
-	public static void SendPacketToRemoteActor(Guid actorId, byte[] data, bool isReliable, List<int>? targetPeers = null)
+	internal static void RegisterStaticActor(int networkId, StaticNetworkedActor actor)
+	{
+		staticNetworkedActors.Add(networkId, actor);
+	}
+
+	internal static void UnregisterStaticActor(int networkId)
+	{
+		staticNetworkedActors.Remove(networkId);
+	}
+
+	public static void SendPacketToRemoteStaticActor(StaticNetworkedActor actor, byte[] data, bool isReliable, List<int>? targetPeers = null)
 	{
 		targetPeers ??= [];
 		if (!IsNetworking || !IsConnected || targetPeers.Count == 1 && targetPeers[0] == RemotePeerId)
@@ -154,55 +171,97 @@ public static class NetworkManager
 			return;
 		}
 
+		using var ms = new MemoryStream();
 		if (IsServer)
 		{
-			ServerSendDataPacket(actorId, data, isReliable, targetPeers);
+			WriteServerHeaderForStatic(ms, actor.NetworkId);
+			ServerSendDataPacket(ms, data, isReliable, targetPeers);
 		}
 		else
 		{
-			ClientSendDataPacket(actorId, data, isReliable, targetPeers);
+			WriteClientHeaderForStatic(ms, actor.NetworkId, targetPeers);
+			ClientSendDataPacket(ms, data, isReliable);
 		}
 	}
 
-	// Packet structure Client -> Server:
-	// PeerCount, 0 for broadcast
-	// Peers
-	// actorId
-	// data
-	private static void ClientSendDataPacket(Guid actorId, byte[] data, bool isReliable, List<int> targetPeers)
+	public static void SendPacketToRemoteActor(Guid actorId, byte[] data, bool isReliable, List<int>? targetPeers = null)
 	{
+		targetPeers ??= [];
+		if (!IsNetworking || !IsConnected || targetPeers.Count == 1 && targetPeers[0] == RemotePeerId)
+		{
+			return;
+		}
 		using var ms = new MemoryStream();
-		var guidBytes = actorId.ToByteArray();
-		ms.WriteByte((byte)targetPeers.Count);
+		if (IsServer)
+		{
+			WriteServerHeaderForGuid(ms, actorId);
+			ServerSendDataPacket(ms, data, isReliable, targetPeers);
+		}
+		else
+		{
+			WriteClientHeaderForGuid(ms, actorId, targetPeers);
+			ClientSendDataPacket(ms, data, isReliable);
+		}
+	}
+
+	private static void WriteClientHeaderForGuid(Stream packetStream, Guid actorId, List<int> targetPeers)
+	{
+		packetStream.WriteByte((byte)targetPeers.Count);
 		foreach (var peerId in targetPeers)
 		{
-			ms.WriteByte((byte)peerId);
+			packetStream.WriteByte((byte)peerId);
 		}
-		ms.Write(guidBytes);
-		ms.Write(data);
+		packetStream.WriteByte((byte)IdTypes.Guid);
+		packetStream.Write(actorId.ToByteArray());
+	}
+
+	private static void WriteClientHeaderForStatic(Stream packetStream, int networkId, List<int> targetPeers)
+	{
+		packetStream.WriteByte((byte)targetPeers.Count);
+		foreach (var peerId in targetPeers)
+		{
+			packetStream.WriteByte((byte)peerId);
+		}
+		packetStream.WriteByte((byte)IdTypes.Static);
+		using var bw = new BinaryWriter(packetStream);
+		bw.Write(networkId);
+		bw.Flush();
+	}
+
+	private static void WriteServerHeaderForStatic(Stream packetStream, int networkId)
+	{
+		packetStream.WriteByte((byte)PacketTypes.Data);
+		packetStream.WriteByte(ServerPeerId);
+		packetStream.WriteByte((byte)IdTypes.Static);
+		using var bw = new BinaryWriter(packetStream);
+		bw.Write(networkId);
+		bw.Flush();
+	}
+
+	private static void WriteServerHeaderForGuid(Stream packetStream, Guid actorId)
+	{
+		packetStream.WriteByte((byte)PacketTypes.Data);
+		packetStream.WriteByte(ServerPeerId);
+		packetStream.WriteByte((byte)IdTypes.Guid);
+		packetStream.Write(actorId.ToByteArray());
+	}
+
+	private static void ClientSendDataPacket(MemoryStream packetStream, byte[] data, bool isReliable)
+	{
+		packetStream.Write(data);
 		var packet = default(Packet);
 		var flags = isReliable ? PacketFlags.Reliable : PacketFlags.None;
-		packet.Create(ms.ToArray(), flags);
+		packet.Create(packetStream.ToArray(), flags);
 		var channelId = isReliable ? 1 : 0;
 		host!.Broadcast((byte)channelId, ref packet);
 	}
 
-	// Packet structure Server -> Client:
-	// PacketType
-	// SenderId
-	// actorId
-	// data
-	private static void ServerSendDataPacket(Guid actorId, byte[] data, bool isReliable, List<int> targetPeers)
+	private static void ServerSendDataPacket(MemoryStream packetStream, byte[] data, bool isReliable, List<int> targetPeers)
 	{
-		using var ms = new MemoryStream();
-		var guidBytes = actorId.ToByteArray();
-		ms.WriteByte((byte)PacketTypes.Data);
-		ms.WriteByte(ServerPeerId);
-		ms.Write(guidBytes);
-		ms.Write(data);
+		packetStream.Write(data);
 		var packet = default(Packet);
 		var flags = isReliable ? PacketFlags.Reliable : PacketFlags.None;
-		packet.Create(ms.ToArray(), flags);
+		packet.Create(packetStream.ToArray(), flags);
 
 		var channelId = isReliable ? 1 : 0;
 		
@@ -227,6 +286,19 @@ public static class NetworkManager
 		else
 		{
 			Logger.Debug($"Received packet for id: {id} but there was no local actor for that id");
+		}
+	}
+
+	private static void HandleStaticDataPacket(int networkId, byte[] data, int senderId)
+	{
+		var actor = staticNetworkedActors.GetValueOrDefault(networkId);
+		if (actor is not null)
+		{
+			actor.OnPacketReceive(data, senderId);
+		}
+		else
+		{
+			Logger.Debug($"Received packet for id: {networkId} but there was no local actor for that id");
 		}
 	}
 
@@ -268,6 +340,42 @@ public static class NetworkManager
 		}
 	}
 
+	private static void ServerHandleGuidPacket(MemoryStream dataStream, int senderId)
+	{
+		var guidBytes = new byte[16];
+		try
+		{
+			dataStream.ReadExactly(guidBytes);
+		}
+		catch (EndOfStreamException)
+		{
+			Logger.Warn($"Error parsing Guid packet body, packet too short. Packet body length: {dataStream.Length}");
+			return;
+		}
+		var guid = new Guid(guidBytes);
+		var data = new byte[dataStream.Length - dataStream.Position];
+		dataStream.ReadExactly(data);
+		HandleDataPacket(guid, data, senderId);
+	}
+
+	private static void ServerHandleStaticPacket(MemoryStream dataStream, int senderId)
+	{
+		using var br = new BinaryReader(dataStream);
+		var networkId = 0;
+		try
+		{
+			networkId = br.ReadInt32();
+		}
+		catch (EndOfStreamException)
+		{
+			Logger.Warn($"Error parsing Static packet body, packet too short. Packet body length: {dataStream.Length}");
+			return;
+		}
+		var data = new byte[dataStream.Length - dataStream.Position];
+		dataStream.ReadExactly(data);
+		HandleStaticDataPacket(networkId, data, senderId);
+	}
+
 	private static void ServerHandlePacket(Packet packet, int peerId, byte channelId)
 	{
 		var bytes = new byte[packet.Length];
@@ -283,12 +391,6 @@ public static class NetworkManager
 
 		var sendingPeer = connectedPeers.GetValueOrDefault((uint)peerId);
 		var isBroadcast = rebroadcastPeers.Count == 0;
-
-		if (packet.Length - ms.Position < 16)
-		{
-			Logger.Warn("Failed to parse packet body, too little data");
-			return;
-		}
 
 		var data = new byte[packet.Length - ms.Position];
 		ms.ReadExactly(data);
@@ -308,30 +410,57 @@ public static class NetworkManager
 
 		if (packetIsForServer)
 		{
-			var guidBytes = data.Take(16).ToArray();
-			var guid = new Guid(guidBytes);
-			HandleDataPacket(guid, data.Skip(16).ToArray(), peerId);
+			using var dataStream = new MemoryStream(data);
+			var idType = (IdTypes)dataStream.ReadByte();
+			switch (idType)
+			{
+				case IdTypes.Guid:
+					ServerHandleGuidPacket(dataStream, peerId);
+					break;
+				case IdTypes.Static:
+					ServerHandleStaticPacket(dataStream, peerId);
+					break;
+				default:
+					Logger.Warn("Unexpected id type in packet body");
+					break;
+			}
 		}
 	}
 
-	private static (Guid, byte[], int)? ParseDataPacket(Stream packetStream, int packetLength)
+	private static void ParseDataPacket(MemoryStream packetStream, int senderId)
 	{
 		try
 		{
-			var senderId = packetStream.ReadByte();
-
 			var guidBytes = new byte[16];
 			packetStream.ReadExactly(guidBytes);
 			var guid = new Guid(guidBytes);
 
-			var data = new byte[packetLength - packetStream.Position];
+			var data = new byte[packetStream.Length - packetStream.Position];
 			packetStream.ReadExactly(data);
-			return (guid, data, senderId);
+			HandleDataPacket(guid, data, senderId);
 		}
 		catch (Exception ex)
 		{
 			Logger.Warn($"Error when reading data packet:\n{ex}");
-			return null;
+			return;
+		}
+	}
+
+	private static void ParseStaticDataPacket(MemoryStream packetStream, int senderId)
+	{
+		try
+		{
+			using var br = new BinaryReader(packetStream);
+
+			var networkId = br.ReadInt32();
+			var data = new byte[packetStream.Length - packetStream.Position];
+			packetStream.ReadExactly(data);
+			HandleStaticDataPacket(networkId, data, senderId);
+		}
+		catch (Exception ex)
+		{
+			Logger.Warn($"Error when reading data packet:\n{ex}");
+			return;
 		}
 	}
 
@@ -353,14 +482,25 @@ public static class NetworkManager
 		{
 			case PacketTypes.Data:
 				{
-					var parsedData = ParseDataPacket(ms, packet.Length);
-					if (!parsedData.HasValue)
+					var senderId = ms.ReadByte();
+					if (senderId == -1)
 					{
-						return;
+						Logger.Warn($"Error: Malformed data packet");
 					}
-					var (guid, data, senderId) = parsedData.Value;
 
-					HandleDataPacket(guid, data, senderId);
+					var idType = (IdTypes)ms.ReadByte();
+					switch (idType)
+					{
+						case IdTypes.Guid:
+							ParseDataPacket(ms, senderId);
+							break;
+						case IdTypes.Static:
+							ParseStaticDataPacket(ms, senderId);
+							break;
+						default:
+							Logger.Warn($"Unexpected id type in packet body");
+							break;
+					}
 					break;
 				}
 			case PacketTypes.Disconnect:
