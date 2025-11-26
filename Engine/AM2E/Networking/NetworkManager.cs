@@ -22,7 +22,7 @@ public static class NetworkManager
 
 	public static event Action? DisconnectedFromServer;
 
-	const byte ServerPeerId = 255;
+	const byte ServerPeerId = 0;
 
 	enum PacketTypes
 	{
@@ -49,7 +49,7 @@ public static class NetworkManager
 		host = new Host();
 		IsServer = true;
 		IsConnected = true;
-		RemotePeerId = -1;
+		RemotePeerId = 0;
 		var address = new Address() { Port = (ushort)port };
 		host.Create(address, maxClients, 2);
 		Logger.Debug("Started server");
@@ -176,8 +176,7 @@ public static class NetworkManager
 		ms.WriteByte((byte)targetPeers.Count);
 		foreach (var peerId in targetPeers)
 		{
-			var peerByte = peerId == -1 ? ServerPeerId : (byte)peerId;
-			ms.WriteByte(peerByte);
+			ms.WriteByte((byte)peerId);
 		}
 		ms.Write(guidBytes);
 		ms.Write(data);
@@ -313,7 +312,6 @@ public static class NetworkManager
 			var guid = new Guid(guidBytes);
 			HandleDataPacket(guid, data.Skip(16).ToArray(), peerId);
 		}
-		
 	}
 
 	private static (Guid, byte[], int)? ParseDataPacket(Stream packetStream, int packetLength)
@@ -321,10 +319,6 @@ public static class NetworkManager
 		try
 		{
 			var senderId = packetStream.ReadByte();
-			if (senderId == ServerPeerId)
-			{
-				senderId = -1;
-			}
 
 			var guidBytes = new byte[16];
 			packetStream.ReadExactly(guidBytes);
@@ -420,26 +414,27 @@ public static class NetworkManager
 	// Notify newly connected peer of all other peers
 	private static void NotifyPeersOfConnection(Peer peer)
 	{
+		var peerId = peer.ID + 1;
 		var connectionEstablishedData = new byte[2];
 		connectionEstablishedData[0] = (byte)PacketTypes.ConnectionEstablished;
-		connectionEstablishedData[1] = (byte)peer.ID;
+		connectionEstablishedData[1] = (byte)peerId;
 		var connectionEstablishedPacket = default(Packet);
 		connectionEstablishedPacket.Create(connectionEstablishedData, PacketFlags.Reliable);
 
 		var connectionData = new byte[2];
 		connectionData[0] = (byte)PacketTypes.Connect;
-		connectionData[1] = (byte)peer.ID;
+		connectionData[1] = (byte)peerId;
 		var connectionDataPacket = default(Packet);
 		connectionDataPacket.Create(connectionData, PacketFlags.Reliable);
 
 		host!.Broadcast(1, ref connectionDataPacket, peer);
 		peer.Send(1, ref connectionEstablishedPacket);
 
-		foreach (var peerId in connectedPeers.Keys)
+		foreach (var peerKey in connectedPeers.Keys)
 		{
 			var existingPeerData = new byte[2];
 			existingPeerData[0] = (byte)PacketTypes.Connect;
-			existingPeerData[1] = (byte)peerId;
+			existingPeerData[1] = (byte)peerKey;
 			var existingPeerPacket = default(Packet);
 			existingPeerPacket.Create(existingPeerData, PacketFlags.Reliable);
 			peer.Send(1, ref existingPeerPacket);
@@ -448,9 +443,10 @@ public static class NetworkManager
 
 	private static void NotifyPeersOfDisconnection(Peer peer)
 	{
+		var peerId = peer.ID + 1;
 		var disconnectData = new byte[2];
 		disconnectData[0] = (byte)PacketTypes.Disconnect;
-		disconnectData[1] = (byte)peer.ID;
+		disconnectData[1] = (byte)peerId;
 		var disconnectPacket = default(Packet);
 		disconnectPacket.Create(disconnectData, PacketFlags.Reliable);
 
@@ -461,32 +457,40 @@ public static class NetworkManager
 	{
 		for (var result = host!.Service(0, out var netEvent); result > 0; result = host.CheckEvents(out netEvent))
 		{
+			var peerId = netEvent.Peer.ID + 1;
 			switch (netEvent.Type)
 			{
 				case EventType.Connect:
-					NotifyPeersOfConnection(netEvent.Peer);
-					connectedPeers.Add(netEvent.Peer.ID, netEvent.Peer);
-					PeerConnected?.Invoke((int)netEvent.Peer.ID);
-					Logger.Debug($"Peer connected with ID: {netEvent.Peer.ID}");
-					break;
+					{
+						NotifyPeersOfConnection(netEvent.Peer);
+						connectedPeers.Add(peerId, netEvent.Peer);
+						PeerConnected?.Invoke((int)peerId);
+						Logger.Debug($"Peer connected with ID: {peerId}");
+						break;
+					}
 				case EventType.Disconnect:
-					connectedPeers.Remove(netEvent.Peer.ID);
-					NotifyPeersOfDisconnection(netEvent.Peer);
-					PeerDisconnected?.Invoke((int)netEvent.Peer.ID);
-					Logger.Debug($"Peer disconnected with ID: {netEvent.Peer.ID}");
-					break;
+					{
+						connectedPeers.Remove(peerId);
+						NotifyPeersOfDisconnection(netEvent.Peer);
+						PeerDisconnected?.Invoke((int)peerId);
+						Logger.Debug($"Peer disconnected with ID: {peerId}");
+						break;
+					}
 				case EventType.Receive:
 					{
 						using var packet = netEvent.Packet;
-						ServerHandlePacket(packet, (int)netEvent.Peer.ID, netEvent.ChannelID);
+						ServerHandlePacket(packet, (int)peerId, netEvent.ChannelID);
 						break;
 					}
 				case EventType.Timeout:
-					connectedPeers.Remove(netEvent.Peer.ID);
-					Logger.Debug($"Peer timed out with ID: {netEvent.Peer.ID}");
-					NotifyPeersOfDisconnection(netEvent.Peer);
-					PeerDisconnected?.Invoke((int)netEvent.Peer.ID);
-					break;
+					{
+						connectedPeers.Remove(peerId);
+						Logger.Debug($"Peer timed out with ID: {peerId}");
+						NotifyPeersOfDisconnection(netEvent.Peer);
+						PeerDisconnected?.Invoke((int)peerId);
+						break;
+					}
+					
 			}
 		}
 	}
