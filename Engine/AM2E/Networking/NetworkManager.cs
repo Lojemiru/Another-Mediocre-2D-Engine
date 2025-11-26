@@ -459,7 +459,7 @@ public static class NetworkManager
 
 	private static void ServerTick()
 	{
-		while (host!.Service(0, out var netEvent) > 0)
+		for (var result = host!.Service(0, out var netEvent); result > 0; result = host.CheckEvents(out netEvent))
 		{
 			switch (netEvent.Type)
 			{
@@ -493,7 +493,7 @@ public static class NetworkManager
 
 	private static void ClientTick()
 	{
-		while (host!.Service(0, out var netEvent) > 0)
+		for (var result = host!.Service(0, out var netEvent); result > 0; result = host.CheckEvents(out netEvent))
 		{
 			switch (netEvent.Type)
 			{
@@ -520,6 +520,6 @@ public static class NetworkManager
 					DisconnectedFromServer?.Invoke();
 					break;
 			}
-		}
+		}	
 	}
 }
