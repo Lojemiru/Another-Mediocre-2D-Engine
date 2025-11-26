@@ -175,7 +175,7 @@ public static class NetworkManager
 		staticNetworkedActors.Remove(networkId);
 	}
 
-	public static void SendPacketToRemoteStaticActor(StaticNetworkedActor actor, byte[] data, bool isReliable, List<int>? targetPeers = null)
+	public static void SendPacketToRemoteStaticActor(int networkId, byte[] data, bool isReliable, List<int>? targetPeers = null)
 	{
 		targetPeers ??= [];
 		if (!IsNetworking || !IsConnected || targetPeers.Count == 1 && targetPeers[0] == RemotePeerId)
@@ -186,12 +186,12 @@ public static class NetworkManager
 		using var ms = new MemoryStream();
 		if (IsServer)
 		{
-			WriteServerHeaderForStatic(ms, actor.NetworkId);
+			WriteServerHeaderForStatic(ms, networkId);
 			ServerSendDataPacket(ms, data, isReliable, targetPeers);
 		}
 		else
 		{
-			WriteClientHeaderForStatic(ms, actor.NetworkId, targetPeers);
+			WriteClientHeaderForStatic(ms, networkId, targetPeers);
 			ClientSendDataPacket(ms, data, isReliable);
 		}
 	}
