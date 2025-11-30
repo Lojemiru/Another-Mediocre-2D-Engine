@@ -11,7 +11,7 @@ namespace AM2E;
 public sealed class EngineCore : Game
 {
     private Action entryPointCallback;
-    public static readonly string Version = "2.6.0";
+    public static readonly string Version = "2.7.0";
     public static GraphicsDeviceManager _graphics;
     private double updateAccumulator = 0d;
     private const double FRAME_ERROR_MARGIN = .0002;
@@ -20,9 +20,6 @@ public sealed class EngineCore : Game
     internal static GameWindow StaticWindow;
     internal static string ContentNamespaceHeader;
     internal static string ContentNamespaceFooter;
-    public static bool isNetworked = false;
-    public static bool isServer;
-    internal static int TileChunkSize;
     internal static string LocalStorageName;
     public static bool DoDebugRender = false;
 
@@ -48,7 +45,6 @@ public sealed class EngineCore : Game
         this.entryPointCallback = entryPointCallback;
         staticThis = this;
         StaticWindow = Window;
-        TileChunkSize = config.TileChunkSize;
         LocalStorageName = config.LocalStorageName;
         
         SetTitle("Built in Another Mediocre 2D Engine");
