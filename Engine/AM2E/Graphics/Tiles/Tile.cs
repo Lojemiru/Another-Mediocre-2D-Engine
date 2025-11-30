@@ -35,13 +35,13 @@ public sealed class Tile
         randomOffset = RNG.Random(TilesetSprite.Length);
     }
 
-    public void Draw(SpriteBatch spriteBatch, int frame, float x, float y, bool random = false)
+    public void Draw(SpriteBatch spriteBatch, int frame, float x, float y, bool random = false, int layer = 0)
     {
-        TilesetSprite.Draw(spriteBatch, x, y, frame + (random ? randomOffset : 0), tileRect, 0, flips);
+        TilesetSprite.Draw(spriteBatch, x, y, frame + (random ? randomOffset : 0), tileRect, 0, flips, layer: layer);
     }
 
-    public void Draw(SpriteBatch spriteBatch, int frame, float x, float y, float scale, bool random = false)
+    public void Draw(SpriteBatch spriteBatch, int frame, float x, float y, float scale, bool random = false, int layer = 0)
     {
-        TilesetSprite.Draw(spriteBatch, x, y, frame + (random ? randomOffset : 0), tileRect, 0, flips, scaleX:scale, scaleY:scale);
+        TilesetSprite.Draw(spriteBatch, x, y, frame + (random ? randomOffset : 0), tileRect, 0, flips, scaleX:scale, scaleY:scale, layer: layer);
     }
 }
