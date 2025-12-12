@@ -11,7 +11,7 @@ namespace AM2E;
 public sealed class EngineCore : Game
 {
     private Action entryPointCallback;
-    public static readonly string Version = "2.7.0";
+    public static readonly string Version = "2.7.1";
     public static GraphicsDeviceManager _graphics;
     private double updateAccumulator = 0d;
     private const double FRAME_ERROR_MARGIN = .0002;
@@ -136,8 +136,13 @@ public sealed class EngineCore : Game
 
         while (updateAccumulator >= oneSixtieth)
         {
-            NetworkUpdate();
-            FixedUpdate();
+            NetworkManager.NetworkTick();
+            
+            InputManager.Update();
+            ActorManager.UpdateActors();
+            
+            NetworkManager.NetworkFlush();
+            
             updateAccumulator -= oneSixtieth;
         }
 
@@ -147,16 +152,6 @@ public sealed class EngineCore : Game
         
         Logger.DispatchWrite();
         Logger.UpdateCache();
-    }
-    private static void FixedUpdate()
-    {
-        InputManager.Update();
-        ActorManager.UpdateActors();
-    }
-
-    private static void NetworkUpdate()
-    {
-        NetworkManager.NetworkTick();
     }
 
     protected override void Draw(GameTime gameTime)

@@ -89,7 +89,7 @@ public static class NetworkManager
 		IsServer = false;
 		
 		var address = new Address() { Port = (ushort)port };
-		address.SetIP(ip);
+		address.SetHost(ip);
 
 		host.Create();
 
@@ -137,7 +137,7 @@ public static class NetworkManager
 		Library.Deinitialize();
 	}
 
-	public static void NetworkTick()
+	internal static void NetworkTick()
 	{
 		if (!IsNetworking)
 		{
@@ -152,6 +152,16 @@ public static class NetworkManager
 		{
 			ClientTick();
 		}
+	}
+
+	internal static void NetworkFlush()
+	{
+		if (!IsNetworking)
+		{
+			return;
+		}
+
+		host!.Flush();
 	}
 
 	// We don't want our streams closed randomly
@@ -441,39 +451,36 @@ public static class NetworkManager
 
 	private static void ParseDataPacket(MemoryStream packetStream, int senderId)
 	{
+		var guidBytes = new byte[16];
 		try
 		{
-			var guidBytes = new byte[16];
 			packetStream.ReadExactly(guidBytes);
-			var guid = new Guid(guidBytes);
-
-			var data = new byte[packetStream.Length - packetStream.Position];
-			packetStream.ReadExactly(data);
-			HandleDataPacket(guid, data, senderId);
 		}
 		catch (Exception ex)
 		{
 			Logger.Warn($"Error when reading data packet:\n{ex}");
 			return;
 		}
+
+		var guid = new Guid(guidBytes);
+		var data = new byte[packetStream.Length - packetStream.Position];
+		packetStream.ReadExactly(data);
+		HandleDataPacket(guid, data, senderId);
 	}
 
 	private static void ParseStaticDataPacket(MemoryStream packetStream, int senderId)
 	{
-		try
+		if (packetStream.Length - packetStream.Position < 4)
 		{
-			using var br = GetBinaryReader(packetStream);
-
-			var networkId = br.ReadInt32();
-			var data = new byte[packetStream.Length - packetStream.Position];
-			packetStream.ReadExactly(data);
-			HandleStaticDataPacket(networkId, data, senderId);
-		}
-		catch (Exception ex)
-		{
-			Logger.Warn($"Error when reading data packet:\n{ex}");
+			Logger.Warn($"Error when reading data packet: Packet is not long enough!");
 			return;
 		}
+		using var br = GetBinaryReader(packetStream);
+
+		var networkId = br.ReadInt32();
+		var data = new byte[packetStream.Length - packetStream.Position];
+		packetStream.ReadExactly(data);
+		HandleStaticDataPacket(networkId, data, senderId);
 	}
 
 	private static void ClientHandlePacket(Packet packet)
