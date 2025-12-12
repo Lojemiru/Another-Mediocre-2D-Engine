@@ -1,6 +1,7 @@
 ﻿using AM2E.Actors;
 using ENet;
 using System.Text;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AM2E.Networking;
 
@@ -441,39 +442,36 @@ public static class NetworkManager
 
 	private static void ParseDataPacket(MemoryStream packetStream, int senderId)
 	{
+		var guidBytes = new byte[16];
 		try
 		{
-			var guidBytes = new byte[16];
 			packetStream.ReadExactly(guidBytes);
-			var guid = new Guid(guidBytes);
-
-			var data = new byte[packetStream.Length - packetStream.Position];
-			packetStream.ReadExactly(data);
-			HandleDataPacket(guid, data, senderId);
 		}
 		catch (Exception ex)
 		{
 			Logger.Warn($"Error when reading data packet:\n{ex}");
 			return;
 		}
+
+		var guid = new Guid(guidBytes);
+		var data = new byte[packetStream.Length - packetStream.Position];
+		packetStream.ReadExactly(data);
+		HandleDataPacket(guid, data, senderId);
 	}
 
 	private static void ParseStaticDataPacket(MemoryStream packetStream, int senderId)
 	{
-		try
+		if (packetStream.Length - packetStream.Position < 4)
 		{
-			using var br = GetBinaryReader(packetStream);
-
-			var networkId = br.ReadInt32();
-			var data = new byte[packetStream.Length - packetStream.Position];
-			packetStream.ReadExactly(data);
-			HandleStaticDataPacket(networkId, data, senderId);
-		}
-		catch (Exception ex)
-		{
-			Logger.Warn($"Error when reading data packet:\n{ex}");
+			Logger.Warn($"Error when reading data packet: Packet is not long enough!");
 			return;
 		}
+		using var br = GetBinaryReader(packetStream);
+
+		var networkId = br.ReadInt32();
+		var data = new byte[packetStream.Length - packetStream.Position];
+		packetStream.ReadExactly(data);
+		HandleStaticDataPacket(networkId, data, senderId);
 	}
 
 	private static void ClientHandlePacket(Packet packet)
