@@ -138,6 +138,7 @@ public sealed class EngineCore : Game
         {
             NetworkUpdate();
             FixedUpdate();
+            NetworkFlush();
             updateAccumulator -= oneSixtieth;
         }
 
@@ -157,6 +158,11 @@ public sealed class EngineCore : Game
     private static void NetworkUpdate()
     {
         NetworkManager.NetworkTick();
+    }
+
+    private static void NetworkFlush()
+    {
+        NetworkManager.NetworkFlush();
     }
 
     protected override void Draw(GameTime gameTime)

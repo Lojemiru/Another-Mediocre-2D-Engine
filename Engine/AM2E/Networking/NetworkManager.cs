@@ -90,7 +90,7 @@ public static class NetworkManager
 		IsServer = false;
 		
 		var address = new Address() { Port = (ushort)port };
-		address.SetIP(ip);
+		address.SetHost(ip);
 
 		host.Create();
 
@@ -138,7 +138,7 @@ public static class NetworkManager
 		Library.Deinitialize();
 	}
 
-	public static void NetworkTick()
+	internal static void NetworkTick()
 	{
 		if (!IsNetworking)
 		{
@@ -153,6 +153,16 @@ public static class NetworkManager
 		{
 			ClientTick();
 		}
+	}
+
+	internal static void NetworkFlush()
+	{
+		if (!IsNetworking)
+		{
+			return;
+		}
+
+		host!.Flush();
 	}
 
 	// We don't want our streams closed randomly
