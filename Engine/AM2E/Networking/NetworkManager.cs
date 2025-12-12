@@ -1,7 +1,6 @@
 ﻿using AM2E.Actors;
 using ENet;
 using System.Text;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AM2E.Networking;
 
