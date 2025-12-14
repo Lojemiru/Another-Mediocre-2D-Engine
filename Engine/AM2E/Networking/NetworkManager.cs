@@ -107,6 +107,7 @@ public static class NetworkManager
 		{
 			throw new InvalidOperationException("Tried to stop server through StopClient method");
 		}
+		DisconnectedFromServer?.Invoke();
 		StopNetworking();
 		Logger.Debug("Stopped client");
 	}
@@ -668,7 +669,6 @@ public static class NetworkManager
 					connectedPeers.Remove(netEvent.Peer.ID);
 					Logger.Debug("Server disconnected");
 					StopClient();
-					DisconnectedFromServer?.Invoke();
 					return;
 				case EventType.Receive:
 					{
@@ -680,7 +680,6 @@ public static class NetworkManager
 					connectedPeers.Remove(netEvent.Peer.ID);
 					Logger.Debug("Server timed out");
 					StopClient();
-					DisconnectedFromServer?.Invoke();
 					return;
 			}
 		}	
