@@ -413,7 +413,7 @@ public static class NetworkManager
 		}
 
 		var sendingPeer = connectedPeers.GetValueOrDefault((uint)peerId);
-		var isBroadcast = rebroadcastPeers.Count == 0;
+		var isBroadcast = rebroadcastPeers.Count == 0 && !packetIsForServer;
 
 		var data = new byte[packet.Length - ms.Position];
 		ms.ReadExactly(data);
