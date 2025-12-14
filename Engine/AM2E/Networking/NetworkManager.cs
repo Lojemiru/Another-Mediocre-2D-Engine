@@ -107,6 +107,7 @@ public static class NetworkManager
 		{
 			throw new InvalidOperationException("Tried to stop server through StopClient method");
 		}
+		DisconnectedFromServer?.Invoke();
 		StopNetworking();
 		Logger.Debug("Stopped client");
 	}
@@ -339,7 +340,7 @@ public static class NetworkManager
 		try
 		{
 			var peerCount = packetStream.ReadByte();
-			var packetIsForServer = peerCount == 0;
+			var packetIsForServer = false;
 			var peers = new List<Peer>();
 			for (var i = 0; i < peerCount; i++)
 			{
@@ -412,7 +413,8 @@ public static class NetworkManager
 		}
 
 		var sendingPeer = connectedPeers.GetValueOrDefault((uint)peerId);
-		var isBroadcast = rebroadcastPeers.Count == 0;
+		var isBroadcast = rebroadcastPeers.Count == 0 && !packetIsForServer;
+		packetIsForServer = packetIsForServer || isBroadcast;
 
 		var data = new byte[packet.Length - ms.Position];
 		ms.ReadExactly(data);
@@ -668,7 +670,6 @@ public static class NetworkManager
 					connectedPeers.Remove(netEvent.Peer.ID);
 					Logger.Debug("Server disconnected");
 					StopClient();
-					DisconnectedFromServer?.Invoke();
 					return;
 				case EventType.Receive:
 					{
@@ -680,7 +681,6 @@ public static class NetworkManager
 					connectedPeers.Remove(netEvent.Peer.ID);
 					Logger.Debug("Server timed out");
 					StopClient();
-					DisconnectedFromServer?.Invoke();
 					return;
 			}
 		}	
