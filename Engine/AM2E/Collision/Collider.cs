@@ -152,7 +152,9 @@ public sealed class Collider
             d = Math.Max(d, hitbox.BoundBottom);
         }
         
-        Bounds = new Rectangle(l, u, r, d);
+        var extraX = Math.Abs(VelX) + 1;
+        var extraY = Math.Abs(VelY) + 1;
+        Bounds = new Rectangle(l - extraX, u - extraY, r + extraX, d + extraY);
             
         LOIC.RTree.Add(Bounds, parent);
         first = false;
@@ -188,7 +190,9 @@ public sealed class Collider
             d = Math.Max(d, hitbox.BoundBottom);
         }
         
-        Bounds = new Rectangle(l, u, r, d);
+        var extraX = Math.Abs(VelX) + 1;
+        var extraY = Math.Abs(VelY) + 1;
+        Bounds = new Rectangle(l - extraX, u - extraY, r + extraX, d + extraY);
             
         LOIC.RTree.Add(Bounds, parent);
         first = false;
@@ -223,13 +227,26 @@ public sealed class Collider
             d = Math.Max(d, hitbox.BoundBottom);
         }
 
-        Bounds = new Rectangle(l, u, r, d);
+        var extraX = Math.Abs(VelX) + 1;
+        var extraY = Math.Abs(VelY) + 1;
+        Bounds = new Rectangle(l - extraX, u - extraY, r + extraX, d + extraY);
             
         LOIC.RTree.Add(Bounds, parent);
         first = false;
         syncing = false;
     }
 
+    // TODO: since Hitboxes store a reference to their Collider now, refactor this out of existence as well as in the
+    //       above 3 methods. Should save us a ton of loop time in collision processing.
+    private void QuickSync()
+    {
+        foreach (var hitbox in hitboxes)
+        {
+            hitbox.X = X;
+            hitbox.Y = Y;
+        }
+    }
+    
     internal void Dispose()
     {
         if (disposed)
@@ -284,6 +301,8 @@ public sealed class Collider
             
         InMovement = true;
         
+        SyncHitboxPositions();
+        
         // If we're not moving, do a static check and return.
         if (vel[x] == 0 && vel[y] == 0)
         {
@@ -330,9 +349,11 @@ public sealed class Collider
                 domCurrent += domMult;
 
                 if (domAxis == x)
-                    X += domMult;
+                    xInternal += domMult;
                 else
-                    Y += domMult;
+                    yInternal += domMult;
+                
+                QuickSync();
 
                 var subCurrentLast = subCurrent;
                 
@@ -353,9 +374,11 @@ public sealed class Collider
                 subCurrent += subMult;
 
                 if (subAxis == x)
-                    X += subMult;
+                    xInternal += subMult;
                 else
-                    Y += subMult;
+                    yInternal += subMult;
+
+                QuickSync();
             }
 
             AfterSubstep?.Invoke();
@@ -410,15 +433,18 @@ public sealed class Collider
 
     private void CheckAndRunAll(int x, int y)
     {
-        checkX = x + X;
-        checkY = y + Y;
+        checkX = x + xInternal;
+        checkY = y + yInternal;
         
         OnSubstep?.Invoke();
     }
 
     public void CheckAndRun<T>() where T : ICollider
     {
-        var colliders = (List<T>)IntersectsAllAt<T>(checkX, checkY);
+        if (!InMovement)
+            throw new Exception("CheckAndRun called outside of Collider callback! Don't do this please.");
+        
+        var colliders = (List<T>)IntersectsAllAtInternal<T>(checkX, checkY);
         
         if (colliders.Count == 0)
             return;
@@ -460,6 +486,23 @@ public sealed class Collider
 
         X = prevX;
         Y = prevY;
+
+        return output;
+    }
+    
+    private IEnumerable<T> IntersectsAllAtInternal<T>(int x, int y) where T : ICollider
+    {
+        var prevX = xInternal;
+        var prevY = yInternal;
+        xInternal = x;
+        yInternal = y;
+        QuickSync();
+        
+        var output = LOIC.CheckAllColliders<T>(this);
+
+        xInternal = prevX;
+        yInternal = prevY;
+        QuickSync();
 
         return output;
     }
