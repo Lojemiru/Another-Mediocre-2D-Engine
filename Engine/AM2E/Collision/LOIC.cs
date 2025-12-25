@@ -144,8 +144,8 @@ public static class LOIC
             return false;
         
         // Update hitbox.
-        RectCheckHitbox.X = x1;
-        RectCheckHitbox.Y = y1;
+        RectCheckHitbox.ForcedX = x1;
+        RectCheckHitbox.ForcedY = y1;
         RectCheckHitbox.Resize((x2 - x1) + 1, (y2 - y1) + 1);
 
         return collider.Collider.IsIntersectedBy<T>(RectCheckHitbox);
@@ -158,8 +158,8 @@ public static class LOIC
         if (!collider.CollisionActive || collider is not T)
             return false;
 
-        CircleCheckHitbox.X = x;
-        CircleCheckHitbox.Y = y;
+        CircleCheckHitbox.ForcedX = x;
+        CircleCheckHitbox.ForcedY = y;
         CircleCheckHitbox.Resize(radius);
 
         return collider.Collider.IsIntersectedBy<T>(CircleCheckHitbox);

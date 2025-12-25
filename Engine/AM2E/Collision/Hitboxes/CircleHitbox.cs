@@ -35,7 +35,7 @@ public sealed class CircleHitbox : Hitbox
     {
         OriginX = x;
         OriginY = y;
-        Collider?.SyncHitboxPositions();
+        Collider?.SyncBounds();
     }
 
     // Defer to RectangleHitbox, check has more to do with the rectangle.

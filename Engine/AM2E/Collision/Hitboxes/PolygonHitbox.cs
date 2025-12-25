@@ -119,7 +119,7 @@ public class PolygonHitbox : Hitbox
                 furthestBottom = points[i].Y;
         }
         
-        Collider?.SyncHitboxPositions();
+        Collider?.SyncBounds();
     }
 
     private bool IsLeft(Point lineStart, Point lineEnd, float targetX, float targetY)

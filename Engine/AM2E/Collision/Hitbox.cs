@@ -23,8 +23,11 @@ public abstract class Hitbox
     
     protected int InitialOriginX = 0;
     protected int InitialOriginY = 0;
-    public int X { get; set; } = 0;
-    public int Y { get; set; } = 0;
+    public int X => ForcedX ?? Collider?.X ?? -1;
+    public int Y => ForcedY ?? Collider?.Y ?? -1;
+
+    internal int? ForcedX;
+    internal int? ForcedY;
 
     public abstract int BoundLeft { get; }
     public abstract int BoundRight { get; }

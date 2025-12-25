@@ -19,7 +19,7 @@ public sealed class RectangleHitbox : RectangleHitboxBase
         Resize(width, height);
         OriginX = offsetX;
         OriginY = offsetY;
-        Collider?.SyncHitboxPositions();
+        Collider?.SyncBounds();
     }
 
     // Defer to general bounds intersection.

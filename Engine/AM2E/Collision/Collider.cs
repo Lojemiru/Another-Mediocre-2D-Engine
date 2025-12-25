@@ -22,7 +22,7 @@ public sealed class Collider
         set
         {
             xInternal = value;
-            SyncHitboxPositions();
+            SyncBounds();
         }
     }
     public int Y
@@ -31,7 +31,7 @@ public sealed class Collider
         set
         {
             yInternal = value;
-            SyncHitboxPositions();
+            SyncBounds();
         }
     }
     
@@ -95,11 +95,9 @@ public sealed class Collider
     {
         hitboxes.Add(hitbox);
         hitbox.Collider = this;
-        hitbox.X = X;
-        hitbox.Y = Y;
         hitbox.ApplyFlips(FlippedX, FlippedY);
         
-        SyncHitboxPositions();
+        SyncBounds();
         
         return hitboxes.Count - 1;
     }
@@ -108,7 +106,7 @@ public sealed class Collider
     {
         hitboxes.Remove(hitbox);
         hitbox.Collider = null;
-        SyncHitboxPositions();
+        SyncBounds();
     }
         
     public bool FlippedX { get; private set; } = false;
@@ -199,7 +197,7 @@ public sealed class Collider
         syncing = false;
     }
     
-    internal void SyncHitboxPositions()
+    internal void SyncBounds()
     {
         if (disposed || syncing)
             return;
@@ -219,8 +217,6 @@ public sealed class Collider
             
         foreach (var hitbox in hitboxes)
         {
-            hitbox.X = X;
-            hitbox.Y = Y;
             l = Math.Min(l, hitbox.BoundLeft);
             r = Math.Max(r, hitbox.BoundRight);
             u = Math.Min(u, hitbox.BoundTop);
@@ -234,17 +230,6 @@ public sealed class Collider
         LOIC.RTree.Add(Bounds, parent);
         first = false;
         syncing = false;
-    }
-
-    // TODO: since Hitboxes store a reference to their Collider now, refactor this out of existence as well as in the
-    //       above 3 methods. Should save us a ton of loop time in collision processing.
-    private void QuickSync()
-    {
-        foreach (var hitbox in hitboxes)
-        {
-            hitbox.X = X;
-            hitbox.Y = Y;
-        }
     }
     
     internal void Dispose()
@@ -301,7 +286,7 @@ public sealed class Collider
             
         InMovement = true;
         
-        SyncHitboxPositions();
+        SyncBounds();
         
         // If we're not moving, do a static check and return.
         if (vel[x] == 0 && vel[y] == 0)
@@ -352,8 +337,6 @@ public sealed class Collider
                     xInternal += domMult;
                 else
                     yInternal += domMult;
-                
-                QuickSync();
 
                 var subCurrentLast = subCurrent;
                 
@@ -377,8 +360,6 @@ public sealed class Collider
                     xInternal += subMult;
                 else
                     yInternal += subMult;
-
-                QuickSync();
             }
 
             AfterSubstep?.Invoke();
@@ -496,14 +477,12 @@ public sealed class Collider
         var prevY = yInternal;
         xInternal = x;
         yInternal = y;
-        QuickSync();
         
         var output = LOIC.CheckAllColliders<T>(this);
 
         xInternal = prevX;
         yInternal = prevY;
-        QuickSync();
-
+        
         return output;
     }
 
@@ -547,12 +526,12 @@ public sealed class Collider
         return false;
     }
 
-    private static RectangleHitbox testRectangle = new(1, 1);
+    private static readonly RectangleHitbox testRectangle = new(1, 1);
     
     public bool IntersectsRectangle<T>(int x1, int y1, int x2, int y2) where T : ICollider
     {
-        testRectangle.X = x1;
-        testRectangle.Y = y1;
+        testRectangle.ForcedX = x1;
+        testRectangle.ForcedY = y1;
         testRectangle.Resize(1 + x2 - x1, 1 + y2 - y1);
 
         foreach (var hitbox in hitboxes)
