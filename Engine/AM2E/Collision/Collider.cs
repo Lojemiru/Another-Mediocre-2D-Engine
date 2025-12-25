@@ -199,10 +199,7 @@ public sealed class Collider
     
     internal void SyncBounds()
     {
-        if (disposed || syncing)
-            return;
-        
-        if (hitboxes.Count <= 0) 
+        if (disposed || syncing || hitboxes.Count <= 0)
             return;
         
         if (!first)
@@ -430,14 +427,18 @@ public sealed class Collider
         if (colliders.Count == 0)
             return;
         
-        if (!events.ContainsKey(typeof(T)))
-            throw new KeyNotFoundException("No collision event registered for '" + typeof(T) + "'. Ensure that you are using Collider.Add() to register a collision event before running Collider.CheckAndRun<T>().");
-        
-        var ev = (Action<T>)events[typeof(T)];
-
-        foreach (var col in colliders)
+        try
         {
-            ev(col);
+            var ev = (Action<T>)events[typeof(T)];
+
+            foreach (var col in colliders)
+            {
+                ev(col);
+            }
+        }
+        catch (IndexOutOfRangeException e)
+        {
+            throw new KeyNotFoundException("No collision event registered for '" + typeof(T) + "'. Ensure that you are using Collider.Add() to register a collision event before running Collider.CheckAndRun<T>().");
         }
     }
         
@@ -500,14 +501,16 @@ public sealed class Collider
         // can find a hitbox bound to that interface AND is intersecting.
         foreach (var myHitbox in hitboxes)
         {
-            if (!myHitbox.IsTargetingInterface<T>()) continue;
+            if (!myHitbox.IsTargetingInterface<T>()) 
+                continue;
+            
             foreach (var hitbox in col.hitboxes)
             {
-                if (hitbox.IsBoundToInterface<T>() && myHitbox.Intersects(hitbox))
-                {
-                    col.CollidingHitbox = hitbox;
-                    return true;
-                }
+                if (!hitbox.IsBoundToInterface<T>() || !myHitbox.Intersects(hitbox)) 
+                    continue;
+                
+                col.CollidingHitbox = hitbox;
+                return true;
             }
         }
 
