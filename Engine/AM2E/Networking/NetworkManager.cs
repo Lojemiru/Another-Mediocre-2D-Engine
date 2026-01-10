@@ -38,6 +38,13 @@ public static class NetworkManager
         Static = 1
     }
 
+    public enum PacketReliability
+    {
+        Reliable = 0,
+        UnreliableOrdered = 1,
+        Unreliable = 2
+    }
+
     static Host? host;
 
     readonly static Dictionary<uint, Peer> connectedPeers = [];
@@ -45,6 +52,8 @@ public static class NetworkManager
     readonly static Dictionary<int, StaticNetworkedActor> staticNetworkedActors = [];
 
     const int DEFAULT_MAX_CLIENTS = 32;
+
+    const int NUM_CHANNELS = 5;
 
     public static void StartServer(int port, int maxClients = DEFAULT_MAX_CLIENTS)
     {
@@ -59,7 +68,7 @@ public static class NetworkManager
         IsConnected = true;
         RemotePeerId = 0;
         var address = new Address() { Port = (ushort)port };
-        host.Create(address, maxClients, 2);
+        host.Create(address, maxClients, NUM_CHANNELS * 3);
         Logger.Debug("Started server");
     }
 
@@ -93,7 +102,7 @@ public static class NetworkManager
 
         host.Create();
 
-        host.Connect(address, 2);
+        host.Connect(address, NUM_CHANNELS * 3);
         Logger.Debug("Started client");
     }
 
@@ -186,7 +195,7 @@ public static class NetworkManager
         staticNetworkedActors.Remove(networkId);
     }
 
-    public static void SendPacketToRemoteStaticActor(int networkId, byte[] data, bool isReliable, List<int>? targetPeers = null)
+    public static void SendPacketToRemoteStaticActor(int networkId, byte[] data, PacketReliability reliability, List<int>? targetPeers = null, int channelId = 0)
     {
         targetPeers ??= [];
         if (!IsNetworking || !IsConnected || targetPeers.Count == 1 && targetPeers[0] == RemotePeerId)
@@ -194,20 +203,25 @@ public static class NetworkManager
             return;
         }
 
+        if (channelId < 0 || channelId >= NUM_CHANNELS)
+        {
+            throw new ArgumentException($"Channel id {channelId} was outside the bounds of allowed channel ids, Max: {NUM_CHANNELS - 1}, Min: 0");
+        }
+
         using var ms = new MemoryStream();
         if (IsServer)
         {
             WriteServerHeaderForStatic(ms, networkId);
-            ServerSendDataPacket(ms, data, isReliable, targetPeers);
+            ServerSendDataPacket(ms, data, reliability, channelId, targetPeers);
         }
         else
         {
             WriteClientHeaderForStatic(ms, networkId, targetPeers);
-            ClientSendDataPacket(ms, data, isReliable);
+            ClientSendDataPacket(ms, data, reliability, channelId);
         }
     }
 
-    public static void SendPacketToRemoteActor(Guid actorId, byte[] data, bool isReliable, List<int>? targetPeers = null)
+    public static void SendPacketToRemoteActor(Guid actorId, byte[] data, PacketReliability reliability, List<int>? targetPeers = null, int channelId = 0)
     {
         targetPeers ??= [];
         if (!IsNetworking || !IsConnected || targetPeers.Count == 1 && targetPeers[0] == RemotePeerId)
@@ -218,12 +232,12 @@ public static class NetworkManager
         if (IsServer)
         {
             WriteServerHeaderForGuid(ms, actorId);
-            ServerSendDataPacket(ms, data, isReliable, targetPeers);
+            ServerSendDataPacket(ms, data, reliability, channelId, targetPeers);
         }
         else
         {
             WriteClientHeaderForGuid(ms, actorId, targetPeers);
-            ClientSendDataPacket(ms, data, isReliable);
+            ClientSendDataPacket(ms, data, reliability, channelId);
         }
     }
 
@@ -269,33 +283,44 @@ public static class NetworkManager
         packetStream.Write(actorId.ToByteArray());
     }
 
-    private static void ClientSendDataPacket(MemoryStream packetStream, byte[] data, bool isReliable)
+    private static PacketFlags ReliabilityToPacketFlags(PacketReliability reliability)
     {
-        packetStream.Write(data);
-        var packet = default(Packet);
-        var flags = isReliable ? PacketFlags.Reliable : PacketFlags.None;
-        packet.Create(packetStream.ToArray(), flags);
-        var channelId = isReliable ? 1 : 0;
-        host!.Broadcast((byte)channelId, ref packet);
+        return reliability switch
+        {
+            PacketReliability.Reliable => PacketFlags.Reliable,
+            PacketReliability.UnreliableOrdered => PacketFlags.UnreliableFragmented,
+            PacketReliability.Unreliable => PacketFlags.UnreliableFragmented | PacketFlags.Unsequenced,
+            _ => throw new Exception("Invalid reliability value")
+        };
     }
 
-    private static void ServerSendDataPacket(MemoryStream packetStream, byte[] data, bool isReliable, List<int> targetPeers)
+    private static void ClientSendDataPacket(MemoryStream packetStream, byte[] data, PacketReliability reliability, int channelId)
     {
         packetStream.Write(data);
         var packet = default(Packet);
-        var flags = isReliable ? PacketFlags.Reliable : PacketFlags.None;
+        var flags = ReliabilityToPacketFlags(reliability);
+        packet.Create(packetStream.ToArray(), flags);
+        var channel = reliability + channelId * 3;
+        host!.Broadcast((byte)channel, ref packet);
+    }
+
+    private static void ServerSendDataPacket(MemoryStream packetStream, byte[] data, PacketReliability reliability, int channelId, List<int> targetPeers)
+    {
+        packetStream.Write(data);
+        var packet = default(Packet);
+        var flags = ReliabilityToPacketFlags(reliability);
         packet.Create(packetStream.ToArray(), flags);
 
-        var channelId = isReliable ? 1 : 0;
+        var channel = reliability + channelId * 3;
         
         if (targetPeers.Count > 0)
         {
             var peers = targetPeers.Select(x => connectedPeers.GetValueOrDefault((uint)x)).ToArray();
-            host!.Broadcast((byte)channelId, ref packet, peers);
+            host!.Broadcast((byte)channel, ref packet, peers);
         }
         else
         {
-            host!.Broadcast((byte)channelId, ref packet);
+            host!.Broadcast((byte)channel, ref packet);
         }
     }
 
@@ -424,7 +449,8 @@ public static class NetworkManager
         ms.ReadExactly(data);
         var rebroadcastData = CreateRebroadcastData(data, peerId);
         var rebroadcastPacket = default(Packet);
-        var flags = channelId == 1 ? PacketFlags.Reliable : PacketFlags.None;
+        var reliability = (PacketReliability)(channelId % 3);
+        var flags = ReliabilityToPacketFlags(reliability);
         rebroadcastPacket.Create(rebroadcastData, flags);
 
         if (isBroadcast)
