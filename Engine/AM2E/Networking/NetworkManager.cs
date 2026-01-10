@@ -6,11 +6,35 @@ namespace AM2E.Networking;
 
 public static class NetworkManager
 {
-    public static bool IsNetworking { get; private set; }
+    private static bool isNetworking;
 
-    public static bool IsConnected { get; private set; }
+    private static bool isConnected;
 
-    public static bool IsServer { get; private set; }
+    private static bool isServer;
+
+    public static bool IsMultiplayer
+    {
+        get
+        {
+            return isNetworking && isConnected;
+        }
+    }
+
+    public static bool IsServer
+    {
+        get
+        {
+            return isServer && isConnected && isNetworking;
+        }
+    }
+
+    public static bool IsClient
+    {
+        get
+        {
+            return !isServer && isConnected && isNetworking;
+        }
+    }
 
     public static int RemotePeerId { get; private set; } = -1;
 
@@ -38,6 +62,13 @@ public static class NetworkManager
         Static = 1
     }
 
+    public enum PacketReliability
+    {
+        Reliable = 0,
+        UnreliableOrdered = 1,
+        Unreliable = 2
+    }
+
     static Host? host;
 
     readonly static Dictionary<uint, Peer> connectedPeers = [];
@@ -46,30 +77,32 @@ public static class NetworkManager
 
     const int DEFAULT_MAX_CLIENTS = 32;
 
+    const int NUM_CHANNELS = 5;
+
     public static void StartServer(int port, int maxClients = DEFAULT_MAX_CLIENTS)
     {
-        if (!IsNetworking)
+        if (!isNetworking)
         {
             InitializeNetworking();
         }
         DisposeHost();
         
         host = new Host();
-        IsServer = true;
-        IsConnected = true;
+        isServer = true;
+        isConnected = true;
         RemotePeerId = 0;
         var address = new Address() { Port = (ushort)port };
-        host.Create(address, maxClients, 2);
+        host.Create(address, maxClients, NUM_CHANNELS * 3);
         Logger.Debug("Started server");
     }
 
     public static void StopServer()
     {
-        if (!IsNetworking)
+        if (!isNetworking)
         {
             throw new InvalidOperationException("Tried to stop server that wasn't running");
         }
-        if (!IsServer)
+        if (!isServer)
         {
             throw new InvalidOperationException("Tried to stop client through StopServer method");
         }
@@ -79,31 +112,31 @@ public static class NetworkManager
 
     public static void StartClient(string ip, int port)
     {
-        if (!IsNetworking)
+        if (!isNetworking)
         {
             InitializeNetworking();
         }
         DisposeHost();
 
         host = new Host();
-        IsServer = false;
+        isServer = false;
         
         var address = new Address() { Port = (ushort)port };
         address.SetHost(ip);
 
         host.Create();
 
-        host.Connect(address, 2);
+        host.Connect(address, NUM_CHANNELS * 3);
         Logger.Debug("Started client");
     }
 
     public static void StopClient()
     {
-        if (!IsNetworking)
+        if (!isNetworking)
         {
             throw new InvalidOperationException("Tried to stop client that wasn't running");
         }
-        if (IsServer)
+        if (isServer)
         {
             throw new InvalidOperationException("Tried to stop server through StopClient method");
         }
@@ -115,12 +148,12 @@ public static class NetworkManager
     private static void InitializeNetworking()
     {
         Library.Initialize();
-        IsNetworking = true;
+        isNetworking = true;
     }
 
     private static void DisposeHost()
     {
-        IsConnected = false;
+        isConnected = false;
         foreach (var peer in connectedPeers.Values)
         {
             peer.Disconnect(0);
@@ -133,19 +166,19 @@ public static class NetworkManager
 
     private static void StopNetworking()
     {
-        IsNetworking = false;
+        isNetworking = false;
         DisposeHost();
         Library.Deinitialize();
     }
 
     internal static void NetworkTick()
     {
-        if (!IsNetworking)
+        if (!isNetworking)
         {
             return;
         }
 
-        if (IsServer)
+        if (isServer)
         {
             ServerTick();
         }
@@ -157,7 +190,7 @@ public static class NetworkManager
 
     internal static void NetworkFlush()
     {
-        if (!IsNetworking)
+        if (!isNetworking)
         {
             return;
         }
@@ -186,44 +219,49 @@ public static class NetworkManager
         staticNetworkedActors.Remove(networkId);
     }
 
-    public static void SendPacketToRemoteStaticActor(int networkId, byte[] data, bool isReliable, List<int>? targetPeers = null)
+    public static void SendPacketToRemoteStaticActor(int networkId, byte[] data, PacketReliability reliability, List<int>? targetPeers = null, int channelId = 0)
     {
         targetPeers ??= [];
-        if (!IsNetworking || !IsConnected || targetPeers.Count == 1 && targetPeers[0] == RemotePeerId)
+        if (!isNetworking || !isConnected || targetPeers.Count == 1 && targetPeers[0] == RemotePeerId)
         {
             return;
         }
 
+        if (channelId < 0 || channelId >= NUM_CHANNELS)
+        {
+            throw new ArgumentException($"Channel id {channelId} was outside the bounds of allowed channel ids, Max: {NUM_CHANNELS - 1}, Min: 0");
+        }
+
         using var ms = new MemoryStream();
-        if (IsServer)
+        if (isServer)
         {
             WriteServerHeaderForStatic(ms, networkId);
-            ServerSendDataPacket(ms, data, isReliable, targetPeers);
+            ServerSendDataPacket(ms, data, reliability, channelId, targetPeers);
         }
         else
         {
             WriteClientHeaderForStatic(ms, networkId, targetPeers);
-            ClientSendDataPacket(ms, data, isReliable);
+            ClientSendDataPacket(ms, data, reliability, channelId);
         }
     }
 
-    public static void SendPacketToRemoteActor(Guid actorId, byte[] data, bool isReliable, List<int>? targetPeers = null)
+    public static void SendPacketToRemoteActor(Guid actorId, byte[] data, PacketReliability reliability, List<int>? targetPeers = null, int channelId = 0)
     {
         targetPeers ??= [];
-        if (!IsNetworking || !IsConnected || targetPeers.Count == 1 && targetPeers[0] == RemotePeerId)
+        if (!isNetworking || !isConnected || targetPeers.Count == 1 && targetPeers[0] == RemotePeerId)
         {
             return;
         }
         using var ms = new MemoryStream();
-        if (IsServer)
+        if (isServer)
         {
             WriteServerHeaderForGuid(ms, actorId);
-            ServerSendDataPacket(ms, data, isReliable, targetPeers);
+            ServerSendDataPacket(ms, data, reliability, channelId, targetPeers);
         }
         else
         {
             WriteClientHeaderForGuid(ms, actorId, targetPeers);
-            ClientSendDataPacket(ms, data, isReliable);
+            ClientSendDataPacket(ms, data, reliability, channelId);
         }
     }
 
@@ -269,33 +307,44 @@ public static class NetworkManager
         packetStream.Write(actorId.ToByteArray());
     }
 
-    private static void ClientSendDataPacket(MemoryStream packetStream, byte[] data, bool isReliable)
+    private static PacketFlags ReliabilityToPacketFlags(PacketReliability reliability)
     {
-        packetStream.Write(data);
-        var packet = default(Packet);
-        var flags = isReliable ? PacketFlags.Reliable : PacketFlags.None;
-        packet.Create(packetStream.ToArray(), flags);
-        var channelId = isReliable ? 1 : 0;
-        host!.Broadcast((byte)channelId, ref packet);
+        return reliability switch
+        {
+            PacketReliability.Reliable => PacketFlags.Reliable,
+            PacketReliability.UnreliableOrdered => PacketFlags.UnreliableFragmented,
+            PacketReliability.Unreliable => PacketFlags.UnreliableFragmented | PacketFlags.Unsequenced,
+            _ => throw new Exception("Invalid reliability value")
+        };
     }
 
-    private static void ServerSendDataPacket(MemoryStream packetStream, byte[] data, bool isReliable, List<int> targetPeers)
+    private static void ClientSendDataPacket(MemoryStream packetStream, byte[] data, PacketReliability reliability, int channelId)
     {
         packetStream.Write(data);
         var packet = default(Packet);
-        var flags = isReliable ? PacketFlags.Reliable : PacketFlags.None;
+        var flags = ReliabilityToPacketFlags(reliability);
+        packet.Create(packetStream.ToArray(), flags);
+        var channel = reliability + channelId * 3;
+        host!.Broadcast((byte)channel, ref packet);
+    }
+
+    private static void ServerSendDataPacket(MemoryStream packetStream, byte[] data, PacketReliability reliability, int channelId, List<int> targetPeers)
+    {
+        packetStream.Write(data);
+        var packet = default(Packet);
+        var flags = ReliabilityToPacketFlags(reliability);
         packet.Create(packetStream.ToArray(), flags);
 
-        var channelId = isReliable ? 1 : 0;
+        var channel = reliability + channelId * 3;
         
         if (targetPeers.Count > 0)
         {
             var peers = targetPeers.Select(x => connectedPeers.GetValueOrDefault((uint)x)).ToArray();
-            host!.Broadcast((byte)channelId, ref packet, peers);
+            host!.Broadcast((byte)channel, ref packet, peers);
         }
         else
         {
-            host!.Broadcast((byte)channelId, ref packet);
+            host!.Broadcast((byte)channel, ref packet);
         }
     }
 
@@ -424,7 +473,8 @@ public static class NetworkManager
         ms.ReadExactly(data);
         var rebroadcastData = CreateRebroadcastData(data, peerId);
         var rebroadcastPacket = default(Packet);
-        var flags = channelId == 1 ? PacketFlags.Reliable : PacketFlags.None;
+        var reliability = (PacketReliability)(channelId % 3);
+        var flags = ReliabilityToPacketFlags(reliability);
         rebroadcastPacket.Create(rebroadcastData, flags);
 
         if (isBroadcast)
@@ -561,7 +611,7 @@ public static class NetworkManager
                         return;
                     }
                     Logger.Debug($"Finished connecting to server, remote peer id: {remotePeerId}");
-                    IsConnected = true;
+                    isConnected = true;
                     RemotePeerId = remotePeerId;
                     ConnectedToServer?.Invoke(remotePeerId);
                     break;
