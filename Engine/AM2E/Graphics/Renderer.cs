@@ -17,6 +17,8 @@ public static class Renderer
     public static int GameHeight;
     public static float OffsetX = 0;
     public static float OffsetY = 0;
+    public static bool FullscreenStretch = false;
+    internal static int FullscreenScale = 1;
 
     internal static int UpscaleAmount { get; private set; } = 1;
 
@@ -97,19 +99,25 @@ public static class Renderer
 
         var outputAspect = window.ClientBounds.Width / (float)window.ClientBounds.Height;
 
+        var fullscreen = GraphicsDeviceManager.IsFullScreen && !FullscreenStretch;
+        
         if (outputAspect <= targetRatio)
         {
             // output is taller than it is wider, bars on top/bottom
-            var presentHeight = (int)((window.ClientBounds.Width / targetRatio) + 0.5f);
+            var presentHeight = fullscreen ? GameHeight * FullscreenScale : (int)((window.ClientBounds.Width / targetRatio) + 0.5f);
+            var presentWidth = fullscreen ? GameWidth * FullscreenScale : window.ClientBounds.Width;
             var barHeight = (window.ClientBounds.Height - presentHeight) / 2;
-            ApplicationSpace = new Rectangle(0, barHeight, window.ClientBounds.Width, presentHeight);
+            var barWidth = fullscreen ? (window.ClientBounds.Width - presentWidth) / 2 : 0;
+            ApplicationSpace = new Rectangle(barWidth, barHeight, presentWidth, presentHeight);
         }
         else
         {
             // output is wider than it is tall, bars left/right
-            var presentWidth = (int)((window.ClientBounds.Height * targetRatio) + 0.5f);
+            var presentWidth = fullscreen ? GameWidth * FullscreenScale : (int)((window.ClientBounds.Height * targetRatio) + 0.5f);
+            var presentHeight = fullscreen ? GameHeight * FullscreenScale : window.ClientBounds.Height;
             var barWidth = (window.ClientBounds.Width - presentWidth) / 2;
-            ApplicationSpace = new Rectangle(barWidth, 0, presentWidth, window.ClientBounds.Height);
+            var barHeight = fullscreen ? (window.ClientBounds.Height - presentHeight) / 2 : 0;
+            ApplicationSpace = new Rectangle(barWidth, barHeight, presentWidth, presentHeight);
         }
         
         guiSpace.X = ApplicationSpace.X;

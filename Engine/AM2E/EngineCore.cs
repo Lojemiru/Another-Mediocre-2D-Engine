@@ -11,7 +11,7 @@ namespace AM2E;
 public sealed class EngineCore : Game
 {
     private Action entryPointCallback;
-    public static readonly string Version = "2.10.0";
+    public static readonly string Version = "2.11.0";
     public static GraphicsDeviceManager _graphics;
     private double updateAccumulator = 0d;
     private const double FRAME_ERROR_MARGIN = .0002;
@@ -206,6 +206,14 @@ public sealed class EngineCore : Game
 
         // Run the OnResize event manually to update the draw space and scale.
         Renderer.OnResizeInternal(StaticWindow, true);
+    }
+
+    
+    public static void SetFullscreenScale(int scale)
+    {
+        Renderer.FullscreenScale = Math.Max(1, scale);
+        if (GetFullscreen())
+            Renderer.OnResizeInternal(StaticWindow, true);
     }
 
     public static void SetVsync(bool status)
