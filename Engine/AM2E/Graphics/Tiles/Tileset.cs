@@ -7,7 +7,7 @@ public sealed class Tileset
 {
     public readonly Sprite Sprite;
     private readonly Rectangle[,] tileCache;
-    private readonly Dictionary<int, string> enumTags = new();
+    private readonly Dictionary<int, List<string>> enumTags = new();
     public readonly int GridSize;
 
     public Tileset(Sprite sprite, LDtkTilesetDefinition definition)
@@ -19,8 +19,12 @@ public sealed class Tileset
         foreach (var tag in definition.EnumTags)
         {
             foreach (var id in tag.TileIds)
-                if (!enumTags.ContainsKey(id))
-                    enumTags.Add(id, tag.EnumValueId);
+            {
+                if (!enumTags.TryGetValue(id, out var val))
+                    enumTags.Add(id, [ tag.EnumValueId ]);
+                else if (!val.Contains(tag.EnumValueId))
+                        val.Add(tag.EnumValueId);
+            }
         }
     }
 
@@ -32,7 +36,7 @@ public sealed class Tileset
         return tileCache[x, y];
     }
 
-    public string? GetEnumTag(int tileId)
+    public List<string>? GetEnumTags(int tileId)
     {
         return enumTags.GetValueOrDefault(tileId);
     }
