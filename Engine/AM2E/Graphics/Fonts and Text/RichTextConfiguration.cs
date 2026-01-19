@@ -6,13 +6,16 @@ internal static class RichTextConfiguration
 {
     internal static void ApplyConfiguration()
     {
-        // Format: /i[page name:sprite name:index]
+        // Format: /i[page_name:sprite_name:index:layer:vertical_offset]
         // Index is optional
+        // Layer is optional
+        // Vertical offset is optional
         RichTextDefaults.ImageResolver = text =>
         {
             var input = text.Split(":");
             var frame = 0;
             var layer = 0;
+            var offset = 0;
 
             Sprite sprite;
 
@@ -49,7 +52,19 @@ internal static class RichTextConfiguration
                 }
             }
 
-            return new BetterTextureFragment(sprite.TexturePage.Texture, sprite.Positions[layer][frame]);
+            if (input.Length > 4)
+            {
+                try
+                {
+                    offset = int.Parse(input[4]);
+                }
+                catch
+                {
+                    throw new ArgumentException("Invalid vertical offset value in image embed tag: " + text);
+                }
+            }
+
+            return new BetterTextureFragment(sprite.TexturePage.Texture, sprite.Positions[layer][frame], offset);
         };
     }
 }

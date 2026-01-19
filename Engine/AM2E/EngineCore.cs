@@ -11,7 +11,7 @@ namespace AM2E;
 public sealed class EngineCore : Game
 {
     private Action entryPointCallback;
-    public static readonly string Version = "2.12.0";
+    public static readonly string Version = "2.13.0";
     public static GraphicsDeviceManager _graphics;
     private double updateAccumulator = 0d;
     private const double FRAME_ERROR_MARGIN = .0002;
@@ -22,6 +22,7 @@ public sealed class EngineCore : Game
     internal static string ContentNamespaceFooter;
     internal static string LocalStorageName;
     public static bool DoDebugRender = false;
+    public static int DefaultImageEmbedVerticalOffset = 0; 
 
     private static int gameSpeed = 60;
     public static int GameSpeed
@@ -46,6 +47,7 @@ public sealed class EngineCore : Game
         staticThis = this;
         StaticWindow = Window;
         LocalStorageName = config.LocalStorageName;
+        DefaultImageEmbedVerticalOffset = config.DefaultImageEmbedVerticalOffset;
         
         SetTitle("Built in Another Mediocre 2D Engine");
         

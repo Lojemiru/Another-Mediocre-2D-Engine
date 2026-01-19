@@ -14,6 +14,7 @@ public sealed class AM2EConfig
     public GraphicsProfile GraphicsProfile = GraphicsProfile.HiDef;
     public Type InputEnum;
     public string LocalStorageName;
+    public int DefaultImageEmbedVerticalOffset = 0;
 
     public AM2EConfig(Type inputEnum, string localStorageName)
     {
