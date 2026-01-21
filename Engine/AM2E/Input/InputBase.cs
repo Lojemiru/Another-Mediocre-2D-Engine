@@ -23,7 +23,7 @@ internal abstract class InputBase<TInput, TState>
 
     internal bool InputReleased { get; private set; } = false;
     internal bool InputPressed { get; private set; } = false;
-    private bool inputPressedLast = false;
+    private bool inputHeldLast = false;
     internal bool InputHeld { get; private set; } = false;
 
     internal virtual void Update(TState state)
@@ -35,11 +35,11 @@ internal abstract class InputBase<TInput, TState>
             Poll(state, input);
         }
 
-        InputPressed = InputHeld && !inputPressedLast;
+        InputPressed = InputHeld && !inputHeldLast;
 
-        InputReleased = !InputHeld && inputPressedLast;
+        InputReleased = !InputHeld && inputHeldLast;
 
-        inputPressedLast = InputHeld;
+        inputHeldLast = InputHeld;
         
         if (InputHeld)
             InputManager.LastReadInputType = inputType;
@@ -62,5 +62,13 @@ internal abstract class InputBase<TInput, TState>
     internal void Rebind(TInput input, int index = 0)
     {
         Inputs[index] = input;
+    }
+
+    internal void Reset()
+    {
+        InputHeld = false;
+        InputPressed = false;
+        InputReleased = false;
+        inputHeldLast = false;
     }
 }

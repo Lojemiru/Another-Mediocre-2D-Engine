@@ -461,6 +461,21 @@ public static class InputManager
 
     #endregion
     
+    #region Setters
+
+    public static void Reset(Enum input)
+        => Reset(input.ToString());
+    
+    public static void Reset(string input)
+    {
+        ValidateInputExists(input);
+        KeyboardListeners[input].Reset();
+        MouseListeners[input].Reset();
+        GamePadListeners[input].Reset();
+    }
+    
+    #endregion
+    
     #region Binding Getters
 
     public static Keys GetBoundKey(Enum input, int index = 0)
