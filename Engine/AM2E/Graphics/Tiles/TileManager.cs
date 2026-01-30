@@ -137,7 +137,7 @@ public sealed class TileManager
         var l = Math.Clamp((Camera.BoundLeft - distancePastCamera - level.X - paraX) / 16 - 1, limLX, limX);
         var u = Math.Clamp((Camera.BoundTop - distancePastCamera - level.Y - paraY) / 16 - 1, limLY, limY);
         var r = Math.Clamp((Camera.BoundRight + distancePastCamera - level.X - paraX) / 16 + 1, limLX, limX);
-        var d = Math.Clamp((paraY + Camera.BoundBottom + distancePastCamera - level.Y - paraY) / 16 + 1, limLY, limY);
+        var d = Math.Clamp((Camera.BoundBottom + distancePastCamera - level.Y - paraY) / 16 + 1, limLY, limY);
         
         for (var i = l; i < r; i++)
         {
