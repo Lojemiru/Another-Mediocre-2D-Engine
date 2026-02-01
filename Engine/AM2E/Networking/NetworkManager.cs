@@ -81,19 +81,27 @@ public static class NetworkManager
 
     public static void StartServer(int port, int maxClients = DEFAULT_MAX_CLIENTS)
     {
-        if (!isNetworking)
+        try
         {
-            InitializeNetworking();
+            if (!isNetworking)
+            {
+                InitializeNetworking();
+            }
+            DisposeHost();
+
+            host = new Host();
+            isServer = true;
+            isConnected = true;
+            RemotePeerId = 0;
+            var address = new Address() { Port = (ushort)port };
+            host.Create(address, maxClients, NUM_CHANNELS * 3);
+            Logger.Debug("Started server");
         }
-        DisposeHost();
-        
-        host = new Host();
-        isServer = true;
-        isConnected = true;
-        RemotePeerId = 0;
-        var address = new Address() { Port = (ushort)port };
-        host.Create(address, maxClients, NUM_CHANNELS * 3);
-        Logger.Debug("Started server");
+        catch (Exception)
+        {
+            StopServer();
+            throw;
+        }
     }
 
     public static void StopServer()
@@ -112,22 +120,30 @@ public static class NetworkManager
 
     public static void StartClient(string ip, int port)
     {
-        if (!isNetworking)
+        try
         {
-            InitializeNetworking();
+            if (!isNetworking)
+            {
+                InitializeNetworking();
+            }
+            DisposeHost();
+
+            host = new Host();
+            isServer = false;
+
+            var address = new Address() { Port = (ushort)port };
+            address.SetHost(ip);
+
+            host.Create();
+
+            host.Connect(address, NUM_CHANNELS * 3);
+            Logger.Debug("Started client");
         }
-        DisposeHost();
-
-        host = new Host();
-        isServer = false;
-        
-        var address = new Address() { Port = (ushort)port };
-        address.SetHost(ip);
-
-        host.Create();
-
-        host.Connect(address, NUM_CHANNELS * 3);
-        Logger.Debug("Started client");
+        catch (Exception)
+        {
+            StopClient();
+            throw;
+        }
     }
 
     public static void StopClient()
@@ -140,7 +156,10 @@ public static class NetworkManager
         {
             throw new InvalidOperationException("Tried to stop server through StopClient method");
         }
-        DisconnectedFromServer?.Invoke();
+        if (isConnected)
+        {
+            DisconnectedFromServer?.Invoke();
+        }
         StopNetworking();
         Logger.Debug("Stopped client");
     }
@@ -217,6 +236,34 @@ public static class NetworkManager
     internal static void UnregisterStaticActor(int networkId)
     {
         staticNetworkedActors.Remove(networkId);
+    }
+
+    public static void KickPeer(int peerId)
+    {
+        if (!IsServer)
+        {
+            throw new InvalidOperationException("Cannot kick players when not running an active server");
+        }
+        if (connectedPeers.TryGetValue((uint)peerId, out var peer))
+        {
+            NotifyPeersOfDisconnection(peer);
+            peer.DisconnectNow(0);
+            connectedPeers.Remove((uint)peerId);
+            PeerDisconnected?.Invoke(peerId);
+        }
+    }
+
+    public static string GetPeerIP(int peerId)
+    {
+        if (!IsServer)
+        {
+            throw new InvalidOperationException("Cannot get ip when not running an active server");
+        }
+        if (connectedPeers.TryGetValue((uint)peerId, out var peer))
+        {
+            return peer.IP;
+        }
+        return "";
     }
 
     public static void SendPacketToRemoteStaticActor(int networkId, byte[] data, PacketReliability reliability, List<int>? targetPeers = null, int channelId = 0)
