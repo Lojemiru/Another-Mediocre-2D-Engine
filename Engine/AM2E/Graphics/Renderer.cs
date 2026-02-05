@@ -37,7 +37,7 @@ public static class Renderer
     public static void SetTargetRatio(float ratio)
     {
         targetRatio = ratio;
-        OnResizeInternal(EngineCore.StaticWindow);
+        OnResizeInternal(EngineCore.GameWindow);
     }
 
     public static event Action<SpriteBatch> OnDebugRender = _ => { };
@@ -69,7 +69,7 @@ public static class Renderer
 
         Camera.UpdateTransform();
         
-        OnResizeInternal(EngineCore.StaticWindow);
+        OnResizeInternal(EngineCore.GameWindow);
     }
 
     public static void SetUpscaleAmount(int amount)

@@ -11,18 +11,18 @@ namespace AM2E;
 public sealed class EngineCore : Game
 {
     private Action entryPointCallback;
-    public static readonly string Version = "2.15.0";
+    public static readonly string Version = "2.16.0";
     public static GraphicsDeviceManager _graphics;
     private double updateAccumulator = 0d;
     private const double FRAME_ERROR_MARGIN = .0002;
     private bool resetDeltaTime = false;
     private static EngineCore staticThis;
-    internal static GameWindow StaticWindow;
+    public static GameWindow GameWindow;
     internal static string ContentNamespaceHeader;
     internal static string ContentNamespaceFooter;
     internal static string LocalStorageName;
     public static bool DoDebugRender = false;
-    public static int DefaultImageEmbedVerticalOffset = 0; 
+    public static int DefaultImageEmbedVerticalOffset = 0;
 
     private static int gameSpeed = 60;
     public static int GameSpeed
@@ -45,7 +45,7 @@ public sealed class EngineCore : Game
         ContentNamespaceFooter = contentNamespaceFooter;
         this.entryPointCallback = entryPointCallback;
         staticThis = this;
-        StaticWindow = Window;
+        GameWindow = Window;
         LocalStorageName = config.LocalStorageName;
         DefaultImageEmbedVerticalOffset = config.DefaultImageEmbedVerticalOffset;
         
@@ -196,7 +196,7 @@ public sealed class EngineCore : Game
     public static void SetWindowSize(int width, int height)
     {
         // Disable OnResize event.
-        StaticWindow.ClientSizeChanged -= Renderer.OnResize;
+        GameWindow.ClientSizeChanged -= Renderer.OnResize;
         
         // Set preferred size in the GDM and then apply the changes.
         _graphics.PreferredBackBufferWidth = width;
@@ -204,10 +204,10 @@ public sealed class EngineCore : Game
         _graphics.ApplyChanges();
         
         // Re-enable OnResize event.
-        StaticWindow.ClientSizeChanged += Renderer.OnResize;
+        GameWindow.ClientSizeChanged += Renderer.OnResize;
 
         // Run the OnResize event manually to update the draw space and scale.
-        Renderer.OnResizeInternal(StaticWindow, true);
+        Renderer.OnResizeInternal(GameWindow, true);
     }
 
     
@@ -215,7 +215,7 @@ public sealed class EngineCore : Game
     {
         Renderer.FullscreenScale = Math.Max(1, scale);
         if (GetFullscreen())
-            Renderer.OnResizeInternal(StaticWindow, true);
+            Renderer.OnResizeInternal(GameWindow, true);
     }
 
     public static void SetVsync(bool status)
@@ -235,7 +235,7 @@ public sealed class EngineCore : Game
             return;
         
         // Disable OnResize event.
-        StaticWindow.ClientSizeChanged -= Renderer.OnResize;
+        GameWindow.ClientSizeChanged -= Renderer.OnResize;
         
         // Set backbuffer size.
         if (status)
@@ -255,10 +255,10 @@ public sealed class EngineCore : Game
         _graphics.ApplyChanges();
         
         // Re-enable OnResize event.
-        StaticWindow.ClientSizeChanged += Renderer.OnResize;
+        GameWindow.ClientSizeChanged += Renderer.OnResize;
 
         // Run the OnResize event manually to update the draw space and scale.
-        Renderer.OnResizeInternal(StaticWindow, true);
+        Renderer.OnResizeInternal(GameWindow, true);
     }
 
     public static bool GetBorderless()
