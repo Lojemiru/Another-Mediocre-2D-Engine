@@ -94,10 +94,11 @@ public static class Audio
         initialized = false;
     }
 
-    private static void ThrowIfUninitialized()
+    private static bool Uninitialized(string name)
     {
         if (!initialized)
-            throw new TypeUnloadedException("Audio banks have not been loaded! Please call Audio.Load() first.");
+            Logger.Warn($"Audio call {name} made when uninitialized. Gracefully failing...");
+        return !initialized;
     }
 
     /// <summary>
@@ -149,7 +150,8 @@ public static class Audio
     /// <param name="level">The <see cref="Level"/> to require active to play this event. If null, will always play.</param>
     public static EventInstance? PlayEvent(string eventName, float x, float y, float z, Level? level, string eventPrefix = "event:/", bool dontStart = false)
     {
-        ThrowIfUninitialized();
+        if (Uninitialized(nameof(PlayEvent)))
+            return null;
         
         // Cancel event if our target level exists and is NOT active.
         if (level is not null && !level.Active)
@@ -183,7 +185,8 @@ public static class Audio
     }
     
     public static bool IsPlaying(string eventName) {
-        ThrowIfUninitialized();
+        if (Uninitialized(nameof(IsPlaying)))
+            return false;
         
         foreach (var e in playingEvents) {
             if (e.GetPath() == eventName)
@@ -194,14 +197,16 @@ public static class Audio
     }
     
     public static void StopSnapshot(string snapshotName) {
-        ThrowIfUninitialized();
+        if (Uninitialized(nameof(StopSnapshot)))
+            return;
         
         StopEvent(snapshotName, true, "snapshot:/");
     }
 
     public static void StopEvent(string eventName, bool executeOnStop = true, string eventPrefix = "event:/")
     {
-        ThrowIfUninitialized();
+        if (Uninitialized(nameof(StopEvent)))
+            return;
         
         // Since this is a brute-force cutoff anyway, we're not going to scan for an input room and just cancel everything instead.
         
@@ -236,7 +241,8 @@ public static class Audio
     /// <param name="value">Value to set it to</param>
     public static void SetParameterGlobal(string parameterName, float value)
     {
-        ThrowIfUninitialized();
+        if (Uninitialized(nameof(SetParameterGlobal)))
+            return;
         
         var r = studio.setParameterByName(parameterName, value);
         if (r == RESULT.ERR_EVENT_NOTFOUND) {
@@ -278,7 +284,8 @@ public static class Audio
     }
     
     public static void StopAll() {
-        ThrowIfUninitialized();
+        if (Uninitialized(nameof(StopAll)))
+            return;
         
         foreach (var e in playingEvents) {
             e.HardStop();
