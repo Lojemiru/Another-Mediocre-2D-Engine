@@ -29,6 +29,7 @@ public sealed class CircleHitbox : Hitbox
     public void Resize(int radius)
     {
         Radius = radius;
+        Collider?.SyncBounds();
     }
 
     public override void UpdateOrigin(int x, int y)
