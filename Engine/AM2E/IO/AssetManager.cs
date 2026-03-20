@@ -1,4 +1,5 @@
-﻿using MonoGame.Framework.Utilities;
+﻿using System.Reflection;
+using MonoGame.Framework.Utilities;
 
 namespace AM2E.IO;
 
@@ -11,6 +12,7 @@ public static class AssetManager
     private static string audioFolder = "Audio";
     private static string fontFolder = "Fonts";
     private static string shadersFolder = "Shaders";
+    private static string baseLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "";
     public static void SetTexturePath(string path)
     {
         texturesFolder = path;
@@ -33,27 +35,27 @@ public static class AssetManager
 
     public static string GetTextureMetadataPath(string index)
     {
-        return $"{texturesFolder}/{index}.json";
+        return $"{baseLocation}/{texturesFolder}/{index}.json";
     }
 
     public static string GetTexturePath(string index)
     {
-        return $"{texturesFolder}/{index}.png";
+        return $"{baseLocation}/{texturesFolder}/{index}.png";
     }
 
     public static string GetAudioPath()
     {
         var folder = PlatformInfo.MonoGamePlatform == MonoGamePlatform.Android ? "Mobile" : "Desktop";
-        return $"{audioFolder}/{folder}";
+        return $"{baseLocation}/{audioFolder}/{folder}";
     }
 
     public static string GetFontPath(string fontName)
     {
-        return $"{fontFolder}/{fontName}.ttf";
+        return $"{baseLocation}/{fontFolder}/{fontName}.ttf";
     }
 
     public static string GetShadersPath()
     {
-        return $"{shadersFolder}";
+        return $"{baseLocation}/{shadersFolder}";
     }
 }
