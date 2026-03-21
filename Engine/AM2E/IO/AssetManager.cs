@@ -12,7 +12,7 @@ public static class AssetManager
     private static string audioFolder = "Audio";
     private static string fontFolder = "Fonts";
     private static string shadersFolder = "Shaders";
-    private static string baseLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? "";
+    private static readonly string baseLocation = AppContext.BaseDirectory;
     public static void SetTexturePath(string path)
     {
         texturesFolder = path;
