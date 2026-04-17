@@ -171,6 +171,17 @@ public class EventInstance
         // aaaah
         return path.Split(":/")[1];
     }
+
+    /// <summary>
+    /// Get the length of the instance's timeline in milliseconds.
+    /// </summary>
+    /// <returns>The length of the instance's timeline in milliseconds.</returns>
+    public int GetLength()
+    {
+        myEvent.getDescription(out var description);
+        description.getLength(out var length);
+        return length;
+    }
     
     public LOADING_STATE GetLoadingState() {
         myEvent.getDescription(out var description);
