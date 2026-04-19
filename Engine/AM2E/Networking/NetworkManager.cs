@@ -8,7 +8,7 @@ public static class NetworkManager
 {
     private static bool isNetworking;
 
-    private static bool isConnected;
+    internal static bool isConnected;
 
     private static bool isServer;
 
@@ -36,7 +36,7 @@ public static class NetworkManager
         }
     }
 
-    public static int RemotePeerId { get; private set; } = -1;
+    public static int RemotePeerId { get; internal set; } = -1;
 
     public static event Action<int>? PeerConnected;
     
@@ -87,6 +87,11 @@ public static class NetworkManager
     internal static void OnPeerDisconnected(int peerId)
     {
         PeerDisconnected?.Invoke(peerId);
+    }
+
+    internal static void OnConnectedToServer(int remotePeerId)
+    {
+        ConnectedToServer?.Invoke(remotePeerId);
     }
 
     public static void StartServer(int port, int maxClients = DEFAULT_MAX_CLIENTS)
@@ -214,7 +219,7 @@ public static class NetworkManager
         }
         else
         {
-            ClientTick();
+            Client.ClientTick(host!);
         }
     }
 
@@ -436,125 +441,6 @@ public static class NetworkManager
         }
     }
 
-    private static void ParseDataPacket(MemoryStream packetStream, int senderId)
-    {
-        var guidBytes = new byte[16];
-        try
-        {
-            packetStream.ReadExactly(guidBytes);
-        }
-        catch (Exception ex)
-        {
-            Logger.Warn($"Error when reading data packet:\n{ex}");
-            return;
-        }
-
-        var guid = new Guid(guidBytes);
-        var data = new byte[packetStream.Length - packetStream.Position];
-        packetStream.ReadExactly(data);
-        HandleDataPacket(guid, data, senderId);
-    }
-
-    private static void ParseStaticDataPacket(MemoryStream packetStream, int senderId)
-    {
-        if (packetStream.Length - packetStream.Position < 4)
-        {
-            Logger.Warn($"Error when reading data packet: Packet is not long enough!");
-            return;
-        }
-        using var br = GetBinaryReader(packetStream);
-
-        var networkId = br.ReadInt32();
-        var data = new byte[packetStream.Length - packetStream.Position];
-        packetStream.ReadExactly(data);
-        HandleStaticDataPacket(networkId, data, senderId);
-    }
-
-    private static void ClientHandlePacket(Packet packet)
-    {
-        if (packet.Length == 0)
-        {
-            Logger.Warn("Received malformed packet");
-            return;
-        }
-
-        var bytes = new byte[packet.Length];
-        packet.CopyTo(bytes);
-
-        using var ms = new MemoryStream(bytes);
-        var packetType = (PacketTypes)ms.ReadByte();
-
-        switch (packetType)
-        {
-            case PacketTypes.Data:
-                {
-                    var senderId = ms.ReadByte();
-                    if (senderId == -1)
-                    {
-                        Logger.Warn($"Error: Malformed data packet");
-                    }
-
-                    var idType = (IdTypes)ms.ReadByte();
-                    switch (idType)
-                    {
-                        case IdTypes.Guid:
-                            ParseDataPacket(ms, senderId);
-                            break;
-                        case IdTypes.Static:
-                            ParseStaticDataPacket(ms, senderId);
-                            break;
-                        default:
-                            Logger.Warn($"Unexpected id type in packet body");
-                            break;
-                    }
-                    break;
-                }
-            case PacketTypes.Disconnect:
-                {
-                    var disconnectedPeerId = ms.ReadByte();
-                    if (disconnectedPeerId == -1)
-                    {
-                        Logger.Warn("Error: Malformed disconnect packet");
-                        return;
-                    }
-                    Logger.Debug($"Client disconnected with ID: {disconnectedPeerId}");
-                    PeerDisconnected?.Invoke(disconnectedPeerId);
-                    break;
-                }
-            case PacketTypes.Connect:
-                {
-                    var connectedPeerId = ms.ReadByte();
-                    if (connectedPeerId == -1)
-                    {
-                        Logger.Warn($"Error: Malformed connect packet");
-                        return;
-                    }
-                    PeerConnected?.Invoke(connectedPeerId);
-                    Logger.Debug($"Client connected with ID: {connectedPeerId}");
-                    break;
-                }
-            case PacketTypes.ConnectionEstablished:
-                {
-                    var remotePeerId = ms.ReadByte();
-                    if (remotePeerId == -1)
-                    {
-                        Logger.Warn($"Error: Malformed connection established packt");
-                        return;
-                    }
-                    Logger.Debug($"Finished connecting to server, remote peer id: {remotePeerId}");
-                    isConnected = true;
-                    RemotePeerId = remotePeerId;
-                    ConnectedToServer?.Invoke(remotePeerId);
-                    break;
-                }
-            default:
-                {
-                    Logger.Warn($"Received unrecognised packet type");
-                    break;
-                }
-        }
-    }
-
     private static void NotifyPeersOfDisconnection(Peer peer)
     {
         var peerId = peer.ID + 1;
@@ -565,35 +451,5 @@ public static class NetworkManager
         disconnectPacket.Create(disconnectData, PacketFlags.Reliable);
 
         host!.Broadcast(1, ref disconnectPacket);
-    }
-
-    private static void ClientTick()
-    {
-        for (var result = host!.Service(0, out var netEvent); result > 0; result = host.CheckEvents(out netEvent))
-        {
-            switch (netEvent.Type)
-            {
-                case EventType.Connect:
-                    connectedPeers.Add(netEvent.Peer.ID, netEvent.Peer);
-                    Logger.Debug($"Server acknowledged connection, waiting for full connection to be established");
-                    break;
-                case EventType.Disconnect:
-                    connectedPeers.Remove(netEvent.Peer.ID);
-                    Logger.Debug("Server disconnected");
-                    StopClient();
-                    return;
-                case EventType.Receive:
-                    {
-                        using var packet = netEvent.Packet;
-                        ClientHandlePacket(packet);
-                        break;
-                    }
-                case EventType.Timeout:
-                    connectedPeers.Remove(netEvent.Peer.ID);
-                    Logger.Debug("Server timed out");
-                    StopClient();
-                    return;
-            }
-        }	
     }
 }
