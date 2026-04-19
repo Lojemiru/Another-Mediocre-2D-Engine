@@ -39,6 +39,7 @@ public sealed class TileManager
     public float ParallaxY = 0;
 
     public int Layer = 0;
+    public float Alpha = 1f;
 
     public readonly Sprite TilesetSprite;
 
@@ -155,7 +156,7 @@ public sealed class TileManager
                 //else if (jj > highestPlacedTile)
                 //    jj %= highestPlacedTile + 1;
                 
-                Tiles[ii, jj]?.Draw(spriteBatch, ImageIndex, (worldX + offsetX + paraX) + i * tileSize, (worldY + offsetY + paraY) + j * tileSize, Randomize, Layer);
+                Tiles[ii, jj]?.Draw(spriteBatch, ImageIndex, (worldX + offsetX + paraX) + i * tileSize, (worldY + offsetY + paraY) + j * tileSize, Randomize, Layer, Alpha);
             }
         }
     }
