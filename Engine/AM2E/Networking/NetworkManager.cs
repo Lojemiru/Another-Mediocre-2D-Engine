@@ -48,7 +48,7 @@ public static class NetworkManager
 
     const byte ServerPeerId = 0;
 
-    enum PacketTypes
+    internal enum PacketTypes
     {
         Data = 0,
         Connect = 1,
@@ -56,7 +56,7 @@ public static class NetworkManager
         ConnectionEstablished = 3
     }
 
-    enum IdTypes
+    internal enum IdTypes
     {
         Guid = 0,
         Static = 1
@@ -71,13 +71,23 @@ public static class NetworkManager
 
     static Host? host;
 
-    readonly static Dictionary<uint, Peer> connectedPeers = [];
+    internal readonly static Dictionary<uint, Peer> connectedPeers = [];
 
     readonly static Dictionary<int, StaticNetworkedActor> staticNetworkedActors = [];
 
     const int DEFAULT_MAX_CLIENTS = 32;
 
     const int NUM_CHANNELS = 5;
+
+    internal static void OnPeerConnected(int peerId)
+    {
+        PeerConnected?.Invoke(peerId);
+    }
+
+    internal static void OnPeerDisconnected(int peerId)
+    {
+        PeerDisconnected?.Invoke(peerId);
+    }
 
     public static void StartServer(int port, int maxClients = DEFAULT_MAX_CLIENTS)
     {
@@ -197,9 +207,10 @@ public static class NetworkManager
             return;
         }
 
+        // Host should be non-null when isNetworking is true
         if (isServer)
         {
-            ServerTick();
+            Server.ServerTick(host!);
         }
         else
         {
@@ -218,12 +229,12 @@ public static class NetworkManager
     }
 
     // We don't want our streams closed randomly
-    private static BinaryReader GetBinaryReader(Stream stream)
+    internal static BinaryReader GetBinaryReader(Stream stream)
     {
         return new BinaryReader(stream, Encoding.UTF8, true);
     }
 
-    private static BinaryWriter GetBinaryWriter(Stream stream)
+    internal static BinaryWriter GetBinaryWriter(Stream stream)
     {
         return new BinaryWriter(stream, Encoding.UTF8, true);
     }
@@ -354,7 +365,7 @@ public static class NetworkManager
         packetStream.Write(actorId.ToByteArray());
     }
 
-    private static PacketFlags ReliabilityToPacketFlags(PacketReliability reliability)
+    internal static PacketFlags ReliabilityToPacketFlags(PacketReliability reliability)
     {
         return reliability switch
         {
@@ -395,7 +406,7 @@ public static class NetworkManager
         }
     }
 
-    private static void HandleDataPacket(Guid id, byte[] data, int senderId)
+    internal static void HandleDataPacket(Guid id, byte[] data, int senderId)
     {
         var actor = Actor.GetActor(id.ToString());
         if (actor is null || !(actor.Level?.Active ?? true))
@@ -412,7 +423,7 @@ public static class NetworkManager
         }
     }
 
-    private static void HandleStaticDataPacket(int networkId, byte[] data, int senderId)
+    internal static void HandleStaticDataPacket(int networkId, byte[] data, int senderId)
     {
         var actor = staticNetworkedActors.GetValueOrDefault(networkId);
         if (actor is not null)
@@ -422,133 +433,6 @@ public static class NetworkManager
         else
         {
             Logger.Debug($"Received packet for id: {networkId} but there was no local actor for that id");
-        }
-    }
-
-    private static byte[] CreateRebroadcastData(byte[] data, int peerId)
-    {
-        using var ms = new MemoryStream();
-        ms.WriteByte((byte)PacketTypes.Data);
-        ms.WriteByte((byte)peerId);
-        ms.Write(data);
-
-        return ms.ToArray();
-    }
-
-    private static (List<Peer>?, bool) TryGetTargetPeers(Stream packetStream)
-    {
-        try
-        {
-            var peerCount = packetStream.ReadByte();
-            var packetIsForServer = false;
-            var peers = new List<Peer>();
-            for (var i = 0; i < peerCount; i++)
-            {
-                var peer = packetStream.ReadByte();
-                if (peer == ServerPeerId)
-                {
-                    packetIsForServer = true;
-                }
-                else
-                {
-                    peers.Add(connectedPeers.GetValueOrDefault((uint)peer));
-                }
-            }
-            return (peers, packetIsForServer);
-        }
-        catch (Exception ex)
-        {
-            Logger.Warn($"Error when parsing packet header:\n{ex}");
-            return (null, false);
-        }
-    }
-
-    private static void ServerHandleGuidPacket(MemoryStream dataStream, int senderId)
-    {
-        var guidBytes = new byte[16];
-        try
-        {
-            dataStream.ReadExactly(guidBytes);
-        }
-        catch (EndOfStreamException)
-        {
-            Logger.Warn($"Error parsing Guid packet body, packet too short. Packet body length: {dataStream.Length}");
-            return;
-        }
-        var guid = new Guid(guidBytes);
-        var data = new byte[dataStream.Length - dataStream.Position];
-        dataStream.ReadExactly(data);
-        HandleDataPacket(guid, data, senderId);
-    }
-
-    private static void ServerHandleStaticPacket(MemoryStream dataStream, int senderId)
-    {
-        using var br = GetBinaryReader(dataStream);
-        var networkId = 0;
-        try
-        {
-            networkId = br.ReadInt32();
-        }
-        catch (EndOfStreamException)
-        {
-            Logger.Warn($"Error parsing Static packet body, packet too short. Packet body length: {dataStream.Length}");
-            return;
-        }
-        var data = new byte[dataStream.Length - dataStream.Position];
-        dataStream.ReadExactly(data);
-        HandleStaticDataPacket(networkId, data, senderId);
-    }
-
-    private static void ServerHandlePacket(Packet packet, int peerId, byte channelId)
-    {
-        var bytes = new byte[packet.Length];
-        packet.CopyTo(bytes);
-
-        using var ms = new MemoryStream(bytes);
-        var (rebroadcastPeers, packetIsForServer) = TryGetTargetPeers(ms);
-        if (rebroadcastPeers is null)
-        {
-            Logger.Warn($"Packet of length: {packet.Length} failed to parse");
-            return;
-        }
-
-        var sendingPeer = connectedPeers.GetValueOrDefault((uint)peerId);
-        var isBroadcast = rebroadcastPeers.Count == 0 && !packetIsForServer;
-        packetIsForServer = packetIsForServer || isBroadcast;
-
-        var data = new byte[packet.Length - ms.Position];
-        ms.ReadExactly(data);
-        var rebroadcastData = CreateRebroadcastData(data, peerId);
-        var rebroadcastPacket = default(Packet);
-        var reliability = (PacketReliability)(channelId % 3);
-        var flags = ReliabilityToPacketFlags(reliability);
-        rebroadcastPacket.Create(rebroadcastData, flags);
-
-        if (isBroadcast)
-        {
-            host!.Broadcast(channelId, ref rebroadcastPacket, excludedPeer: sendingPeer);
-        }
-        else if (rebroadcastPeers.Count > 0)
-        {
-            host!.Broadcast(channelId, ref rebroadcastPacket, rebroadcastPeers.ToArray());
-        }
-
-        if (packetIsForServer)
-        {
-            using var dataStream = new MemoryStream(data);
-            var idType = (IdTypes)dataStream.ReadByte();
-            switch (idType)
-            {
-                case IdTypes.Guid:
-                    ServerHandleGuidPacket(dataStream, peerId);
-                    break;
-                case IdTypes.Static:
-                    ServerHandleStaticPacket(dataStream, peerId);
-                    break;
-                default:
-                    Logger.Warn("Unexpected id type in packet body");
-                    break;
-            }
         }
     }
 
@@ -671,38 +555,6 @@ public static class NetworkManager
         }
     }
 
-    // Notify newly connected peer of their remote peer id
-    // Notify other peers of newly connected peer
-    // Notify newly connected peer of all other peers
-    private static void NotifyPeersOfConnection(Peer peer)
-    {
-        var peerId = peer.ID + 1;
-        var connectionEstablishedData = new byte[2];
-        connectionEstablishedData[0] = (byte)PacketTypes.ConnectionEstablished;
-        connectionEstablishedData[1] = (byte)peerId;
-        var connectionEstablishedPacket = default(Packet);
-        connectionEstablishedPacket.Create(connectionEstablishedData, PacketFlags.Reliable);
-
-        var connectionData = new byte[2];
-        connectionData[0] = (byte)PacketTypes.Connect;
-        connectionData[1] = (byte)peerId;
-        var connectionDataPacket = default(Packet);
-        connectionDataPacket.Create(connectionData, PacketFlags.Reliable);
-
-        host!.Broadcast(1, ref connectionDataPacket, peer);
-        peer.Send(1, ref connectionEstablishedPacket);
-
-        foreach (var peerKey in connectedPeers.Keys)
-        {
-            var existingPeerData = new byte[2];
-            existingPeerData[0] = (byte)PacketTypes.Connect;
-            existingPeerData[1] = (byte)peerKey;
-            var existingPeerPacket = default(Packet);
-            existingPeerPacket.Create(existingPeerData, PacketFlags.Reliable);
-            peer.Send(1, ref existingPeerPacket);
-        }
-    }
-
     private static void NotifyPeersOfDisconnection(Peer peer)
     {
         var peerId = peer.ID + 1;
@@ -713,48 +565,6 @@ public static class NetworkManager
         disconnectPacket.Create(disconnectData, PacketFlags.Reliable);
 
         host!.Broadcast(1, ref disconnectPacket);
-    }
-
-    private static void ServerTick()
-    {
-        for (var result = host!.Service(0, out var netEvent); result > 0; result = host.CheckEvents(out netEvent))
-        {
-            var peerId = netEvent.Peer.ID + 1;
-            switch (netEvent.Type)
-            {
-                case EventType.Connect:
-                    {
-                        NotifyPeersOfConnection(netEvent.Peer);
-                        connectedPeers.Add(peerId, netEvent.Peer);
-                        PeerConnected?.Invoke((int)peerId);
-                        Logger.Debug($"Peer connected with ID: {peerId}");
-                        break;
-                    }
-                case EventType.Disconnect:
-                    {
-                        connectedPeers.Remove(peerId);
-                        NotifyPeersOfDisconnection(netEvent.Peer);
-                        PeerDisconnected?.Invoke((int)peerId);
-                        Logger.Debug($"Peer disconnected with ID: {peerId}");
-                        break;
-                    }
-                case EventType.Receive:
-                    {
-                        using var packet = netEvent.Packet;
-                        ServerHandlePacket(packet, (int)peerId, netEvent.ChannelID);
-                        break;
-                    }
-                case EventType.Timeout:
-                    {
-                        connectedPeers.Remove(peerId);
-                        Logger.Debug($"Peer timed out with ID: {peerId}");
-                        NotifyPeersOfDisconnection(netEvent.Peer);
-                        PeerDisconnected?.Invoke((int)peerId);
-                        break;
-                    }
-                    
-            }
-        }
     }
 
     private static void ClientTick()
