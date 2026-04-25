@@ -1,5 +1,6 @@
 using ENet;
 using static AM2E.Networking.NetworkManager;
+using static AM2E.Networking.NetworkHelpers;
 
 namespace AM2E.Networking;
 

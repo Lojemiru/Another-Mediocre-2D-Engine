@@ -1,6 +1,6 @@
 ﻿using AM2E.Actors;
 using ENet;
-using System.Text;
+using static AM2E.Networking.NetworkHelpers;
 
 namespace AM2E.Networking;
 
@@ -47,27 +47,6 @@ public static class NetworkManager
     public static event Action? DisconnectedFromServer;
 
     const byte ServerPeerId = 0;
-
-    internal enum PacketTypes
-    {
-        Data = 0,
-        Connect = 1,
-        Disconnect = 2,
-        ConnectionEstablished = 3
-    }
-
-    internal enum IdTypes
-    {
-        Guid = 0,
-        Static = 1
-    }
-
-    public enum PacketReliability
-    {
-        Reliable = 0,
-        UnreliableOrdered = 1,
-        Unreliable = 2
-    }
 
     static Host? host;
 
@@ -233,17 +212,6 @@ public static class NetworkManager
         host!.Flush();
     }
 
-    // We don't want our streams closed randomly
-    internal static BinaryReader GetBinaryReader(Stream stream)
-    {
-        return new BinaryReader(stream, Encoding.UTF8, true);
-    }
-
-    internal static BinaryWriter GetBinaryWriter(Stream stream)
-    {
-        return new BinaryWriter(stream, Encoding.UTF8, true);
-    }
-
     internal static void RegisterStaticActor(int networkId, StaticNetworkedActor actor)
     {
         staticNetworkedActors.Add(networkId, actor);
@@ -260,13 +228,7 @@ public static class NetworkManager
         {
             throw new InvalidOperationException("Cannot kick players when not running an active server");
         }
-        if (connectedPeers.TryGetValue((uint)peerId, out var peer))
-        {
-            NotifyPeersOfDisconnection(peer);
-            peer.DisconnectNow(0);
-            connectedPeers.Remove((uint)peerId);
-            PeerDisconnected?.Invoke(peerId);
-        }
+        Server.KickPeer(peerId);
     }
 
     public static string GetPeerIP(int peerId)
@@ -370,44 +332,29 @@ public static class NetworkManager
         packetStream.Write(actorId.ToByteArray());
     }
 
-    internal static PacketFlags ReliabilityToPacketFlags(PacketReliability reliability)
-    {
-        return reliability switch
-        {
-            PacketReliability.Reliable => PacketFlags.Reliable,
-            PacketReliability.UnreliableOrdered => PacketFlags.UnreliableFragmented,
-            PacketReliability.Unreliable => PacketFlags.UnreliableFragmented | PacketFlags.Unsequenced,
-            _ => throw new Exception("Invalid reliability value")
-        };
-    }
-
     private static void ClientSendDataPacket(MemoryStream packetStream, byte[] data, PacketReliability reliability, int channelId)
     {
         packetStream.Write(data);
-        var packet = default(Packet);
-        var flags = ReliabilityToPacketFlags(reliability);
-        packet.Create(packetStream.ToArray(), flags);
-        var channel = reliability + channelId * 3;
-        host!.Broadcast((byte)channel, ref packet);
+        var packet = CreateENetPacket(packetStream.ToArray(), reliability);
+        var enetChannel = GetENetChannelId(reliability, channelId);
+        host!.Broadcast(enetChannel, ref packet);
     }
 
     private static void ServerSendDataPacket(MemoryStream packetStream, byte[] data, PacketReliability reliability, int channelId, List<int> targetPeers)
     {
         packetStream.Write(data);
-        var packet = default(Packet);
-        var flags = ReliabilityToPacketFlags(reliability);
-        packet.Create(packetStream.ToArray(), flags);
+        var packet = CreateENetPacket(packetStream.ToArray(), reliability);
 
-        var channel = reliability + channelId * 3;
+        var enetChannel = GetENetChannelId(reliability, channelId);
         
         if (targetPeers.Count > 0)
         {
             var peers = targetPeers.Select(x => connectedPeers.GetValueOrDefault((uint)x)).ToArray();
-            host!.Broadcast((byte)channel, ref packet, peers);
+            host!.Broadcast(enetChannel, ref packet, peers);
         }
         else
         {
-            host!.Broadcast((byte)channel, ref packet);
+            host!.Broadcast(enetChannel, ref packet);
         }
     }
 
@@ -441,15 +388,25 @@ public static class NetworkManager
         }
     }
 
+    internal static void DisconnectPeer(uint peerId)
+    {
+        if (IsServer && connectedPeers.TryGetValue(peerId, out var peer))
+        {
+            NotifyPeersOfDisconnection(peer);
+            OnPeerDisconnected((int)peerId);
+        }
+        connectedPeers.Remove(peerId);
+    }
+
     private static void NotifyPeersOfDisconnection(Peer peer)
     {
         var peerId = peer.ID + 1;
+        var defaultReliableChannel = GetENetChannelId(PacketReliability.Reliable, 0);
         var disconnectData = new byte[2];
         disconnectData[0] = (byte)PacketTypes.Disconnect;
         disconnectData[1] = (byte)peerId;
-        var disconnectPacket = default(Packet);
-        disconnectPacket.Create(disconnectData, PacketFlags.Reliable);
+        var disconnectPacket = CreateENetPacket(disconnectData, PacketReliability.Reliable);
 
-        host!.Broadcast(1, ref disconnectPacket);
+        host!.Broadcast(defaultReliableChannel, ref disconnectPacket);
     }
 }
