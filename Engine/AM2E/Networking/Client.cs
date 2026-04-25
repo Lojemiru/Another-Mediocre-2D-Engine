@@ -6,6 +6,14 @@ namespace AM2E.Networking;
 
 internal static class Client
 {
+    internal static Action<bool> finishedAction = (_) => {};
+
+    private static void OnConnectionFinished(bool wasSuccessful)
+    {
+        finishedAction(wasSuccessful);
+        finishedAction = (_) => {};
+    }
+
     private static void ParseDataPacket(MemoryStream packetStream, int senderId)
     {
         var guidBytes = new byte[16];
@@ -115,6 +123,7 @@ internal static class Client
                     isConnected = true;
                     RemotePeerId = remotePeerId;
                     OnConnectedToServer(remotePeerId);
+                    OnConnectionFinished(true);
                     break;
                 }
             default:
@@ -138,6 +147,10 @@ internal static class Client
                 case EventType.Disconnect:
                     connectedPeers.Remove(netEvent.Peer.ID);
                     Logger.Debug("Server disconnected");
+                    if (!isConnected)
+                    {
+                        OnConnectionFinished(false);
+                    }
                     StopClient();
                     return;
                 case EventType.Receive:
@@ -149,6 +162,10 @@ internal static class Client
                 case EventType.Timeout:
                     connectedPeers.Remove(netEvent.Peer.ID);
                     Logger.Debug("Server timed out");
+                    if (!isConnected)
+                    {
+                        OnConnectionFinished(false);
+                    }
                     StopClient();
                     return;
             }

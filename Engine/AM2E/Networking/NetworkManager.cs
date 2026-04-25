@@ -112,8 +112,9 @@ public static class NetworkManager
         Logger.Debug("Stopped server");
     }
 
-    public static void StartClient(string ip, int port)
+    public static void StartClient(string ip, int port, Action<bool>? finishedAction = null)
     {
+        finishedAction ??= (_) => {};
         try
         {
             if (!isNetworking)
@@ -131,6 +132,7 @@ public static class NetworkManager
             host.Create();
 
             host.Connect(address, NUM_CHANNELS * 3);
+            Client.finishedAction = finishedAction;
             Logger.Debug("Started client");
         }
         catch (Exception)
