@@ -45,6 +45,12 @@ public static class FontManager
         return FontSystems[systemName].GetFont(fontSize);
     }
 
+    public static void ResetFonts()
+    {
+        foreach (var font in FontSystems.Values)
+            font.Reset();
+    }
+
     public static void FixedGlyphRenderer(int threshold, byte[] input, byte[] output, GlyphRenderOptions options)
     {
         // https://github.com/FontStashSharp/FontStashSharp/releases/tag/1.3.4 has context for all this nonsense
