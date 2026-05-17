@@ -49,9 +49,11 @@ public class EventInstance
     /// <summary>
     /// Plays the given event
     /// </summary>
-    public void Start() 
+    public void Start(bool skipRelease = false) 
     {
         myEvent.start();
+        if (!skipRelease)
+            myEvent.release();
     }
 
     /// <summary>
@@ -82,6 +84,11 @@ public class EventInstance
     
     public void Resume() {
         myEvent.setPaused(false);
+    }
+
+    public void Release()
+    {
+        myEvent.release();
     }
 
     public void SetParameter(string parameterName, float value) 

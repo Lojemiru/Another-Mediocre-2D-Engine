@@ -168,6 +168,7 @@ public static class Audio
             if (!dontStart)
             {
                 newInstance.Start();
+                newInstance.Release();
                 playingEvents.Add(newInstance);
             }
         }
