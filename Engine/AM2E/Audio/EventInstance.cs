@@ -14,11 +14,13 @@ namespace AM2E;
 /// <summary>
 /// Container class for an instance of a fmod event
 /// </summary>
-public class EventInstance
+public class EventInstance : IDisposable
 {
     private bool stopped = false;
     public event Action<EventInstance, bool> OnStop = (_, _) => { };
     public readonly string Name;
+
+    private bool disposed = false;
 
     internal void DoOnStop(bool force)
     {
@@ -43,6 +45,29 @@ public class EventInstance
         Name = name;
     }
 
+    ~EventInstance()
+    {
+        try
+        {
+            myEvent.release();
+        }
+        catch
+        {
+            // ignored; if it failed the event no longer exists, so we're already done for.
+        }
+    }
+
+    public void Dispose()
+    {
+        if (disposed)
+            return;
+
+        disposed = true;
+        
+        myEvent.stop(STOP_MODE.IMMEDIATE);
+        Release();
+    }
+
 
     #region Mutators
 
@@ -53,7 +78,7 @@ public class EventInstance
     {
         myEvent.start();
         if (!skipRelease)
-            myEvent.release();
+            Release();
     }
 
     /// <summary>
@@ -70,7 +95,7 @@ public class EventInstance
     public void HardStop() {
         Stop(true);
         myEvent.setUserData(IntPtr.Zero);
-        myEvent.release();
+        Release();
         // myEvent.setCallback(null); hmm, something still funky here
     }
 
@@ -89,6 +114,7 @@ public class EventInstance
     public void Release()
     {
         myEvent.release();
+        GC.SuppressFinalize(this);
     }
 
     public void SetParameter(string parameterName, float value) 
