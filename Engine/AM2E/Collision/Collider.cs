@@ -289,81 +289,86 @@ public sealed class Collider
         if (vel[x] == 0 && vel[y] == 0)
         {
             CheckAndRunAll(0, 0);
-            return;
         }
-
-        // Determine dominant and subordinate axis
-        int domAxis = x,
-            subAxis = y;
-
-        try
+        else
         {
-            if (Math.Abs(vel[y]) > Math.Abs(vel[x]))
+
+            // Determine dominant and subordinate axis
+            int domAxis = x,
+                subAxis = y;
+
+            try
             {
-                domAxis = y;
-                subAxis = x;
+                if (Math.Abs(vel[y]) > Math.Abs(vel[x]))
+                {
+                    domAxis = y;
+                    subAxis = x;
+                }
             }
-        }
-        catch (OverflowException e)
-        {
-            throw new OverflowException("Collider.MoveAndCollider(xVel, yVel): one of the arguments became equal to the smallest possible integer. Please check your inputs.", e);
-        }
-
-        var subIncrement = false;
-        var domCurrent = 0;
-        var subCurrent = 0;
-        
-        Sign[0] = Math.Sign(vel[x]);
-        Sign[1] = Math.Sign(vel[y]);
-        
-        var domAbs = Math.Abs(vel[domAxis]);
-
-        for (var i = 0; i < domAbs; ++i)
-        {
-            if (continueMovement[domAxis] && (domCurrent != vel[domAxis]))
+            catch (OverflowException e)
             {
-                Direction = (domAxis == x) ? DirsH[Sign[x] + 1] : DirsV[Sign[y] + 1];
-
-                CheckAndRunAll((domAxis == x) ? Sign[x] : 0, (domAxis == y) ? Sign[y] : 0);
-
-                // Process position
-                var domMult = continueMovement[domAxis] ? Sign[domAxis] : 0;
-                domCurrent += domMult;
-
-                if (domAxis == x)
-                    xInternal += domMult;
-                else
-                    yInternal += domMult;
-
-                var subCurrentLast = subCurrent;
-                
-                subCurrent = vel[subAxis] * domCurrent / vel[domAxis];
-                subIncrement = (subCurrent != subCurrentLast);
-                // Prevents stupid slidey shenanigans. At least that's what I said in the LHC...
-                subCurrent = subCurrentLast;
+                throw new OverflowException(
+                    "Collider.MoveAndCollider(xVel, yVel): one of the arguments became equal to the smallest possible integer. Please check your inputs.",
+                    e);
             }
 
-            if ((subIncrement || !continueMovement[domAxis]) && continueMovement[subAxis] && (subCurrent != vel[subAxis]))
+            var subIncrement = false;
+            var domCurrent = 0;
+            var subCurrent = 0;
+
+            Sign[0] = Math.Sign(vel[x]);
+            Sign[1] = Math.Sign(vel[y]);
+
+            var domAbs = Math.Abs(vel[domAxis]);
+
+            for (var i = 0; i < domAbs; ++i)
             {
-                Direction = (subAxis == x) ? DirsH[Sign[x] + 1] : DirsV[Sign[y] + 1];
+                if (continueMovement[domAxis] && (domCurrent != vel[domAxis]))
+                {
+                    Direction = (domAxis == x) ? DirsH[Sign[x] + 1] : DirsV[Sign[y] + 1];
 
-                CheckAndRunAll((subAxis == x) ? Sign[x] : 0, (subAxis == y) ? Sign[y] : 0);
+                    CheckAndRunAll((domAxis == x) ? Sign[x] : 0, (domAxis == y) ? Sign[y] : 0);
 
-                // Process position
-                var subMult = continueMovement[subAxis] ? Sign[subAxis] : 0;
-                subCurrent += subMult;
+                    // Process position
+                    var domMult = continueMovement[domAxis] ? Sign[domAxis] : 0;
+                    domCurrent += domMult;
 
-                if (subAxis == x)
-                    xInternal += subMult;
-                else
-                    yInternal += subMult;
+                    if (domAxis == x)
+                        xInternal += domMult;
+                    else
+                        yInternal += domMult;
+
+                    var subCurrentLast = subCurrent;
+
+                    subCurrent = vel[subAxis] * domCurrent / vel[domAxis];
+                    subIncrement = (subCurrent != subCurrentLast);
+                    // Prevents stupid slidey shenanigans. At least that's what I said in the LHC...
+                    subCurrent = subCurrentLast;
+                }
+
+                if ((subIncrement || !continueMovement[domAxis]) && continueMovement[subAxis] &&
+                    (subCurrent != vel[subAxis]))
+                {
+                    Direction = (subAxis == x) ? DirsH[Sign[x] + 1] : DirsV[Sign[y] + 1];
+
+                    CheckAndRunAll((subAxis == x) ? Sign[x] : 0, (subAxis == y) ? Sign[y] : 0);
+
+                    // Process position
+                    var subMult = continueMovement[subAxis] ? Sign[subAxis] : 0;
+                    subCurrent += subMult;
+
+                    if (subAxis == x)
+                        xInternal += subMult;
+                    else
+                        yInternal += subMult;
+                }
+
+                AfterSubstep?.Invoke();
+
+                // Early exit if stopped on both axes
+                if (!continueMovement[x] && !continueMovement[y])
+                    break;
             }
-
-            AfterSubstep?.Invoke();
-
-            // Early exit if stopped on both axes
-            if (!continueMovement[x] && !continueMovement[y])
-                break;
         }
 
         // Reset movement variables
