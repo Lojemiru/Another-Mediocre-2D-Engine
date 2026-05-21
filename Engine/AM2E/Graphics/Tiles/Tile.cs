@@ -44,4 +44,9 @@ public sealed class Tile
     {
         TilesetSprite.Draw(spriteBatch, x, y, frame + (random ? randomOffset : 0), tileRect, 0, flips, scaleX:scale, scaleY:scale, layer: layer, alpha: alpha);
     }
+    
+    public void Draw(SpriteBatch spriteBatch, int frame, float x, float y, float scale, float angle, Vector2 origin, bool random = false, int layer = 0, float alpha = 1f)
+    {
+        TilesetSprite.Draw(spriteBatch, x, y, frame + (random ? randomOffset : 0), tileRect, angle, flips, rectOrigin: origin, scaleX:scale, scaleY:scale, layer: layer, alpha: alpha);
+    }
 }
