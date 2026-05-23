@@ -12,6 +12,8 @@ public sealed class ParticleSystem
     
     public readonly ParticleDefinition Definition;
     public readonly int Size;
+    
+    public Func<float, float, bool>? CullingFunction = null;
 
     public int Layer
     {
@@ -168,6 +170,9 @@ public sealed class ParticleSystem
             rads = Definition.GravityDirection * TO_RADIANS;
             p[P_X] += MathHelper.LineComponentX(rads, p[P_GRAVITY]);
             p[P_Y] += MathHelper.LineComponentY(rads, p[P_GRAVITY]);
+
+            if (CullingFunction?.Invoke(p[P_X], p[P_Y]) ?? false)
+                p[P_LIFE] = -1;
         }
     }
 
