@@ -63,7 +63,7 @@ public static class Renderer
         GameWidth = width;
         GameHeight = height;
         ApplicationSurface = new RenderTarget2D(GraphicsDeviceManager.GraphicsDevice, width * UpscaleAmount,
-            height * UpscaleAmount, false, SurfaceFormat.Color, DepthFormat.None, 8, RenderTargetUsage.DiscardContents);
+            height * UpscaleAmount, false, SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.DiscardContents);
         
         guiSurface = new RenderTarget2D(GraphicsDeviceManager.GraphicsDevice, width, height);
 
