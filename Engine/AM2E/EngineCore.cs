@@ -11,7 +11,7 @@ namespace AM2E;
 public sealed class EngineCore : Game
 {
     private Action entryPointCallback;
-    public static readonly string Version = "2.25.0";
+    public static readonly string Version = "2.25.1";
     public static GraphicsDeviceManager _graphics;
     private double updateAccumulator = 0d;
     private const double FRAME_ERROR_MARGIN = .0002;
@@ -236,6 +236,7 @@ public sealed class EngineCore : Game
         
         // Disable OnResize event.
         GameWindow.ClientSizeChanged -= Renderer.OnResize;
+        _graphics.HardwareModeSwitch = false;
         
         // Set backbuffer size.
         if (status)
