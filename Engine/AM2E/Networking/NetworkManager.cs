@@ -1,4 +1,6 @@
-﻿using AM2E.Actors;
+﻿using System.Net;
+using System.Net.Sockets;
+using AM2E.Actors;
 using ENet;
 using static AM2E.Networking.NetworkHelpers;
 
@@ -72,6 +74,15 @@ public static class NetworkManager
     {
         ConnectedToServer?.Invoke(remotePeerId);
     }
+    
+    public static int AllocatePort()
+    {
+        var socket = new UdpClient();
+        socket.Client.Bind(new IPEndPoint(IPAddress.Loopback, 0));
+        var allocatedPort = ((IPEndPoint)socket.Client.LocalEndPoint).Port;
+        socket.Dispose();
+        return allocatedPort;
+    }
 
     public static void StartServer(int port, int maxClients = DEFAULT_MAX_CLIENTS)
     {
@@ -112,7 +123,7 @@ public static class NetworkManager
         Logger.Debug("Stopped server");
     }
 
-    public static void StartClient(string ip, int port, Action<bool>? finishedAction = null)
+    public static void StartClient(string ip, int port, int clientPort=0, Action<bool>? finishedAction = null)
     {
         finishedAction ??= (_) => {};
         try
@@ -129,7 +140,8 @@ public static class NetworkManager
             var address = new Address() { Port = (ushort)port };
             address.SetHost(ip);
 
-            host.Create();
+            var clientAddress = new Address() { Port = (ushort)clientPort };
+            host.Create(clientAddress, 1);
 
             host.Connect(address, NUM_CHANNELS * 3);
             Client.finishedAction = finishedAction;
