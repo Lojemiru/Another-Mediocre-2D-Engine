@@ -110,7 +110,7 @@ public static class TextureManager
     {
         LoadPageBlocking(page);
         
-        return Pages[page].Sprites[sprite] != null;
+        return Pages[page].Sprites.ContainsKey(sprite);
     }
 
     public static TexturePage GetPage(Enum page) => GetPage(page.ToString());
