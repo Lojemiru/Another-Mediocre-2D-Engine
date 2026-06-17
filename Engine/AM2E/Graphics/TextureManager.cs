@@ -103,6 +103,16 @@ public static class TextureManager
         return Pages[page].Sprites[sprite];
     }
 
+    public static bool SpriteExists(Enum page, Enum sprite)
+        => SpriteExists(page.ToString(), sprite.ToString());
+
+    public static bool SpriteExists(string page, string sprite)
+    {
+        LoadPageBlocking(page);
+        
+        return Pages[page].Sprites[sprite] != null;
+    }
+
     public static TexturePage GetPage(Enum page) => GetPage(page.ToString());
 
     public static TexturePage GetPage(string page)
