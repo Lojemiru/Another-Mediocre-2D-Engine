@@ -52,8 +52,8 @@ public abstract class Hitbox
 
     public abstract void UpdateOrigin(int x, int y);
         
-    private List<Type>? boundInterfaces;
-    private List<Type>? targetInterfaces;
+    private HashSet<Type>? boundInterfaces;
+    private HashSet<Type>? targetInterfaces;
 
     private bool isBound = true;
     private bool doTarget = true;
