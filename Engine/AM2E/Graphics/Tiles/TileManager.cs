@@ -39,6 +39,13 @@ public sealed class TileManager
     public float ParallaxY = 0;
 
     public int Layer = 0;
+    public int? DoubleDrawLayer = null;
+    public float DoubleDrawAmount
+    {
+        get => doubleDrawAmount;
+        set => doubleDrawAmount = Math.Clamp(value, 0, 1);
+    }
+    private float doubleDrawAmount = 0f;
     public float Alpha = 1f;
 
     public readonly Sprite TilesetSprite;
@@ -146,17 +153,11 @@ public sealed class TileManager
             {
                 var ii = MathHelper.Wrap(i, 0, widestPlacedTile + 1);
                 var jj = MathHelper.Wrap(j, 0, highestPlacedTile + 1);
-                //if (ii < 0)
-                //    ii += widestPlacedTile + 1;
-                //else if (ii > widestPlacedTile)
-                //    ii %= widestPlacedTile + 1;
-
-                //if (jj < 0)
-                //    jj += highestPlacedTile + 1;
-                //else if (jj > highestPlacedTile)
-                //    jj %= highestPlacedTile + 1;
                 
                 Tiles[ii, jj]?.Draw(spriteBatch, ImageIndex, (worldX + offsetX + paraX) + i * tileSize, (worldY + offsetY + paraY) + j * tileSize, Randomize, Layer, Alpha);
+                
+                if (DoubleDrawLayer != null)
+                    Tiles[ii, jj]?.Draw(spriteBatch, ImageIndex, (worldX + offsetX + paraX) + i * tileSize, (worldY + offsetY + paraY) + j * tileSize, Randomize, DoubleDrawLayer.Value, doubleDrawAmount);
             }
         }
     }
