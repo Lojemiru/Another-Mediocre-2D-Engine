@@ -35,6 +35,20 @@ public static class LOIC
     {
         return (collider.CollisionActive && collider is T && collider.Collider.ContainsPoint<T>(x, y));
     }
+    
+    public static IEnumerable<T> AllCollidersAtPoint<T>(int x, int y) where T : ICollider
+    {
+        var output = new List<T>();
+        
+        var check = RTree.Intersects(new Rectangle(x, y, x, y));
+        foreach (var collider in check)
+        {
+            if (InternalCheckPoint<T>(collider, x, y))
+                output.Add((T)collider);
+        }
+
+        return output;
+    }
 
     public static bool CheckCircle<T>(int x, int y, int radius) where T : ICollider
     {
@@ -134,6 +148,20 @@ public static class LOIC
             return false;
 
         return collider.Collider.IsIntersectedByLine<T>(x1, y1, x2, y2);
+    }
+    
+    public static IEnumerable<T> AllCollidersAtLine<T>(int x1, int y1, int x2, int y2) where T : ICollider
+    {
+        var output = new List<T>();
+        
+        var check = RTree.Intersects(new Rectangle(x1, y1, x2, y2));
+        foreach (var collider in check)
+        {
+            if (InternalCheckLine<T>(collider, x1, y1, x2, y2))
+                output.Add((T)collider);
+        }
+
+        return output;
     }
 
     // Static hitbox to save on instantiation/garbage collector spam.
