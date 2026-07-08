@@ -28,6 +28,13 @@ internal sealed class GamePadInput : InputBase<Buttons, GamePadState>
                 or Buttons.LeftThumbstickRight:
                 ProcessInput(GetThumbstickInput(input, InputManager.LeftStick));
                 break;
+            // Override trigger values for our own deadzone application.
+            case Buttons.LeftTrigger:
+                ProcessInput(InputManager.LeftTrigger > InputManager.LeftTriggerDeadZone);
+                break;
+            case Buttons.RightTrigger:
+                ProcessInput(InputManager.RightTrigger > InputManager.RightTriggerDeadZone);
+                break;
             // Default: process button
             default:
                 ProcessInput(state.IsButtonDown(input));

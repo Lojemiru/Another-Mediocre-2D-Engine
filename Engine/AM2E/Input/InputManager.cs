@@ -58,6 +58,8 @@ public static class InputManager
     public static float LeftCenterDeadZone = 0.1f;
     public static GamePadDeadZone CenterDeadZoneType = GamePadDeadZone.Circular;
     public static float AngularAxisDeadZone = 15f;
+    public static float LeftTriggerDeadZone = 0.05f;
+    public static float RightTriggerDeadZone = 0.05f;
     
     /// <summary>
     /// Whether to accept controller input when the window is not focused.
