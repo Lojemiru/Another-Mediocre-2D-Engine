@@ -71,6 +71,18 @@ public sealed class Collider
     public Action? OnSubstep { get; set; }
     // ReSharper disable once UnusedAutoPropertyAccessor.Global
     public Action? AfterSubstep { get; set; }
+    private Action?[] afterSubstep = [ null, null ];
+    public Action? AfterSubstepX
+    {
+        get => afterSubstep[0];
+        set => afterSubstep[0] = value;
+    }
+
+    public Action? AfterSubstepY
+    {
+        get => afterSubstep[1];
+        set => afterSubstep[1] = value;
+    }
 
     public CollisionDirection Direction { get; private set; } = CollisionDirection.None;
     
@@ -344,6 +356,8 @@ public sealed class Collider
                     subIncrement = (subCurrent != subCurrentLast);
                     // Prevents stupid slidey shenanigans. At least that's what I said in the LHC...
                     subCurrent = subCurrentLast;
+                    
+                    afterSubstep[domAxis]?.Invoke();
                 }
 
                 if ((subIncrement || !continueMovement[domAxis]) && continueMovement[subAxis] &&
@@ -361,6 +375,8 @@ public sealed class Collider
                         xInternal += subMult;
                     else
                         yInternal += subMult;
+                    
+                    afterSubstep[subAxis]?.Invoke();
                 }
 
                 AfterSubstep?.Invoke();
