@@ -19,6 +19,7 @@ public sealed class Level
     private readonly SpriteBatch spriteBatch = new(EngineCore._graphics.GraphicsDevice);
 
     public readonly LDtkFieldInstance[] FieldInstances;
+    private bool firstActivate = true;
 
     public Level(LDtkLevelInstance level)
     {
@@ -153,6 +154,10 @@ public sealed class Level
 
         foreach (var layer in Layers.Values)
             layer.InTick = true;
+        
+        if (firstActivate)
+            foreach (var layer in Layers.Values)
+                layer.FirstActivate();
 
         foreach (var layer in Layers.Values)
             layer.Activate();
@@ -162,6 +167,8 @@ public sealed class Level
         
         foreach (var layer in Layers.Values)
             layer.InTick = false;
+
+        firstActivate = false;
     }
 
     internal void Deactivate()

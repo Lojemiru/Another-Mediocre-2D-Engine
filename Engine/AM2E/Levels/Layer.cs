@@ -323,6 +323,16 @@ public sealed class Layer
         genericLevelElementsForRemoval.Clear();
     }
 
+    internal void FirstActivate()
+    {
+        InTick = true;
+        foreach (var actor in Actors)
+        {
+            actor.OnLevelFirstActivate();
+        }
+        InTick = false;
+    }
+    
     internal void Activate()
     {
         InTick = true;

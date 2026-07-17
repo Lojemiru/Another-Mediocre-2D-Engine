@@ -209,6 +209,12 @@ public abstract class Actor : ColliderBase, IDrawable
     protected internal virtual void OnLevelDeactivate() { }
     
     /// <summary>
+    /// Overridable method that gets called when this <see cref="Actor"/>'s <see cref="Level"/> is activated for the first time.
+    /// This will NOT get called for persistent <see cref="Actor"/>s that do not currently have an assigned <see cref="Level"/>!
+    /// </summary>
+    protected internal virtual void OnLevelFirstActivate() { }
+    
+    /// <summary>
     /// Overridable method that gets called when this <see cref="Actor"/>'s <see cref="Level"/> is activated.
     /// This will NOT get called for persistent <see cref="Actor"/>s that do not currently have an assigned <see cref="Level"/>!
     /// </summary>
