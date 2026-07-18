@@ -274,7 +274,7 @@ public sealed class Collider
         events.Add(typeof(T), callback);
     }
 
-    private static readonly int[] Sign = [0, 0];
+    private readonly int[] sign = [0, 0];
     
     public void MoveAndCollide(double xVel, double yVel)
     {
@@ -328,8 +328,8 @@ public sealed class Collider
             var domCurrent = 0;
             var subCurrent = 0;
 
-            Sign[0] = Math.Sign(vel[x]);
-            Sign[1] = Math.Sign(vel[y]);
+            sign[0] = Math.Sign(vel[x]);
+            sign[1] = Math.Sign(vel[y]);
 
             var domAbs = Math.Abs(vel[domAxis]);
 
@@ -337,12 +337,12 @@ public sealed class Collider
             {
                 if (continueMovement[domAxis] && (domCurrent != vel[domAxis]))
                 {
-                    Direction = (domAxis == x) ? DirsH[Sign[x] + 1] : DirsV[Sign[y] + 1];
+                    Direction = (domAxis == x) ? DirsH[sign[x] + 1] : DirsV[sign[y] + 1];
 
-                    CheckAndRunAll((domAxis == x) ? Sign[x] : 0, (domAxis == y) ? Sign[y] : 0);
+                    CheckAndRunAll((domAxis == x) ? sign[x] : 0, (domAxis == y) ? sign[y] : 0);
 
                     // Process position
-                    var domMult = continueMovement[domAxis] ? Sign[domAxis] : 0;
+                    var domMult = continueMovement[domAxis] ? sign[domAxis] : 0;
                     domCurrent += domMult;
 
                     if (domAxis == x)
@@ -363,12 +363,12 @@ public sealed class Collider
                 if ((subIncrement || !continueMovement[domAxis]) && continueMovement[subAxis] &&
                     (subCurrent != vel[subAxis]))
                 {
-                    Direction = (subAxis == x) ? DirsH[Sign[x] + 1] : DirsV[Sign[y] + 1];
+                    Direction = (subAxis == x) ? DirsH[sign[x] + 1] : DirsV[sign[y] + 1];
 
-                    CheckAndRunAll((subAxis == x) ? Sign[x] : 0, (subAxis == y) ? Sign[y] : 0);
+                    CheckAndRunAll((subAxis == x) ? sign[x] : 0, (subAxis == y) ? sign[y] : 0);
 
                     // Process position
-                    var subMult = continueMovement[subAxis] ? Sign[subAxis] : 0;
+                    var subMult = continueMovement[subAxis] ? sign[subAxis] : 0;
                     subCurrent += subMult;
 
                     if (subAxis == x)
