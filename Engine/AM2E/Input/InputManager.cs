@@ -79,7 +79,9 @@ public static class InputManager
     public static int MouseX { get; private set; }
     public static int MouseY { get; private set; }
     public static Vector2 RightStick { get; private set; }
+    public static Vector2 RightStickRaw { get; private set; }
     public static Vector2 LeftStick { get; private set; }
+    public static Vector2 LeftStickRaw { get; private set; }
     public static float RightTrigger { get; private set; }
     public static float LeftTrigger { get; private set; }
 
@@ -191,6 +193,8 @@ public static class InputManager
             
             var gamePadState = connectedPads[GamePadIndex];
 
+            RightStickRaw = gamePadState.ThumbSticks.Right;
+            LeftStickRaw = gamePadState.ThumbSticks.Left;
             RightStick = ApplyDeadZone(gamePadState.ThumbSticks.Right, RightCenterDeadZone);
             LeftStick = ApplyDeadZone(gamePadState.ThumbSticks.Left, LeftCenterDeadZone);
 
