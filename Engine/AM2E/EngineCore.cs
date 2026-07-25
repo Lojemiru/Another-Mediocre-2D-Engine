@@ -11,7 +11,7 @@ namespace AM2E;
 public sealed class EngineCore : Game
 {
     private Action entryPointCallback;
-    public static readonly string Version = "2.33.0";
+    public static readonly string Version = "2.34.0";
     public static GraphicsDeviceManager _graphics;
     private double updateAccumulator = 0d;
     private const double FRAME_ERROR_MARGIN = .0002;
@@ -80,6 +80,8 @@ public sealed class EngineCore : Game
 
     protected override void Initialize()
     {
+        
+        
         Logger.Init();
         
         imGuiRenderer = new ImGuiRenderer(this);
