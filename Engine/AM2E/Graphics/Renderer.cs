@@ -46,9 +46,11 @@ public static class Renderer
     
     public static void DebugRender()
     {
+        applicationBatch.Tag = "ObeyCamera";
         applicationBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, transformMatrix: Camera.Transform);
         OnDebugRender(applicationBatch);
         applicationBatch.End();
+        applicationBatch.Tag = null;
     }
 
     internal static void Initialize(GraphicsDeviceManager graphicsDeviceManager)
