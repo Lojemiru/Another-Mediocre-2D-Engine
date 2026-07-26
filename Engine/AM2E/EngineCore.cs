@@ -11,7 +11,7 @@ namespace AM2E;
 public sealed class EngineCore : Game
 {
     private Action entryPointCallback;
-    public static readonly string Version = "2.34.0";
+    public static readonly string Version = "2.34.24";
     public static GraphicsDeviceManager _graphics;
     private double updateAccumulator = 0d;
     private const double FRAME_ERROR_MARGIN = .0002;
@@ -36,10 +36,13 @@ public sealed class EngineCore : Game
     public const bool DEBUG = true;
     public static bool ImGuiActive = false;
     private ImGuiRenderer imGuiRenderer;
+    private AM2EConfig config;
 
     public EngineCore(string contentNamespaceHeader, string contentNamespaceFooter, AM2EConfig config, Action entryPointCallback)
     {
         AppDomain.CurrentDomain.UnhandledException += Logger.WriteException;
+
+        this.config = config;
         
         ContentNamespaceHeader = contentNamespaceHeader;
         ContentNamespaceFooter = contentNamespaceFooter;
@@ -51,27 +54,20 @@ public sealed class EngineCore : Game
         
         SetTitle("Built in Another Mediocre 2D Engine");
         
+        _graphics = new GraphicsDeviceManager(this)
+        {
+            GraphicsProfile = config.GraphicsProfile,
+            SynchronizeWithVerticalRetrace = config.UseVSync,
+            PreferMultiSampling = config.PreferMultiSampling,
+        };
+        
         Window.AllowUserResizing = config.AllowResizing;
-        
-        _graphics = new GraphicsDeviceManager(this);
-        
-        Window.ClientSizeChanged += Renderer.OnResize;
         
         IsMouseVisible = config.IsMouseVisible;
         
         // Timestep fixing 
         InactiveSleepTime = new TimeSpan(0);
         IsFixedTimeStep = false;
-        
-        _graphics.GraphicsProfile = config.GraphicsProfile;
-        _graphics.SynchronizeWithVerticalRetrace = config.UseVSync;
-        _graphics.PreferMultiSampling = config.PreferMultiSampling;
-        _graphics.ApplyChanges();
-        
-        Renderer.Initialize(_graphics);
-        Renderer.PopulateConfiguration(config);
-        
-        SetWindowSize(config.DefaultResolutionWidth, config.DefaultResolutionHeight);
         
         InputManager.Initialize(config.InputEnum);
         
@@ -80,21 +76,28 @@ public sealed class EngineCore : Game
 
     protected override void Initialize()
     {
-        
-        
-        Logger.Init();
-        
         imGuiRenderer = new ImGuiRenderer(this);
         imGuiRenderer.RebuildFontAtlas();
+        
+        base.Initialize();
+        
+        Renderer.Initialize(_graphics);
+        Renderer.PopulateConfiguration(config);
+        
+        Window.ClientSizeChanged += Renderer.OnResize;
+        
+        SetWindowSize(config.DefaultResolutionWidth, config.DefaultResolutionHeight);
+        
+        _graphics.ApplyChanges();
+        
+        Logger.Init();
 
         //ShaderManager.Load();
         //Audio.Load();
         LocalStorage.Initialize();
-
+        
         // Run supplied entrypoint callback.
         entryPointCallback();
-
-        base.Initialize();
     }
 
     protected override void LoadContent()
@@ -162,9 +165,9 @@ public sealed class EngineCore : Game
     {
         Renderer.Render();
 
-        if (!ImGuiActive) 
+        if (!ImGuiActive)
             return;
-        
+
         imGuiRenderer.BeforeLayout(gameTime);
         OnImGuiRender();
         imGuiRenderer.AfterLayout();
@@ -238,7 +241,7 @@ public sealed class EngineCore : Game
         
         // Disable OnResize event.
         GameWindow.ClientSizeChanged -= Renderer.OnResize;
-        _graphics.HardwareModeSwitch = false;
+        //_graphics.HardwareModeSwitch = false;
         
         // Set backbuffer size.
         if (status)
@@ -264,14 +267,18 @@ public sealed class EngineCore : Game
         Renderer.OnResizeInternal(GameWindow, true);
     }
 
+    // TODO FNA: Review/fix borderless
+    
     public static bool GetBorderless()
     {
-        return staticThis.Window.IsBorderless;
+        return false;
+        //return staticThis.Window.IsBorderless;
     }
 
     public static void SetBorderless(bool status)
     {
-        staticThis.Window.IsBorderless = status;
+        
+        //staticThis.Window.IsBorderless = status;
     }
 
     public static bool GetMouseVisible()

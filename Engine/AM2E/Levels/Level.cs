@@ -207,7 +207,7 @@ public sealed class Level
         => PostLoadHook(this);
 
     public static event Action<Level> AsyncPostLoadHook = _ => { };
-    
+
     internal void AsyncPostLoad()
         => AsyncPostLoadHook(this);
     

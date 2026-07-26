@@ -286,7 +286,8 @@ public sealed class Sprite
         var w = Positions[layer][frame].Width;
         var h = Positions[layer][frame].Height;
         var colorArray = new Color[w * h];
-        TexturePage.Texture.GetData(0, 0, Positions[layer][frame], colorArray, 0, w * h);
+        //TexturePage.Texture.GetData(0, 0, Positions[layer][frame], colorArray, 0, w * h);
+        TexturePage.Texture.GetData(0, Positions[layer][frame], colorArray, 0, w * h);
         
         var outputArray = new bool[w, h];
         

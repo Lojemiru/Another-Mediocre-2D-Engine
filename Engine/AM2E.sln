@@ -2,6 +2,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AM2E", "AM2E\AM2E.csproj", "{A2626DE3-EDDB-4677-8565-C8A3C33028FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FNA.Core", "..\..\FNA\FNA.Core.csproj", "{6E4A8BE2-45C2-4554-B22D-4C756B812BA5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FontStashSharp.FNA.Core", "..\..\FontStashSharp\src\XNA\FontStashSharp.FNA.Core.csproj", "{7EAFF1C6-FD2D-44B8-8C83-E8857C0B5109}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +16,13 @@ Global
 		{A2626DE3-EDDB-4677-8565-C8A3C33028FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A2626DE3-EDDB-4677-8565-C8A3C33028FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A2626DE3-EDDB-4677-8565-C8A3C33028FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E4A8BE2-45C2-4554-B22D-4C756B812BA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E4A8BE2-45C2-4554-B22D-4C756B812BA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E4A8BE2-45C2-4554-B22D-4C756B812BA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E4A8BE2-45C2-4554-B22D-4C756B812BA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EAFF1C6-FD2D-44B8-8C83-E8857C0B5109}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EAFF1C6-FD2D-44B8-8C83-E8857C0B5109}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EAFF1C6-FD2D-44B8-8C83-E8857C0B5109}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EAFF1C6-FD2D-44B8-8C83-E8857C0B5109}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

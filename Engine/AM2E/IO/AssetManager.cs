@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using MonoGame.Framework.Utilities;
+﻿
 
 namespace AM2E.IO;
 
@@ -45,7 +44,7 @@ public static class AssetManager
 
     public static string GetAudioPath()
     {
-        var folder = PlatformInfo.MonoGamePlatform == MonoGamePlatform.Android ? "Mobile" : "Desktop";
+        var folder = "Desktop"; // previously had mobile support. FNA scraps that, of course.
         return $"{baseLocation}/{audioFolder}/{folder}";
     }
 

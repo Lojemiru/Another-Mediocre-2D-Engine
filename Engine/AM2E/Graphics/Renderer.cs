@@ -141,9 +141,9 @@ public static class Renderer
         // Target and clear GUI surface.
         GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(guiSurface);
         GraphicsDeviceManager.GraphicsDevice.Clear(Color.Transparent);
-
+        
         // Render GUI surface.
-        GuiBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
+        GuiBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, transformMatrix: Matrix.Identity);
         OnGUIRender(GuiBatch);
         GuiBatch.End();
         
@@ -157,7 +157,7 @@ public static class Renderer
         var finalApplicationSpace = new Rectangle(ApplicationSpace.X + (int)Math.Floor(OffsetX * texelX), ApplicationSpace.Y + (int)Math.Floor(OffsetY * texelY), ApplicationSpace.Width, ApplicationSpace.Height);
         
         // Render application and GUI surfaces into drawable application space.
-        applicationBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
+        applicationBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, transformMatrix: Matrix.Identity, depthStencilState: DepthStencilState.None);
         applicationBatch.Draw(ApplicationSurface, finalApplicationSpace, Color.White);
         applicationBatch.Draw(guiSurface, guiSpace, Color.White);
         applicationBatch.End();
