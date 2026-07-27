@@ -299,8 +299,7 @@ public sealed class EngineCore : Game
         
         TextInputEXT.StopTextInput();
         
-        // Exit hilariously ungracefully. The only thing we actually care about right now is the logger.
-        Environment.Exit(0);
+        staticThis.Exit();
     }
 }
 
