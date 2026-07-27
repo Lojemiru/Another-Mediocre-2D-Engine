@@ -269,19 +269,17 @@ public sealed class EngineCore : Game
         // Run the OnResize event manually to update the draw space and scale.
         Renderer.OnResizeInternal(GameWindow, true);
     }
-
-    // TODO FNA: Review/fix borderless
     
     public static bool GetBorderless()
     {
-        return false;
-        //return staticThis.Window.IsBorderless;
+        return staticThis.Window.IsBorderlessEXT;
     }
 
     public static void SetBorderless(bool status)
     {
+        _graphics.ApplyChanges();
         
-        //staticThis.Window.IsBorderless = status;
+        staticThis.Window.IsBorderlessEXT = status;
     }
 
     public static bool GetMouseVisible()
