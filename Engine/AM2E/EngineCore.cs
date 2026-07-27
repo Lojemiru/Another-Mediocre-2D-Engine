@@ -5,6 +5,7 @@ using AM2E.Input;
 using AM2E.Graphics;
 using AM2E.IO;
 using AM2E.Networking;
+using Microsoft.Xna.Framework.Input;
 
 namespace AM2E;
 
@@ -95,6 +96,8 @@ public sealed class EngineCore : Game
         //ShaderManager.Load();
         //Audio.Load();
         LocalStorage.Initialize();
+        
+        TextInputEXT.StartTextInput();
         
         // Run supplied entrypoint callback.
         entryPointCallback();
@@ -295,6 +298,8 @@ public sealed class EngineCore : Game
     {
         Logger.Info("Exiting game gracefully. Thank you for using Another Mediocre 2D Engine!");
         Logger.DispatchWrite();
+        
+        TextInputEXT.StopTextInput();
         
         // Exit hilariously ungracefully. The only thing we actually care about right now is the logger.
         Environment.Exit(0);
