@@ -3,6 +3,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Microsoft.Xna.Framework.Graphics;
 using AM2E.IO;
+using Microsoft.Xna.Framework;
+using Newtonsoft.Json.Linq;
 
 /*
     * UNQUENCHED THIRST FOR GLORY
@@ -41,13 +43,49 @@ public sealed class TexturePage
         DateParseHandling = DateParseHandling.None,
         Converters =
         {
-            new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
+            new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal },
+            new RectangleJsonConverter()
         },
     };
 
     private static TexturePage FromJson(string json) 
         => JsonConvert.DeserializeObject<TexturePage>(json, Settings);
+    
+    private class RectangleJsonConverter : JsonConverter<Rectangle>
+    {
+        public override Rectangle ReadJson(JsonReader reader, Type objectType, Rectangle existingValue,
+            bool hasExistingValue, JsonSerializer serializer)
+        {
+            var obj = JObject.Load(reader);
 
+            return new Rectangle(
+                obj["X"]?.Value<int>() ?? 0,
+                obj["Y"]?.Value<int>() ?? 0,
+                obj["Width"]?.Value<int>() ?? 0,
+                obj["Height"]?.Value<int>() ?? 0
+            );
+        }
+
+        public override void WriteJson(JsonWriter writer, Rectangle value, JsonSerializer serializer)
+        {
+            writer.WriteStartObject();
+
+            writer.WritePropertyName("X");
+            writer.WriteValue(value.X);
+
+            writer.WritePropertyName("Y");
+            writer.WriteValue(value.Y);
+
+            writer.WritePropertyName("Width");
+            writer.WriteValue(value.Width);
+
+            writer.WritePropertyName("Height");
+            writer.WriteValue(value.Height);
+
+            writer.WriteEndObject();
+        }
+    }
+        
     #endregion
 
     public static TexturePage Load(Enum index)

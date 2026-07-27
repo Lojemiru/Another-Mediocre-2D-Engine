@@ -2,5 +2,14 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$/.." vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../FNA" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../FNA/lib/FAudio" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../FNA/lib/FNA3D" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../FNA/lib/FNA3D/MojoShader" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../FNA/lib/SDL2-CS" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../FNA/lib/SDL3-CS" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../FNA/lib/Theorafile" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../FNA/lib/dav1dfile" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../FontStashSharp" vcs="Git" />
   </component>
 </project>

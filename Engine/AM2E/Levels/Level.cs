@@ -33,7 +33,10 @@ public sealed class Level
         {
             Background = new CompositeBackground((int)level.BackgroundUid);
             bgBatch = new SpriteBatch(EngineCore._graphics.GraphicsDevice);
+            bgBatch.Tag = "ObeyCamera";
         }
+
+        spriteBatch.Tag = "ObeyCamera";
 
         FieldInstances = level.FieldInstances;
     }
@@ -207,7 +210,7 @@ public sealed class Level
         => PostLoadHook(this);
 
     public static event Action<Level> AsyncPostLoadHook = _ => { };
-    
+
     internal void AsyncPostLoad()
         => AsyncPostLoadHook(this);
     

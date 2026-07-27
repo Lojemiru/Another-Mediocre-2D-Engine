@@ -96,11 +96,11 @@ public static class InputManager
         {
             KeyboardListeners.Add(input, new KeyboardInput(Keys.None));
             MouseListeners.Add(input, new MouseInput(MouseButtons.None));
-            GamePadListeners.Add(input, new GamePadInput(Buttons.None));
+            GamePadListeners.Add(input, new GamePadInput((Buttons)(-1)));
             RebindGroupMappings[input] = "";
         }
 
-        connectedPads = new GamePadState[GamePad.MaximumGamePadCount];
+        connectedPads = new GamePadState[4];
     }
 
     private static InputSerialization Serialize()
@@ -174,7 +174,7 @@ public static class InputManager
             // Dynamically swap pad state.
             for (var i = 0; i < connectedPads.Length; i++)
             {
-                var state = GamePad.GetState(i);
+                var state = GamePad.GetState((PlayerIndex)i);
                 
                 if (state.IsConnected && !connectedPads[i].IsConnected)
                     GamePadIndex = i;
@@ -211,7 +211,7 @@ public static class InputManager
         
         if (UpdateVibration && vibrationTicks > 0)
         {
-            GamePad.SetVibration(GamePadIndex, leftMotorVibration, rightMotorVibration);
+            GamePad.SetVibration((PlayerIndex)GamePadIndex, leftMotorVibration, rightMotorVibration);
             vibrationTicks--;
         }
     }
@@ -526,7 +526,7 @@ public static class InputManager
     }
 
     public static void StopVibration() 
-        => GamePad.SetVibration(GamePadIndex, 0, 0);
+        => GamePad.SetVibration((PlayerIndex)GamePadIndex, 0, 0);
 
     #endregion
     
