@@ -12,7 +12,7 @@ namespace AM2E;
 public sealed class EngineCore : Game
 {
     private Action entryPointCallback;
-    public static readonly string Version = "3.0.0";
+    public static readonly string Version = "3.0.1";
     public static GraphicsDeviceManager _graphics;
     private double updateAccumulator = 0d;
     private const double FRAME_ERROR_MARGIN = .0002;
@@ -92,14 +92,11 @@ public sealed class EngineCore : Game
         _graphics.ApplyChanges();
         
         Logger.Init();
-
-        //ShaderManager.Load();
-        //Audio.Load();
+        
         LocalStorage.Initialize();
         
         TextInputEXT.StartTextInput();
         
-        // Run supplied entrypoint callback.
         entryPointCallback();
     }
 
@@ -244,7 +241,6 @@ public sealed class EngineCore : Game
         
         // Disable OnResize event.
         GameWindow.ClientSizeChanged -= Renderer.OnResize;
-        //_graphics.HardwareModeSwitch = false;
         
         // Set backbuffer size.
         if (status)
@@ -298,6 +294,10 @@ public sealed class EngineCore : Game
         Logger.DispatchWrite();
         
         TextInputEXT.StopTextInput();
+        
+        ShaderManager.Unload();
+        staticThis.imGuiRenderer.Dispose();
+        Renderer.GracefulExit();
         
         staticThis.Exit();
     }

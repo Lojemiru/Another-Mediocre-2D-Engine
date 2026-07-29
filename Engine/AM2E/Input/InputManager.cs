@@ -99,8 +99,25 @@ public static class InputManager
             GamePadListeners.Add(input, new GamePadInput((Buttons)(-1)));
             RebindGroupMappings[input] = "";
         }
+        
+        connectedPads = new GamePadState[GetGamepadCount()];
+    }
 
-        connectedPads = new GamePadState[4];
+    // Code lifted from the FNA source for determining gamepad count. A shame this isn't publicly exposed...
+    private static int GetGamepadCount()
+    {
+        var numGamepadString = Environment.GetEnvironmentVariable("FNA_GAMEPAD_NUM_GAMEPADS");
+        
+        if (!string.IsNullOrEmpty(numGamepadString))
+        {
+            if (!int.TryParse(numGamepadString, out var numGamepads)) 
+                return Enum.GetNames(typeof(PlayerIndex)).Length;
+            
+            if (numGamepads >= 0)
+                return numGamepads;
+        }
+        
+        return Enum.GetNames(typeof(PlayerIndex)).Length;
     }
 
     private static InputSerialization Serialize()

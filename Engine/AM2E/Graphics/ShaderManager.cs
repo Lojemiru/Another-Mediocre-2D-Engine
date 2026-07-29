@@ -29,8 +29,10 @@ public static class ShaderManager
 
     public static void Unload()
     {
+        foreach (var effect in Effects.Values)
+            effect.Dispose();
+        
         Effects.Clear();
-        GC.Collect();
         loaded = false;
     }
 

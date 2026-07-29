@@ -12,7 +12,7 @@ public static class Renderer
     public static Rectangle ApplicationSpace;
     private static Rectangle guiSpace = new();
     private static SpriteBatch applicationBatch;
-    internal static SpriteBatch GuiBatch;
+    private static SpriteBatch guiBatch;
     public static int GameWidth;
     public static int GameHeight;
     public static float OffsetX = 0;
@@ -57,7 +57,7 @@ public static class Renderer
     {
         GraphicsDeviceManager = graphicsDeviceManager;
         applicationBatch = new SpriteBatch(graphicsDeviceManager.GraphicsDevice);
-        GuiBatch = new SpriteBatch(graphicsDeviceManager.GraphicsDevice);
+        guiBatch = new SpriteBatch(graphicsDeviceManager.GraphicsDevice);
     }
 
     public static void SetGameResolution(int width, int height)
@@ -145,9 +145,9 @@ public static class Renderer
         GraphicsDeviceManager.GraphicsDevice.Clear(Color.Transparent);
         
         // Render GUI surface.
-        GuiBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, transformMatrix: Matrix.Identity);
-        OnGUIRender(GuiBatch);
-        GuiBatch.End();
+        guiBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, transformMatrix: Matrix.Identity);
+        OnGUIRender(guiBatch);
+        guiBatch.End();
         
         // Reset render target, clear backbuffer.
         GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(null);
@@ -184,5 +184,13 @@ public static class Renderer
         GraphicsDeviceManager.GraphicsDevice.SetRenderTarget(ApplicationSurface);
         spriteBatch.Begin();
         spriteBatch.Draw(target, Vector2.Zero, Color.White);
+    }
+
+    internal static void GracefulExit()
+    {
+        applicationBatch.Dispose();
+        guiBatch.Dispose();
+        ApplicationSurface.Dispose();
+        guiSurface.Dispose();
     }
 }

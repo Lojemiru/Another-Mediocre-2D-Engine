@@ -39,7 +39,6 @@ public class ImGuiRenderer : IDisposable
 
     // Input
     private int _scrollWheelValue;
-    //private int _horizontalScrollWheelValue; // FNA does not support horizontal scroll wheel. This can be commented out when using FNA.
     private const float WHEEL_DELTA = 120;
     private readonly Keys[] _allKeys = Enum.GetValues<Keys>();
 
@@ -160,13 +159,7 @@ public class ImGuiRenderer : IDisposable
     /// </summary>
     protected virtual void SetupInput()
     {
-        // MonoGame-specific //////////////////////
-        //_game.Window.TextInput += OnTextInput;
-        ///////////////////////////////////////////
-
-        // FNA-specific ///////////////////////////
         TextInputEXT.TextInput += OnTextInput;
-        ///////////////////////////////////////////
     }
 
     /// <summary>
@@ -213,12 +206,9 @@ public class ImGuiRenderer : IDisposable
 
         // FNA-specific information. FNA does not have horizontal scroll wheel support. So you need to set 0f for horizontal scroll wheel value.
         io.AddMouseWheelEvent(
-            //(mouse.HorizontalScrollWheelValue - _horizontalScrollWheelValue) / WHEEL_DELTA,
             0f,
             (mouse.ScrollWheelValue - _scrollWheelValue) / WHEEL_DELTA);
         _scrollWheelValue = mouse.ScrollWheelValue;
-        //_horizontalScrollWheelValue = mouse.HorizontalScrollWheelValue;
-        //_horizontalScrollWheelValue = 0;
 
         foreach (var key in _allKeys)
         {
@@ -350,6 +340,7 @@ public class ImGuiRenderer : IDisposable
 
             _vertexBufferSize = (int)(drawData.TotalVtxCount * 1.5f);
             _vertexBuffer = new DynamicVertexBuffer(_graphicsDevice, DrawVertDeclaration.Declaration, _vertexBufferSize, BufferUsage.None);
+            _vertexBuffer.Tag = "ImGuiRenderer";
             _vertexData = new byte[_vertexBufferSize * DrawVertDeclaration.Size];
         }
 
@@ -444,22 +435,12 @@ public class ImGuiRenderer : IDisposable
             idxOffset += cmdList.IdxBuffer.Size;
         }
     }
-
-    // MonoGame-specific //////////////////////
-    //private void OnTextInput(object s, TextInputEventArgs a)
-    //{
-    //   if (a.Character == '\t') return;
-    //   ImGui.GetIO().AddInputCharacter(a.Character);
-    //}
-    ///////////////////////////////////////////
-
-    // FNA-specific ///////////////////////////
+    
     private void OnTextInput(char c)
     {
         if (c == '\t') return;
         ImGui.GetIO().AddInputCharacter(c);
     }
-    ///////////////////////////////////////////
 
     protected virtual void Dispose(bool disposing)
     {
@@ -475,14 +456,8 @@ public class ImGuiRenderer : IDisposable
             {
                 texture.Value?.Dispose();
             }
-
-            // MonoGame-specific //////////////////////
-            //_game.Window.TextInput -= OnTextInput;
-            ///////////////////////////////////////////
-
-            // FNA-specific ///////////////////////////
+            
             TextInputEXT.TextInput -= OnTextInput;
-            ///////////////////////////////////////////
         }
 
         _isDisposed = true;

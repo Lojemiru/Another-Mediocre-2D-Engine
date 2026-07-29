@@ -15,8 +15,7 @@ public sealed class Level
     public readonly string Iid;
     public bool Active { get; internal set; } = false;
     public readonly CompositeBackground? Background;
-    private readonly SpriteBatch bgBatch;
-    private readonly SpriteBatch spriteBatch = new(EngineCore._graphics.GraphicsDevice);
+    private SpriteBatch? spriteBatch;
 
     public readonly LDtkFieldInstance[] FieldInstances;
     private bool firstActivate = true;
@@ -29,13 +28,11 @@ public sealed class Level
         Width = level.PxWid;
         Height = level.PxHei;
         Iid = level.Iid;
+        
         if (level.BackgroundUid is not null)
-        {
             Background = new CompositeBackground((int)level.BackgroundUid);
-            bgBatch = new SpriteBatch(EngineCore._graphics.GraphicsDevice);
-            bgBatch.Tag = "ObeyCamera";
-        }
 
+        spriteBatch = new SpriteBatch(EngineCore._graphics.GraphicsDevice);
         spriteBatch.Tag = "ObeyCamera";
 
         FieldInstances = level.FieldInstances;
@@ -100,14 +97,17 @@ public sealed class Level
 
     internal void Draw()
     {
+        if (spriteBatch is null)
+            return;
+        
         if (Background is not null)
         {
-            bgBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp,
+            spriteBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp,
                 transformMatrix: Camera.Transform, blendState: BlendState.AlphaBlend);
 
-            Background.Draw(bgBatch, this);
+            Background.Draw(spriteBatch, this);
 
-            bgBatch.End();
+            spriteBatch.End();
         }
         
         spriteBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp,
@@ -197,6 +197,9 @@ public sealed class Level
         {
             layer.Dispose();
         }
+        
+        spriteBatch?.Dispose();
+        spriteBatch = null;
     }
 
     public static event Action<Level> PreLoadHook = _ => { };
