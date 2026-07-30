@@ -130,7 +130,7 @@ public class ImGuiRenderer : IDisposable
     /// </summary>
     public virtual void BeforeLayout(GameTime gameTime)
     {
-        ImGui.GetIO().DeltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        ImGui.GetIO().DeltaTime = MathF.Max((float)gameTime.ElapsedGameTime.TotalSeconds, float.Epsilon);
 
         // Enable docking
         ImGui.GetIO().ConfigFlags |= ImGuiConfigFlags.DockingEnable;
