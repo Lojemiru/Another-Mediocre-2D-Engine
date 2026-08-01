@@ -6,13 +6,14 @@ using AM2E.Graphics;
 using AM2E.IO;
 using AM2E.Networking;
 using Microsoft.Xna.Framework.Input;
+using SDL3;
 
 namespace AM2E;
 
 public sealed class EngineCore : Game
 {
     private Action entryPointCallback;
-    public static readonly string Version = "3.1.0";
+    public static readonly string Version = "3.1.1";
     public static GraphicsDeviceManager _graphics;
     private double updateAccumulator = 0d;
     private const double FRAME_ERROR_MARGIN = .0002;
@@ -200,6 +201,8 @@ public sealed class EngineCore : Game
     /// <param name="height">The desired window height, in pixels.</param>
     public static void SetWindowSize(int width, int height)
     {
+        SDL.SDL_RestoreWindow(staticThis.Window.Handle);
+        
         // Disable OnResize event.
         GameWindow.ClientSizeChanged -= Renderer.OnResize;
         
