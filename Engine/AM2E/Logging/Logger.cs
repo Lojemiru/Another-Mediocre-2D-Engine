@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
+using Microsoft.Xna.Framework;
 
 namespace AM2E;
 
@@ -33,7 +34,7 @@ public static class Logger
         "You can do anything you want with code, except whatever you just tried to do.",
         "Error: programmer frustrated successfully.",
         "Works on my machine.",
-        "Another happy landing!"
+        "Another happy landing!",
     ];
 
     internal static void Init()
@@ -78,6 +79,21 @@ public static class Logger
         };
         
         thread.Start();
+
+        FNALoggerEXT.LogError = s =>
+        {
+            Error($"FNA: {s}", "FNA");
+        };
+
+        FNALoggerEXT.LogWarn = s =>
+        {
+            Warn($"FNA: {s}", "FNA");
+        };
+        
+        FNALoggerEXT.LogInfo = s =>
+        {
+            Info($"FNA: {s}", "FNA");
+        };
     }
 
     internal static void Engine(string message, [CallerFilePath] string path = "no path",
@@ -95,6 +111,10 @@ public static class Logger
     public static void Warn(string message, [CallerFilePath] string path = "no path",
         [CallerLineNumber] int lineNumber = 0)
         => Log(LoggingLevel.Warn, message, path, lineNumber);
+    
+    public static void Error(string message, [CallerFilePath] string path = "no path",
+        [CallerLineNumber] int lineNumber = 0)
+        => Log(LoggingLevel.Error, message, path, lineNumber);
 
     private static void Log(LoggingLevel level, string message, string path, int lineNumber)
     {
