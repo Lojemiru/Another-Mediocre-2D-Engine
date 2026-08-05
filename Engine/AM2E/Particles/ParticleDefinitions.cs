@@ -30,6 +30,15 @@ public static class ParticleDefinitions
         return Definitions[name];
     }
 
+    /// <summary>
+    /// Retrieves the names of all currently defined <see cref="ParticleDefinition"/>s.
+    /// </summary>
+    /// <returns>An array containing the names of all currently defined <see cref="ParticleDefinition"/>s.</returns>
+    public static string[] GetNames()
+    {
+        return Definitions.Keys.ToArray();
+    }
+
     public static void UnloadAll()
     {
         Definitions.Clear();
