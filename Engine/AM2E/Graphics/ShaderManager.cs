@@ -27,10 +27,11 @@ public static class ShaderManager
         loaded = true;
     }
 
-    public static void Unload()
+    public static void Unload(bool skipDispose = false)
     {
-        foreach (var effect in Effects.Values)
-            effect.Dispose();
+        if (!skipDispose)
+            foreach (var effect in Effects.Values)
+                effect.Dispose();
         
         Effects.Clear();
         loaded = false;
