@@ -144,6 +144,16 @@ public static class Audio
     }
 
     /// <summary>
+    /// Check whether the given FMOD event exists
+    /// </summary>
+    /// <param name="eventName"></param>
+    /// <returns></returns>
+    public static bool EventExists(string eventName)
+    {
+        return eventDictionary.ContainsKey(eventName);
+    }
+
+    /// <summary>
     /// Play an FMOD event
     /// </summary>
     /// <param name="eventName">Name of the event.</param>
