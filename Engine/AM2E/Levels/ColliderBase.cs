@@ -3,22 +3,17 @@ using AM2E.Collision;
 
 namespace AM2E.Levels;
 
-#region Design Notes
-
-/*
- * There are three "layers" of level elements in AM2E. This one resides in-between the GenericLevelElement and Actor.
- *      In addition to everything provided by the GenericLevelElement, the ColliderBase provides a simple means of
- *      interfacing with a Collider, enabling collisions to be detected against children of this class. This does not,
- *      however, provide any kind of "step event" or means of checking for and responding to collisions; without adding
- *      functionality in a child class, this will just sit in one spot and allow more involved classes like the Actor to
- *      detect collisions against it.
- *
- * We override the GenericLevelElement's X and Y properties to pass them down to the Collider's X and Y positions
- *      instead. This is done to ensure that the Collider is never desynced from the ColliderBase's position.
- */
-
-#endregion
-
+/// <remarks>
+/// There are three "layers" of level elements in AM2E. This one resides between the GenericLevelElement and Actor.
+/// In addition to everything provided by the GenericLevelElement, the ColliderBase provides a simple means of
+/// interfacing with a Collider, enabling collisions to be detected against children of this class. This does not,
+/// however, provide any kind of "step event" or means of checking for and responding to collisions; without adding
+/// functionality in a child class, this will just sit in one spot and allow more involved classes like the Actor to
+/// detect collisions against it.
+///
+/// We override the GenericLevelElement's X and Y properties to pass them down to the Collider's X and Y positions
+/// instead. This is done to ensure that the Collider is never desynced from the ColliderBase's position.
+/// </remarks>
 public abstract class ColliderBase : GenericLevelElement, ICollider
 {
     public Collider Collider { get; }

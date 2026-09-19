@@ -5,24 +5,21 @@ using AM2E.Levels;
 
 namespace AM2E.Actors;
 
-#region Design Notes
-
-/*
- * There are three "layers" of level elements in AM2E. This is the most derived, and thus the most complex. In addition
- *      to everything provided by ColliderBase and GenericLevelElement, the Actor has functionality for drawing, various
- *      active events (step, level load/unload, etc.), and rendering. While it does not appear that much more complex on
- *      its own, the overhead to trigger these events makes them much more costly at runtime than a ColliderBase; if you
- *      don't need these events, consider using that class instead.
- * 
- * Regarding the decision not to use C# events for step event, draw, etc.:
- *      Simply doesn't make sense for the flexibility I desire. The power to completely override when base is called
- *      in each child of a user-defined Actor is an incredibly useful OOP workflow and I don't want to force bad
- *      design patterns to get back to that for the sake of using events. If some fool calls their own OnStep method
- *      manually in their child class, that's on them.
- */
-
-#endregion
-
+/// <remarks>
+/// There are three "layers" of level elements in AM2E. This is the most derived, and thus the most complex. In addition
+/// to everything provided by ColliderBase and GenericLevelElement, the Actor has functionality for drawing, various
+/// active events (step, level load/unload, etc.), and rendering. While it does not appear that much more complex on
+/// its own, the overhead to trigger these events makes them much more costly at runtime than a ColliderBase; if you
+/// don't need these events, consider using that class instead.
+///
+/// Regarding the decision not to use C# events for step event, draw, etc.:
+/// Simply doesn't make sense for the flexibility I desire. The power to completely override when base is called
+/// in each child of a user-defined Actor is an incredibly useful OOP workflow and I don't want to force bad
+/// design patterns to get back to that for the sake of using events. If some fool calls their own OnStep method
+/// manually in their child class, that's on them.
+///
+/// (It's me, I'm the fool.)
+/// </remarks>
 public abstract class Actor : ColliderBase, IDrawable
 {
     public CullingBounds? CullingBounds { get; protected set; }

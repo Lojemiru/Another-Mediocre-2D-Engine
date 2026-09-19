@@ -416,3 +416,11 @@ Asset Porting/GameChanger/*
 
 # i hate monogame dependency i hate monogame dependency i hate monogame dependency
 Engine/DesktopBootstrapper/wine64
+
+docs/_site/api
+docs/_site/index.json
+docs/_site/manifest.json
+docs/_site/xrefmap.yml
+docs/_site/docs
+docs/_site/public
+docs/api
