@@ -31,6 +31,12 @@ jobs:
       with:
         dotnet-version: 8.x
 
+    - name: Checkout FNA
+      run: cd .. && git clone https://github.com/FNA-XNA/FNA.git --recursive && cd FNA && git checkout 26.09
+
+    - name: Checkout FontStashSharp
+      run: cd .. && git clone https://github.com/FontStashSharp/FontStashSharp.git && cd FontStashSharp && git checkout 1.5.7
+
     - run: dotnet tool update -g docfx
     - run: docfx docs/docfx.json
 
