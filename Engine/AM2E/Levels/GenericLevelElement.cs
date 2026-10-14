@@ -26,6 +26,8 @@ public abstract class GenericLevelElement
     internal static readonly ConcurrentDictionary<string, GenericLevelElement> AllElements = new();
     
     public readonly string ID;
+
+    public bool PermitDisposeFromLayer = true;
     
     public int X { get; set; } = 0;
     public int Y { get; set; } = 0;

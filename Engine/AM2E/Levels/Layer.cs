@@ -369,7 +369,8 @@ public sealed class Layer
     {
         foreach (var genericLevelElement in GenericLevelElements)
         {
-            genericLevelElement.Dispose(true);
+            if (genericLevelElement.PermitDisposeFromLayer)
+                genericLevelElement.Dispose(true);
         }
     }
 }
