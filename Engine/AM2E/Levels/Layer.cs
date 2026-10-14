@@ -85,6 +85,9 @@ public sealed class Layer
 
     public void Add(Actor actor)
     {
+        if (!GenericLevelElement.Exists(actor))
+            return;
+        
         if (InTick)
         {
             QueueForAddition(actor);
@@ -101,6 +104,9 @@ public sealed class Layer
 
     public void Add(ColliderBase collider)
     {
+        if (!GenericLevelElement.Exists(collider))
+            return;
+        
         if (InTick)
         {
             QueueForAddition(collider);
@@ -115,6 +121,9 @@ public sealed class Layer
 
     public void Add(GenericLevelElement genericLevelElement)
     {
+        if (!GenericLevelElement.Exists(genericLevelElement))
+            return;
+        
         if (InTick)
         {
             QueueForAddition(genericLevelElement);
@@ -135,6 +144,9 @@ public sealed class Layer
 
     internal void AddGeneric(GenericLevelElement obj)
     {
+        if (!GenericLevelElement.Exists(obj))
+            return;
+        
         if (InTick)
         {
             QueueForAddition(obj);
