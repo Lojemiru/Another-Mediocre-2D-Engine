@@ -405,6 +405,9 @@ public class ImGuiRenderer : IDisposable
                     throw new InvalidOperationException($"Could not find a texture with id '{drawCmd.TextureId}', please check your bindings");
                 }
 
+                if (drawCmd.ClipRect.Z < drawCmd.ClipRect.X || drawCmd.ClipRect.W < drawCmd.ClipRect.Y)
+                    continue;
+
                 _graphicsDevice.ScissorRectangle = new Rectangle(
                     (int)drawCmd.ClipRect.X,
                     (int)drawCmd.ClipRect.Y,
