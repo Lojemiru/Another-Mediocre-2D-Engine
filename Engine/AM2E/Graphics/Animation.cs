@@ -44,14 +44,14 @@ public sealed class Animation
         WrapIndex();
     }
 
-    public int GetAttachPointX(string name)
+    public int GetAttachPointX(string name, float angle = 0)
     {
-        return Sprite.GetAttachPoint(name, Index)[0];
+        return Sprite.GetAttachPoint(name, Index, angle)[0];
     }
 
-    public int GetAttachPointY(string name)
+    public int GetAttachPointY(string name, float angle = 0)
     {
-        return Sprite.GetAttachPoint(name, Index)[1];
+        return Sprite.GetAttachPoint(name, Index, angle)[1];
     }
 
     public Texture2D GetTexture()

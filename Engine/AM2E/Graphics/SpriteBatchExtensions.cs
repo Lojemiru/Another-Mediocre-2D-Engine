@@ -56,4 +56,16 @@ public static class SpriteBatchExtensions
         //spriteBatch.BeginShim(SpriteSortMode.Deferred, samplerState:samplerState, transformMatrix: spriteBatch == Renderer.GuiBatch ? null : Camera.Transform, effect:effect, blendState:blendState);
         Begin(spriteBatch, SpriteSortMode.Deferred, blendState, samplerState, DepthStencilState.Default, RasterizerState.CullCounterClockwise, effect, GetFallbackMatrix(spriteBatch));
     }
+
+    public static void Draw(
+        this SpriteBatch spriteBatch, 
+        Texture2D texture,
+        Vector2 position,
+        Color color,
+        float rotation
+        )
+    {
+        var offset = new Vector2(texture.Width / 2, texture.Height / 2);
+        spriteBatch.Draw(texture, position + offset, null, color, MathHelper.ToRadians(rotation), offset, Vector2.One, SpriteEffects.None, 0);
+    }
 }
