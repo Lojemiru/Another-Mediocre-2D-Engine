@@ -7,7 +7,7 @@ namespace AM2E;
 public static class Logger
 {
     private static readonly ConcurrentQueue<string> Events = new();
-    private static readonly string[] Prefixes = ["ENGINE", "DEBUG", "INFO", "WARN"];
+    private static readonly string[] Prefixes = ["ENGINE", "DEBUG", "INFO", "WARN", "ERROR"];
     private static StreamWriter streamWriter;
     private static Thread thread;
 
