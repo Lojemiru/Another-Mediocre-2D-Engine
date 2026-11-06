@@ -164,6 +164,29 @@ public static class LOIC
         return output;
     }
 
+    public static IEnumerable<T> AllCollidersAtHitbox<T>(int x, int y, Hitbox hitbox) where T : ICollider
+    {
+        var output = new List<T>();
+
+        hitbox.ForcedX = x;
+        hitbox.ForcedY = y;
+        
+        var check = RTree.Intersects(new Rectangle(hitbox.BoundLeft, hitbox.BoundTop, hitbox.BoundRight, hitbox.BoundBottom));
+        foreach (var collider in check)
+        {
+            if (!collider.CollisionActive || collider is not T collider1)
+                continue;
+            
+            if (collider1.Collider.IsIntersectedBy<T>(hitbox))
+                output.Add(collider1);
+        }
+        
+        hitbox.ForcedX = null;
+        hitbox.ForcedY = null;
+
+        return output;
+    }
+
     // Static hitbox to save on instantiation/garbage collector spam.
     private static readonly RectangleHitbox RectCheckHitbox = new(1, 1);
     private static bool InternalCheckRectangle<T>(ICollider collider, int x1, int y1, int x2, int y2) where T : ICollider
