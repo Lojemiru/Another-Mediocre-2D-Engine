@@ -164,7 +164,7 @@ public abstract class Actor : ColliderBase, IDrawable
     /// </summary>
     internal void Step()
     {
-        if (!IsPaused())
+        if (!IsPaused() && Exists(this))
             OnStep();
     }
 
@@ -173,13 +173,13 @@ public abstract class Actor : ColliderBase, IDrawable
     /// </summary>
     internal void PreStep()
     {
-        if (!IsPaused())
+        if (!IsPaused() && Exists(this))
             OnPreStep();
     }
 
     internal void PostStep()
     {
-        if (!IsPaused())
+        if (!IsPaused() && Exists(this))
             OnPostStep();
     }
 
