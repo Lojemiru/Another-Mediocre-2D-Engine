@@ -407,6 +407,10 @@ public class ImGuiRenderer : IDisposable
 
                 if (drawCmd.ClipRect.Z < drawCmd.ClipRect.X || drawCmd.ClipRect.W < drawCmd.ClipRect.Y)
                     continue;
+                
+                Rectangle bounds = EngineCore.GameWindow.ClientBounds;
+                drawCmd.ClipRect.X = Math.Clamp(drawCmd.ClipRect.X, 0, bounds.Width);
+                drawCmd.ClipRect.Y = Math.Clamp(drawCmd.ClipRect.Y, 0, bounds.Height);
 
                 _graphicsDevice.ScissorRectangle = new Rectangle(
                     (int)drawCmd.ClipRect.X,
